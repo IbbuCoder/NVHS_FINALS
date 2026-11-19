@@ -8,8 +8,8 @@
  */
 
 const CATEGORIES = {
-  core: { label: "Core", blurb: "Main classes", icon: "📘" },
-  encore: { label: "Encore", blurb: "Electives", icon: "🎨" },
+  core: { label: "Core", blurb: "Main classes" },
+  encore: { label: "Encore", blurb: "Electives" },
 };
 
 /**
@@ -62,7 +62,6 @@ function setupThemeToggle() {
   function update() {
     const dark = document.documentElement.dataset.theme === "dark";
     button.setAttribute("aria-pressed", String(dark));
-    button.querySelector(".theme-icon").textContent = dark ? "☀️" : "🌙";
   }
 
   button.addEventListener("click", function () {

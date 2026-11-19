@@ -7,24 +7,25 @@
     const type = getParam("type");
     const cat = CATEGORIES[type];
     const title = document.getElementById("category-title");
+    const blurb = document.getElementById("category-blurb");
     const grid = document.getElementById("subject-grid");
 
     if (!cat) {
       renderBreadcrumb(document.getElementById("breadcrumb"), [
         { label: "Home", href: "index.html" },
-        { label: "Not found" },
+        { label: "Page not found" },
       ]);
-      title.textContent = "Category not found";
-      document.getElementById("category-blurb").replaceChildren(
-        "Try ", el("a", { href: "category.html?type=core" }, "Core"),
-        " or ", el("a", { href: "category.html?type=encore" }, "Encore"), ".");
+      title.textContent = "Page not found";
+      blurb.replaceChildren(
+        "Choose ", el("a", { href: "category.html?type=core" }, "Core"),
+        " or ", el("a", { href: "category.html?type=encore" }, "Encore"), " instead.");
       return;
     }
 
-    document.title = cat.label + " · " + (window.SITE_CONFIG.siteTitle || "Finals Study Guide");
+    document.title = cat.label + " classes | " + (window.SITE_CONFIG.siteTitle || "Finals Study Guide");
     document.body.dataset.category = type;
-    title.textContent = cat.icon + " " + cat.label;
-    document.getElementById("category-blurb").textContent = cat.blurb;
+    title.textContent = cat.label;
+    blurb.textContent = cat.blurb;
     renderBreadcrumb(document.getElementById("breadcrumb"), [
       { label: "Home", href: "index.html" },
       { label: cat.label },
@@ -32,21 +33,26 @@
 
     const subjects = await StudyData.getSubjectsByCategory(type);
     if (!subjects.length) {
-      grid.replaceWith(el("p", { class: "empty" }, "No classes here yet."));
+      grid.replaceWith(el("p", { class: "empty" }, "No " + cat.label + " classes have been added yet."));
       return;
     }
 
-    grid.replaceChildren(...subjects.map(function (s) {
+    // Load each class's content so the card can say whether it has material yet.
+    const contents = await Promise.all(subjects.map(function (s) { return StudyData.getSubjectContent(s.id); }));
+
+    grid.replaceChildren(...subjects.map(function (s, i) {
+      const units = contents[i].units.length;
+      const status = units ? (units === 1 ? "1 unit" : units + " units") : "No study material yet";
       return el("li", null,
         el("a", {
           class: "subject-card",
           href: "subject.html?id=" + encodeURIComponent(s.id),
           style: s.color ? "--accent:" + s.color : null,
         },
-          el("span", { class: "subject-card__icon", "aria-hidden": "true" }, s.icon || "📄"),
           el("span", { class: "subject-card__name" }, s.name),
-          s.grade ? el("span", { class: "subject-card__meta" }, "Grade " + s.grade) : null,
-          el("span", { class: "subject-card__go", "aria-hidden": "true" }, "→")));
+          el("span", { class: "subject-card__status" },
+            s.grade ? el("span", null, "Grade " + s.grade, el("br")) : null,
+            status)));
     }));
   }
 

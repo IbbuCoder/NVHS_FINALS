@@ -2,7 +2,7 @@
  * subject.js — the one template used for EVERY subject.
  * URL: subject.html?id=science
  *
- * Builds: header, unit picker, and for the chosen unit: key terms,
+ * Builds: header, unit tabs, and for the chosen unit: key terms,
  * flashcards, quiz. Then the "Student notebooks" list at the bottom.
  */
 (function () {
@@ -16,40 +16,40 @@
     ]);
     root.replaceChildren(
       el("h1", null, "Class not found"),
-      el("p", null, "We couldn't find that class. ", el("a", { href: "index.html" }, "Go back home"), "."));
+      el("p", null, "This link doesn't match any class on the site. ",
+        el("a", { href: "index.html" }, "Search for the class on the home page"), "."));
   }
 
   /* ---------- One unit's study tools ---------- */
   function renderUnit(unit) {
     const terms = unit.keyTerms || [];
     return el("div", { class: "unit" },
-      el("section", { class: "card", "aria-labelledby": "terms-title" },
-        el("h3", { id: "terms-title" }, "🔑 Key terms"),
+      el("section", { class: "study-section", "aria-labelledby": "terms-title" },
+        el("h3", { id: "terms-title" }, "Key terms"),
         terms.length
           ? el("dl", { class: "terms" }, terms.map(function (t) {
               return el("div", { class: "term" },
                 el("dt", null, t.term),
                 el("dd", null, t.definition));
             }))
-          : el("p", { class: "empty" }, "No key terms for this unit yet.")),
+          : el("p", { class: "empty" }, "This unit has no key terms yet.")),
 
-      el("section", { class: "card", "aria-labelledby": "cards-title" },
-        el("h3", { id: "cards-title" }, "🃏 Flashcards"),
+      el("section", { class: "study-section", "aria-labelledby": "cards-title" },
+        el("h3", { id: "cards-title" }, "Flashcards"),
         createFlashcards(unit.flashcards || [])),
 
-      el("section", { class: "card", "aria-labelledby": "quiz-title" },
-        el("h3", { id: "quiz-title" }, "✅ Quick quiz"),
+      el("section", { class: "study-section", "aria-labelledby": "quiz-title" },
+        el("h3", { id: "quiz-title" }, "Practice quiz"),
         createQuiz(unit.quiz || [])));
   }
 
-  /* ---------- Unit picker + panel ---------- */
-  function renderUnits(units) {
+  /* ---------- Unit tabs + panel ---------- */
+  function renderUnits(subject, units) {
     if (!units.length) {
-      return el("section", { class: "card empty-state" },
-        el("p", { class: "empty-state__icon", "aria-hidden": "true" }, "🚧"),
-        el("h2", null, "Study material coming soon"),
-        el("p", null, "Nobody has added units for this class yet. Check the notebooks below, or ",
-          el("a", { href: "share.html" }, "share one of your own"), "."));
+      return el("section", { class: "coming-soon" },
+        el("h2", null, "No study material yet"),
+        el("p", null, "Nobody has added units for " + subject.name +
+          ". Student notebooks for this class are listed below."));
     }
 
     const panel = el("div", { class: "unit-panel", id: "unit-panel" });
@@ -72,8 +72,9 @@
     }
 
     select(0, false);
+    // Only show tabs when there's more than one unit to choose from.
     return el("section", { "aria-label": "Units" },
-      el("nav", { class: "unit-tabs", "aria-label": "Choose a unit" }, buttons),
+      units.length > 1 ? el("nav", { class: "unit-tabs", "aria-label": "Choose a unit" }, buttons) : null,
       panel);
   }
 
@@ -85,19 +86,18 @@
       try { return new URL(n.url).protocol === "https:"; } catch (e) { return false; }
     });
 
-    return el("section", { class: "card notebooks", "aria-labelledby": "notebooks-title" },
-      el("h2", { id: "notebooks-title" }, "📓 Student notebooks"),
-      el("p", { class: "muted" }, "NotebookLM notebooks shared by other students. They open in a new tab."),
+    return el("section", { class: "study-section", "aria-labelledby": "notebooks-title" },
+      el("h3", { id: "notebooks-title" }, "Student notebooks"),
       safe.length
         ? el("ul", { class: "notebook-list" }, safe.map(function (n) {
             return el("li", null,
               el("a", { class: "notebook-link", href: n.url, target: "_blank", rel: "noopener noreferrer" },
-                el("span", { class: "notebook-link__title" }, n.title || "NotebookLM notebook"),
-                n.addedBy ? el("span", { class: "notebook-link__by" }, "Shared by " + n.addedBy) : null,
-                el("span", { class: "visually-hidden" }, " (opens in a new tab)")));
+                n.title || "NotebookLM notebook",
+                el("span", { class: "visually-hidden" }, " (opens in a new tab)"),
+                n.addedBy ? el("span", { class: "notebook-link__by" }, "Shared by " + n.addedBy) : null));
           }))
         : el("p", { class: "empty" }, "No notebooks yet. Be the first to share one!"),
-      el("a", { class: "btn btn--primary", href: shareHref }, "Share a notebook"));
+      el("a", { class: "btn", href: shareHref }, "Share a notebook for " + subject.name));
   }
 
   /* ---------- Page setup ---------- */
@@ -109,7 +109,7 @@
     if (!subject) return showNotFound();
 
     const cat = CATEGORIES[subject.category] || { label: subject.category };
-    document.title = subject.name + " · " + siteTitle();
+    document.title = subject.name + " | " + siteTitle();
     document.body.dataset.category = subject.category;
     renderBreadcrumb(document.getElementById("breadcrumb"), [
       { label: "Home", href: "index.html" },
@@ -122,25 +122,23 @@
       StudyData.getNotebooks(id),
     ]);
 
+    const n = content.units.length;
+    const summary = n
+      ? (n === 1 ? "1 unit" : n + " units") + ". Pick a unit, learn the key terms, drill the flashcards, then take the practice quiz."
+      : null;
+
     root.replaceChildren(
-      el("header", { class: "page-header subject-header", style: subject.color ? "--accent:" + subject.color : null },
-        el("span", { class: "subject-header__icon", "aria-hidden": "true" }, subject.icon || "📄"),
-        el("div", null,
-          el("h1", null, subject.name),
-          el("p", { class: "subject-header__meta" },
-            el("span", { class: "pill pill--" + subject.category }, cat.label),
-            subject.grade ? el("span", null, " Grade " + subject.grade) : null,
-            content.units.length
-              ? el("span", null, " · " + content.units.length + (content.units.length === 1 ? " unit" : " units"))
-              : null))),
-      renderUnits(content.units),
+      el("header", { class: "page-header subject-header" },
+        el("h1", null, subject.name),
+        el("p", null, (subject.grade ? "Grade " + subject.grade + " " : "") + cat.label + " class. " + (summary || ""))),
+      renderUnits(subject, content.units),
       renderNotebooks(subject, notebooks));
   }
 
   document.addEventListener("DOMContentLoaded", function () {
     init().catch(function (err) {
       console.error(err);
-      root.replaceChildren(el("p", { class: "empty" }, "Something went wrong loading this class. Try refreshing."));
+      root.replaceChildren(el("p", { class: "empty" }, "This class didn't load. Refresh the page to try again."));
     });
   });
 })();

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%231f45b5%22/><path d=%22M7 11h18M7 17h18M7 23h12%22 stroke=%22white%22 stroke-width=%222.5%22/></svg>">
   <!-- Set the theme before the page draws, so dark mode doesn't flash white. -->
   <script>
     try {
@@ -28,59 +28,53 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="index.html">
-        <span class="brand-mark" aria-hidden="true">✏️</span>
-        <span class="brand-text">
-          <span class="brand-title" data-site-title>Finals Study Guide</span>
-          <span class="brand-school" data-school-name hidden></span>
-        </span>
+        <span class="brand-title" data-site-title>Finals Study Guide</span>
+        <span class="brand-school" data-school-name hidden></span>
       </a>
       <nav class="header-nav" aria-label="Main">
         <a href="share.html">Share<span class="wide-only"> a notebook</span></a>
       </nav>
       <button class="theme-toggle" type="button" aria-pressed="false">
-        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <!-- half-filled circle = light/dark -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>
+        </svg>
         <span class="visually-hidden">Dark mode</span>
       </button>
     </div>
   </header>
   <main id="main" class="wrap">
-    <section class="hero" aria-labelledby="hero-title">
-      <p class="eyebrow" data-school-name hidden></p>
-      <h1 id="hero-title">Get ready for finals.</h1>
-      <p class="lede">Key terms, flashcards, and quick quizzes for every class, plus notebooks shared by other students.</p>
-
+    <section class="intro" aria-labelledby="intro-title">
+      <h1 id="intro-title">Finals study guide</h1>
+      <p>Key terms, flashcards, and practice quizzes for each class, plus NotebookLM notebooks shared by other students.</p>
       <!-- Filled in by home.js from SITE_CONFIG.finalsDate -->
-      <div class="countdown" id="countdown" role="timer" aria-live="off" hidden></div>
+      <p class="countdown" id="countdown" hidden></p>
     </section>
 
-    <section aria-labelledby="pick-title">
-      <h2 id="pick-title" class="section-title">Pick your classes</h2>
-      <div class="category-buttons">
-        <a class="category-button category-button--core" href="category.html?type=core">
-          <span class="category-button__icon" aria-hidden="true">📘</span>
-          <span class="category-button__label">Core</span>
-          <span class="category-button__sub">Main classes <span data-count="core"></span></span>
-        </a>
-        <a class="category-button category-button--encore" href="category.html?type=encore">
-          <span class="category-button__icon" aria-hidden="true">🎨</span>
-          <span class="category-button__label">Encore</span>
-          <span class="category-button__sub">Electives <span data-count="encore"></span></span>
-        </a>
-      </div>
-    </section>
+    <nav class="categories" aria-label="Choose Core or Encore">
+      <a class="category category--core" href="category.html?type=core">
+        <span class="category__name">Core</span>
+        <span class="category__desc">Main classes</span>
+        <span class="category__classes" data-classes="core"></span>
+      </a>
+      <a class="category category--encore" href="category.html?type=encore">
+        <span class="category__name">Encore</span>
+        <span class="category__desc">Electives</span>
+        <span class="category__classes" data-classes="encore"></span>
+      </a>
+    </nav>
 
-    <section class="search" aria-labelledby="search-title" role="search">
-      <h2 id="search-title" class="section-title">Or search for a class</h2>
-      <label class="visually-hidden" for="subject-search">Search classes by name</label>
-      <input class="search__input" id="subject-search" type="search" placeholder="Try “science” or “band”" autocomplete="off">
+    <section class="search" role="search">
+      <label for="subject-search">Find a class</label>
+      <input class="search__input" id="subject-search" type="search" placeholder="Class name, like Science" autocomplete="off">
       <p class="search__status" id="search-status" aria-live="polite"></p>
       <ul class="search__results" id="search-results"></ul>
     </section>
   </main>
   <footer class="site-footer">
     <div class="wrap">
-      <p>Made by students, for students. Not an official school site.</p>
-      <p><a href="share.html">Share your NotebookLM notebook</a></p>
+      <p>Written and run by students. This is not an official school website.</p>
+      <p><a href="share.html">Share a NotebookLM notebook</a></p>
     </div>
   </footer>
 </body>

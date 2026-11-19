@@ -1,5 +1,5 @@
 /*
- * home.js — finals countdown, class counts on the Core/Encore buttons,
+ * home.js — finals countdown, class names on the Core/Encore blocks,
  * and the search box.
  */
 (function () {
@@ -15,31 +15,28 @@
       return;
     }
     box.hidden = false;
+    const dateText = target.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
-    function unit(value, label) {
-      return el("div", { class: "countdown__unit" },
-        el("span", { class: "countdown__num" }, String(value)),
-        el("span", { class: "countdown__label" }, label));
-    }
+    function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
 
+    // Writes a sentence like "26 days until finals start on Tuesday, December 15."
     function tick() {
       const ms = target - new Date();
       if (ms <= 0) {
-        box.replaceChildren(el("p", { class: "countdown__done" }, "Finals are here. You've got this! 💪"));
+        box.textContent = "Finals have started.";
         return false;
       }
-      const minutes = Math.floor(ms / 60000);
-      const days = Math.floor(minutes / 1440);
-      const hours = Math.floor((minutes % 1440) / 60);
-      const mins = minutes % 60;
-      box.setAttribute("aria-label", days + " days, " + hours + " hours, " + mins + " minutes until finals");
-      box.replaceChildren(
-        el("p", { class: "countdown__title" }, "Finals start in"),
-        el("div", { class: "countdown__units", "aria-hidden": "true" },
-          unit(days, days === 1 ? "day" : "days"),
-          unit(hours, hours === 1 ? "hour" : "hours"),
-          unit(mins, mins === 1 ? "min" : "mins"))
-      );
+      const totalMinutes = Math.floor(ms / 60000);
+      const days = Math.floor(totalMinutes / 1440);
+      const hours = Math.floor((totalMinutes % 1440) / 60);
+      const minutes = totalMinutes % 60;
+
+      // Far away: just days. Close: hours and minutes matter more.
+      const amount = days >= 2 ? plural(days, "day")
+        : days === 1 ? plural(days, "day") + ", " + plural(hours, "hour")
+        : plural(hours, "hour") + ", " + plural(minutes, "minute");
+
+      box.replaceChildren(el("strong", null, amount), " until finals start on " + dateText + ".");
       return true;
     }
 
@@ -48,18 +45,20 @@
     }
   }
 
-  /* ---------- Search + counts ---------- */
+  /* ---------- Search + class names ---------- */
   async function setupSearch() {
     const input = document.getElementById("subject-search");
     const results = document.getElementById("search-results");
     const status = document.getElementById("search-status");
     const subjects = await StudyData.getSubjects();
+    const byName = function (a, b) { return a.name.localeCompare(b.name); };
 
-    // Show "· 4 classes" on each big button.
+    // List the actual classes inside each big block, e.g. "ELA, Math, Science".
     Object.keys(CATEGORIES).forEach(function (cat) {
-      const n = subjects.filter(function (s) { return s.category === cat; }).length;
-      const slot = document.querySelector('[data-count="' + cat + '"]');
-      if (slot && n) slot.textContent = "· " + n + (n === 1 ? " class" : " classes");
+      const slot = document.querySelector('[data-classes="' + cat + '"]');
+      const names = subjects.filter(function (s) { return s.category === cat; }).sort(byName)
+        .map(function (s) { return s.name; });
+      if (slot) slot.textContent = names.join(", ");
     });
 
     function render() {
@@ -71,19 +70,18 @@
       }
       const matches = subjects
         .filter(function (s) { return s.name.toLowerCase().includes(q); })
-        .sort(function (a, b) { return a.name.localeCompare(b.name); });
+        .sort(byName);
 
       status.textContent = matches.length
-        ? matches.length + (matches.length === 1 ? " class found" : " classes found")
-        : "No classes match “" + input.value.trim() + "”.";
+        ? (matches.length === 1 ? "1 class matches." : matches.length + " classes match.")
+        : "No class is called “" + input.value.trim() + "”. Check the spelling, or browse Core and Encore above.";
 
       results.replaceChildren(...matches.map(function (s) {
         const cat = CATEGORIES[s.category] || { label: s.category };
         return el("li", null,
           el("a", { class: "search-result", href: "subject.html?id=" + encodeURIComponent(s.id) },
-            el("span", { class: "search-result__icon", "aria-hidden": "true" }, s.icon || "📄"),
             el("span", { class: "search-result__name" }, s.name),
-            el("span", { class: "pill pill--" + s.category }, cat.label)));
+            el("span", { class: "search-result__type" }, cat.label)));
       }));
     }
 

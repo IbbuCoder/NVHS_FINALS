@@ -4,16 +4,16 @@
  *   createQuiz(questions) → an element you can put on the page
  *   questions: [{ question, choices: [...], answerIndex, explanation }]
  *
- * One question at a time, instant feedback after each answer, and a final
- * score with a "try again" button.
+ * One question at a time, instant feedback after each answer, then a score
+ * and a list of the questions you missed (with the right answers).
  */
 function createQuiz(questions) {
   if (!questions || !questions.length) {
-    return el("p", { class: "empty" }, "No quiz for this unit yet.");
+    return el("p", { class: "empty" }, "This unit has no quiz yet.");
   }
 
   let current = 0;
-  let score = 0;
+  let missedQuestions = []; // questions answered wrong this round
   const root = el("div", { class: "quiz" });
 
   function showQuestion() {
@@ -32,7 +32,7 @@ function createQuiz(questions) {
         if (current < questions.length) showQuestion();
         else showResults();
       },
-    }, isLast ? "See my score" : "Next question →");
+    }, isLast ? "See results" : "Next question");
 
     const choiceButtons = q.choices.map(function (choice, i) {
       return el("button", {
@@ -48,18 +48,17 @@ function createQuiz(questions) {
       if (answered) return;
       answered = true;
       const correct = i === q.answerIndex;
-      if (correct) score++;
+      if (!correct) missedQuestions.push(q);
 
       choiceButtons.forEach(function (btn, j) {
         btn.disabled = true;
         if (j === q.answerIndex) btn.classList.add("is-correct");
         if (j === i && !correct) btn.classList.add("is-wrong");
-        if (j === i) btn.setAttribute("aria-label", btn.textContent + (correct ? " (your answer, correct)" : " (your answer, incorrect)"));
       });
 
       feedback.className = "quiz__feedback " + (correct ? "is-correct" : "is-wrong");
       feedback.replaceChildren(
-        el("strong", null, correct ? "✓ Correct!" : "✗ Not quite. The answer is " + q.choices[q.answerIndex] + "."),
+        el("strong", null, correct ? "Correct." : "Incorrect. The answer is " + q.choices[q.answerIndex] + "."),
         q.explanation ? el("p", null, q.explanation) : null);
 
       nextBtn.hidden = false;
@@ -68,8 +67,6 @@ function createQuiz(questions) {
 
     root.replaceChildren(
       el("p", { class: "quiz__progress" }, "Question " + (current + 1) + " of " + questions.length),
-      el("div", { class: "quiz__bar", "aria-hidden": "true" },
-        el("span", { style: "width:" + (current / questions.length) * 100 + "%" })),
       heading,
       el("div", { class: "quiz__choices", role: "group", "aria-label": "Answer choices" }, choiceButtons),
       feedback,
@@ -80,24 +77,35 @@ function createQuiz(questions) {
   }
 
   function showResults() {
-    const pct = Math.round((score / questions.length) * 100);
-    const message = pct === 100 ? "Perfect score! 🌟"
-      : pct >= 80 ? "Great job! 🎉"
-      : pct >= 60 ? "Getting there. Review the flashcards and try again. 💪"
-      : "Keep studying. You'll get it! 📚";
+    const total = questions.length;
+    const score = total - missedQuestions.length;
 
     const heading = el("h4", { class: "quiz__score", tabindex: "-1" },
-      "You got " + score + " of " + questions.length + " (" + pct + "%)");
+      score + " out of " + total + " correct");
+
+    const review = missedQuestions.length
+      ? [
+          el("p", null, "Review these before you retake the quiz:"),
+          el("ol", { class: "quiz__review" }, missedQuestions.map(function (q) {
+            return el("li", null, q.question,
+              el("span", null, "Answer: " + q.choices[q.answerIndex]));
+          })),
+        ]
+      : el("p", null, "You answered every question correctly.");
 
     root.replaceChildren(
-      el("div", { class: "quiz__results" },
-        heading,
-        el("p", null, message),
-        el("button", {
-          class: "btn btn--primary",
-          type: "button",
-          onclick: function () { current = 0; score = 0; showQuestion(); root.querySelector(".quiz__question").focus(); },
-        }, "↻ Try again")));
+      heading,
+      ...[].concat(review), // review may be one element or a list
+      el("button", {
+        class: "btn btn--primary",
+        type: "button",
+        onclick: function () {
+          current = 0;
+          missedQuestions = [];
+          showQuestion();
+          root.querySelector(".quiz__question").focus();
+        },
+      }, "Retake quiz"));
     heading.focus();
   }
 

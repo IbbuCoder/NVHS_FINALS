@@ -31,7 +31,7 @@ Edit `js/config.js`:
 
 1. Open `data/subjects.js` and add a line:
    ```js
-   { id: "french", name: "French", category: "encore", grade: null, icon: "🇫🇷", color: "#2456d3" },
+   { id: "french", name: "French", category: "encore", grade: null, color: "#2456d3" },
    ```
    `id` must be lowercase letters, numbers, or dashes.
 2. Copy `data/subjects/_template.js` to `data/subjects/french.js` and change `"your-id"` to `"french"`.
@@ -79,7 +79,7 @@ index.html        Home: countdown, Core/Encore buttons, search
 category.html     ?type=core or ?type=encore: grid of classes
 subject.html      ?id=science: one template for every class
 share.html        Share-a-notebook instructions and form
-css/styles.css    All styles (colors are variables at the top; dark mode below them)
+css/styles.css    All styles. Colors are variables at the top, dark mode right below
 js/config.js      Site settings
 js/data.js        ALL data loading. Swap this one file for Supabase later
 js/common.js      Shared helpers, breadcrumb, dark mode toggle

@@ -71,7 +71,7 @@
     };
     function setError(name, message) {
       const f = fields[name];
-      f.error.textContent = "⚠ " + message;
+      f.error.textContent = message;
       f.error.hidden = false;
       f.input.setAttribute("aria-invalid", "true");
     }
@@ -100,12 +100,12 @@
         setError("other", "Type the class name."); invalid.push("other");
       }
       if (!urlInput.value.trim()) {
-        setError("url", "Paste your NotebookLM link."); invalid.push("url");
+        setError("url", "Paste the share link from NotebookLM."); invalid.push("url");
       } else if (!isNotebookLmLink(urlInput.value)) {
-        setError("url", "That doesn't look like a NotebookLM link. It should start with https://notebooklm.google.com/notebook/");
+        setError("url", "This isn't a NotebookLM share link. Copy the link from the Share window in NotebookLM; it starts with https://notebooklm.google.com/notebook/");
         invalid.push("url");
       }
-      if (!confirmBox.checked) { setError("confirm", "Please confirm this is your own notes with no personal info."); invalid.push("confirm"); }
+      if (!confirmBox.checked) { setError("confirm", "Check this box to confirm the notebook is your own notes with no personal info."); invalid.push("confirm"); }
 
       if (invalid.length) {
         fields[invalid[0]].input.focus();
@@ -132,20 +132,20 @@
 
       if (outcome.ok) {
         result.className = "form-result is-good";
-        result.replaceChildren(el("strong", null, "🎉 Thanks! Your notebook was sent for review."),
-          el("p", null, "It'll show up on the class page once it's approved."));
+        result.replaceChildren(el("strong", null, "Notebook submitted."),
+          el("p", null, "It will appear on the class page after a student editor approves it."));
         form.reset();
         select.disabled = true;
         otherField.hidden = true;
       } else if (outcome.reason === "not-configured") {
         result.className = "form-result is-info";
         result.replaceChildren(
-          el("strong", null, "✓ Your link looks good, but submissions aren't switched on yet."),
-          el("p", null, "Nothing was sent. The site owner needs to set notebookFormEndpoint in js/config.js. This is what would have been sent:"),
+          el("strong", null, "Your link is valid, but the form isn't connected yet, so nothing was sent."),
+          el("p", null, "Site editors: set notebookFormEndpoint in js/config.js to turn submissions on. This is what would have been sent:"),
           el("pre", null, JSON.stringify(submission, null, 2)));
       } else {
         result.className = "form-result is-bad";
-        result.replaceChildren(el("strong", null, "Sorry, that didn't go through. Please try again in a minute."));
+        result.replaceChildren(el("strong", null, "Your notebook wasn't submitted. Check your internet connection and try again."));
       }
     });
   }
