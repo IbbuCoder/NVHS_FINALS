@@ -45,29 +45,8 @@
     } catch (e) { /* storage blocked: the site still works, it just won't remember */ }
   }
 
-  // Sync with the student's account (see "progress sync" further down).
-  var sync = { on: false, dirty: {}, timer: null, state: '', last: null };
-
-  // Remembers when each class's progress last changed, for last-write-wins sync.
-  var snaps = {};
-  Object.keys(saved.classes || {}).forEach(function (id) { snaps[id] = JSON.stringify(saved.classes[id]); });
-  function trackChanges() {
-    var classes = saved.classes || {};
-    Object.keys(classes).forEach(function (id) {
-      var now = JSON.stringify(classes[id]);
-      var before = snaps[id] === undefined ? '{}' : snaps[id];
-      snaps[id] = now;
-      if (now === before) return;
-      saved.changedAt = saved.changedAt || {};
-      saved.changedAt[id] = Date.now();
-      sync.dirty[id] = true;
-    });
-  }
-
   function save() {
-    trackChanges();
     writeLocal();
-    queuePush();
   }
 
   /* ---------- Classes ---------- */
@@ -521,11 +500,6 @@
 
   function route(first) {
     var id = location.hash.slice(1) || 'home';
-    if (/(^|&)(access_token|error|error_description|type)=/.test(id)) {
-      if (/error/.test(id)) account.msg = '<b>That link has expired or was already used.</b> Ask for a new one.';
-      history.replaceState(null, '', '#account');
-      id = 'account';
-    }
     // #class/science picks a class, then shows its Home.
     var pick = /^class\/([a-z0-9-]+)$/.exec(id);
     if (pick) {
@@ -548,7 +522,7 @@
       else a.removeAttribute('aria-current');
     });
     var tabId = unit ? 'units' : id;
-    if (['settings', 'weak', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'account', 'feedback', 'admin'].indexOf(id) > -1) tabId = 'more';
+    if (['settings', 'weak', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'feedback'].indexOf(id) > -1) tabId = 'more';
     if (id === 'drills' || id === 'match') tabId = 'test';
     if (id !== 'test') test.mockIntro = false;
     $$('.tabbar a').forEach(function (a) {
@@ -570,10 +544,7 @@
     if (id === 'sheet') renderSheet();
     if (id === 'drills') renderDrill(false);
     if (id === 'match') renderMatch();
-    if (id === 'share') renderShare();
-    if (id === 'account') renderAccount();
     if (id === 'feedback') renderFeedback();
-    if (id === 'admin') renderAdmin();
     window.scrollTo(0, 0);
     if (!first) {
       var h = $('h1', view);
@@ -2060,16 +2031,6 @@
 
   var DB = window.FinalsDB;
 
-  // NotebookLM links look like https://notebooklm.google.com/notebook/<id>
-  function isNotebookLink(value) {
-    try {
-      var url = new URL(String(value).trim());
-      return url.protocol === 'https:' && url.hostname === 'notebooklm.google.com' && url.pathname.length > 1;
-    } catch (e) {
-      return false;
-    }
-  }
-
   function safeUrl(u) {
     try { return new URL(u).protocol === 'https:' ? u : ''; } catch (e) { return ''; }
   }
@@ -2092,8 +2053,7 @@
       '<h2 id="nb-title">Student notebooks</h2>' +
       '<p class="note">NotebookLM notebooks other students made from their own notes. They open in a new tab.</p>' +
       (list && list.length ? notebookList(list) : '<p>No notebooks yet. Be the first to share one!</p>') +
-      (note ? '<p class="note">' + esc(note) + '</p>' : '') +
-      '<a class="btn solid" href="#share">Share a notebook</a>';
+      (note ? '<p class="note">' + esc(note) + '</p>' : '');
   }
 
   function renderNotebooks() {
@@ -2104,117 +2064,6 @@
       if (res.error) { paintNotebooks(id, notebookCache[id] || [], 'Shared notebooks could not load right now. ' + res.error); return; }
       notebookCache[id] = res.data || [];
       paintNotebooks(id, notebookCache[id]);
-    });
-  }
-
-  var share = { cat: '', busy: false, msg: '', msgKind: '' };
-
-  function statusWord(s) {
-    return s === 'approved' ? 'Approved' : s === 'rejected' ? 'Not approved' : 'Waiting for approval';
-  }
-
-  function renderShare() {
-    var root = $('#share-root');
-    if (!DB.ready()) {
-      root.innerHTML = '<div class="nb-box"><h2>Sharing needs an internet connection</h2><p class="note">' + esc(DB.offlineMessage) + '</p></div>';
-      return;
-    }
-    if (!DB.user()) {
-      root.innerHTML = '<div class="nb-box"><h2>Sign in to share</h2><p>Sign in with your school email to share a notebook.</p>' +
-        '<a class="btn solid" href="#account">Sign in</a></div>';
-      return;
-    }
-    if (!share.cat && cur) share.cat = subjectOf(cur).category;
-    var keepClass = $('#share-class') ? $('#share-class').value : (cur || '');
-    var keepTitle = $('#share-title') ? $('#share-title').value : '';
-    var keepUrl = $('#share-url') ? $('#share-url').value : '';
-    var list = SUBJECTS.filter(function (s) { return s.category === share.cat; });
-    root.innerHTML =
-      '<h2 class="set-group">Notebook</h2>' +
-      '<form class="share-form" id="share-form" novalidate>' +
-      '<div class="set-row"><span class="set-label" id="share-cat-label">Core or Encore</span>' +
-        '<div class="seg" id="share-cat" role="group" aria-labelledby="share-cat-label">' +
-        ['core', 'encore'].map(function (c) {
-          var on = c === share.cat;
-          return '<button type="button" data-cat="' + c + '" class="' + (on ? 'is-on' : '') + '" aria-pressed="' + on + '">' + (c === 'core' ? 'Core' : 'Encore') + '</button>';
-        }).join('') + '</div><p class="field-error" id="share-cat-error" hidden></p></div>' +
-      '<div class="set-row"><label class="set-label" for="share-class">Class</label>' +
-        '<select class="text-input" id="share-class" aria-describedby="share-class-error"' + (share.cat ? '' : ' disabled') + '>' +
-        (share.cat
-          ? '<option value="">Pick a class</option>' + list.map(function (s) { return '<option value="' + s.id + '"' + (s.id === keepClass ? ' selected' : '') + '>' + esc(s.name) + '</option>'; }).join('')
-          : '<option value="">Pick Core or Encore first</option>') +
-        '</select><p class="field-error" id="share-class-error" hidden></p></div>' +
-      '<div class="set-row"><label class="set-label" for="share-title">What does it cover?</label><p class="note">Optional. For example: Unit 2 review.</p>' +
-        '<input class="text-input" id="share-title" type="text" maxlength="80" autocomplete="off" value="' + esc(keepTitle) + '"></div>' +
-      '<div class="set-row"><label class="set-label" for="share-url">NotebookLM link</label><p class="note">It starts with https://notebooklm.google.com/</p>' +
-        '<input class="text-input" id="share-url" type="url" inputmode="url" autocomplete="off" placeholder="Paste the share link" aria-describedby="share-url-error" value="' + esc(keepUrl) + '">' +
-        '<p class="field-error" id="share-url-error" hidden></p></div>' +
-      '<div class="set-row"><label class="check-row"><input type="checkbox" id="share-ok" aria-describedby="share-ok-error"><span>This notebook is made from my own notes. It has no tests, answer keys, names or personal info.</span></label>' +
-        '<p class="field-error" id="share-ok-error" hidden></p></div>' +
-      '<div class="test-actions"><button type="submit" class="btn solid"' + (share.busy ? ' disabled' : '') + '>' + (share.busy ? 'Sending...' : 'Send notebook') + '</button></div>' +
-      '<div class="form-result" id="share-result" role="status" aria-live="polite">' + (share.msg ? share.msg : '') + '</div>' +
-      '</form>' +
-      '<h2 class="set-group">Your notebooks</h2><div id="share-mine"><p class="note">Loading...</p></div>';
-    DB.myNotebooks().then(function (res) {
-      var box = $('#share-mine');
-      if (!box) return;
-      if (res.error) { box.innerHTML = '<p class="note">Your notebooks could not load right now. ' + esc(res.error) + '</p>'; return; }
-      var mine = res.data || [];
-      box.innerHTML = mine.length
-        ? '<ul class="saved-list">' + mine.map(function (n) {
-            var s = subjectOf(n.class_id);
-            return '<li><span class="saved-q">' + esc(n.title || 'NotebookLM notebook') + '</span>' +
-              '<div class="ev-actions"><span class="note">' + esc((s ? s.name : n.class_id) + '. ' + statusWord(n.status)) + '</span></div></li>';
-          }).join('') + '</ul>'
-        : '<p class="note">You haven\'t shared any notebooks yet.</p>';
-    });
-  }
-
-  function buildShare() {
-    var root = $('#share-root');
-    function setError(id, msg) {
-      var el = $('#' + id + '-error');
-      var input = $('#' + id);
-      el.textContent = msg;
-      el.hidden = !msg;
-      if (msg) input.setAttribute('aria-invalid', 'true');
-      else input.removeAttribute('aria-invalid');
-      return msg ? input : null;
-    }
-    root.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-cat]');
-      if (!b) return;
-      share.cat = b.dataset.cat;
-      share.msg = '';
-      renderShare();
-    });
-    root.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (share.busy) return;
-      var url = $('#share-url').value.trim();
-      var classId = $('#share-class').value;
-      var bad = [
-        setError('share-cat', share.cat ? '' : 'Pick Core or Encore.'),
-        setError('share-class', classId ? '' : 'Pick the class.'),
-        setError('share-url', !url ? 'Paste the share link from NotebookLM.' : isNotebookLink(url) ? '' : 'This is not a NotebookLM link. It has to start with https://notebooklm.google.com/'),
-        setError('share-ok', $('#share-ok').checked ? '' : 'Check this box to confirm the notebook is your own notes.')
-      ].filter(Boolean);
-      if (bad.length) { bad[0].focus(); return; }
-      var title = $('#share-title').value.trim() || subjectOf(classId).name + ' notebook';
-      share.busy = true;
-      share.msg = '';
-      renderShare();
-      DB.submitNotebook(classId, title, url).then(function (res) {
-        share.busy = false;
-        if (res.error) {
-          share.msg = '<b>Your notebook was not sent.</b> ' + esc(res.error);
-        } else {
-          share.msg = '<b>Notebook sent.</b> It shows up under Units for that class once the admin approves it.';
-          $('#share-url').value = '';
-          $('#share-title').value = '';
-        }
-        renderShare();
-      });
     });
   }
 
@@ -2280,383 +2129,6 @@
     });
   }
 
-  /* ---------- Supabase: accounts ---------- */
-
-  // mode: in, up, forgot, sent (check your email after sign-up), reset-sent, reset (set a new password)
-  var account = { mode: 'in', busy: false, msg: '', email: '', isAdmin: false, name: '' };
-
-  function field(id, label, type, extra) {
-    return '<div class="set-row"><label class="set-label" for="' + id + '">' + label + '</label>' + (extra || '') +
-      '<input class="text-input" id="' + id + '" type="' + type + '" autocomplete="' + (type === 'password' ? (account.mode === 'in' ? 'current-password' : 'new-password') : type === 'email' ? 'email' : 'off') + '"' +
-      (type === 'email' ? ' value="' + esc(account.email) + '" autocapitalize="off" spellcheck="false"' : '') + (id === 'acc-name' ? ' maxlength="40"' : '') + '></div>';
-  }
-
-  function renderAccount() {
-    var root = $('#account-root');
-    var title = $('#account-title');
-    var user = DB.user();
-    var msg = account.msg ? '<div class="form-result" role="status" aria-live="polite">' + account.msg + '</div>' : '<div class="form-result" role="status" aria-live="polite"></div>';
-    var schoolNote = '<p class="note" style="margin-top:14px">Only school emails ending in @' + esc((window.FINALS_SUPABASE || {}).emailDomain || 'k12.ipsd.org') + ' can make an account. Signing in is optional: you can study without it. With it, your progress follows you to other devices.</p>';
-    if (!DB.ready()) {
-      title.textContent = 'Sign in';
-      root.innerHTML = '<p class="weak-lead">' + esc(DB.offlineMessage) + '</p>';
-      return;
-    }
-    if (account.mode === 'reset' && user) {
-      title.textContent = 'New password';
-      root.innerHTML = '<form class="share-form" data-acc="reset" novalidate>' + field('acc-pass', 'New password', 'password', '<p class="note">At least 8 characters.</p>') +
-        '<div class="test-actions"><button type="submit" class="btn solid">Save new password</button></div>' + msg + '</form>';
-      return;
-    }
-    if (user) {
-      title.textContent = 'Account';
-      root.innerHTML =
-        '<h2 class="set-group">You</h2>' +
-        '<div class="set-row"><span class="set-label">Signed in as</span><p>' + esc(user.email || '') + '</p></div>' +
-        '<form class="share-form set-row" data-acc="name" novalidate><label class="set-label" for="acc-name">Display name</label><p class="note">Optional.</p>' +
-          '<input class="text-input" id="acc-name" type="text" maxlength="40" autocomplete="off" value="' + esc(account.name) + '">' +
-          '<div class="test-actions"><button type="submit" class="btn">Save name</button></div></form>' +
-        '<h2 class="set-group">Progress</h2>' +
-        '<div class="set-row"><span class="set-label">Sync</span><p class="note" data-sync-status>' + esc(syncStatus()) + '</p>' +
-          '<a class="btn ghost" href="#settings">Delete my synced data in Settings</a></div>' +
-        (account.isAdmin ? '<div class="set-row"><span class="set-label">Admin</span><a class="btn" href="#admin">Open the admin page</a></div>' : '') +
-        '<div class="test-actions"><button type="button" class="btn solid" data-acc-out>Sign out</button></div>' + msg;
-      return;
-    }
-    if (account.mode === 'sent' || account.mode === 'reset-sent') {
-      title.textContent = 'Check your school email';
-      root.innerHTML = '<p class="weak-lead">' + (account.mode === 'sent'
-        ? 'We sent a link to <b>' + esc(account.email) + '</b>. Open it to finish making your account, then sign in here.'
-        : 'If there is an account for <b>' + esc(account.email) + '</b>, we sent it a link to set a new password.') + '</p>' +
-        '<p class="note">It can take a few minutes. Check your spam folder too.</p>' +
-        '<div class="test-actions"><button type="button" class="btn solid" data-acc-mode="in">Back to sign in</button></div>';
-      return;
-    }
-    var tabs = '<div class="seg" role="group" aria-label="Sign in or make an account" style="margin-top:20px">' +
-      [['in', 'Sign in'], ['up', 'Make an account']].map(function (m) {
-        var on = account.mode === m[0];
-        return '<button type="button" data-acc-mode="' + m[0] + '" class="' + (on ? 'is-on' : '') + '" aria-pressed="' + on + '">' + m[1] + '</button>';
-      }).join('') + '</div>';
-    var busy = account.busy ? ' disabled' : '';
-    if (account.mode === 'forgot') {
-      title.textContent = 'Forgot password';
-      root.innerHTML = '<p class="note" style="margin-top:14px">We will email you a link to set a new password.</p>' +
-        '<form class="share-form" data-acc="forgot" novalidate>' + field('acc-email', 'School email', 'email') +
-        '<div class="test-actions"><button type="submit" class="btn solid"' + busy + '>Send link</button><button type="button" class="btn ghost" data-acc-mode="in">Back to sign in</button></div>' + msg + '</form>';
-      return;
-    }
-    if (account.mode === 'up') {
-      title.textContent = 'Make an account';
-      root.innerHTML = schoolNote + tabs +
-        '<form class="share-form" data-acc="up" novalidate>' +
-        field('acc-name', 'Display name', 'text', '<p class="note">Optional.</p>') +
-        field('acc-email', 'School email', 'email') +
-        field('acc-pass', 'Password', 'password', '<p class="note">At least 8 characters.</p>') +
-        '<div class="test-actions"><button type="submit" class="btn solid"' + busy + '>Make account</button></div>' + msg + '</form>';
-      return;
-    }
-    title.textContent = 'Sign in';
-    root.innerHTML = schoolNote + tabs +
-      '<form class="share-form" data-acc="in" novalidate>' +
-      field('acc-email', 'School email', 'email') +
-      field('acc-pass', 'Password', 'password') +
-      '<div class="test-actions"><button type="submit" class="btn solid"' + busy + '>Sign in</button><button type="button" class="link-btn" data-acc-mode="forgot">Forgot password?</button></div>' + msg + '</form>';
-  }
-
-  function paintAccountLinks() {
-    var user = DB.user();
-    $$('[data-account-link]').forEach(function (el) { el.textContent = user ? 'Account' : 'Sign in'; });
-    $$('[data-account-note]').forEach(function (el) { el.textContent = user ? 'Signed in as ' + (user.email || '') : 'Optional. Saves your progress across devices'; });
-    $$('[data-admin]').forEach(function (el) { el.hidden = !account.isAdmin; });
-    $('#set-account-note').textContent = user
-      ? 'Signed in as ' + (user.email || '') + '. Your progress syncs to your account.'
-      : 'Signing in is optional. Without it, progress saves on this device only.';
-    $('#set-sync-row').hidden = !user;
-    $$('[data-sync-status]').forEach(function (el) { el.textContent = syncStatus(); });
-  }
-
-  function buildAccount() {
-    var root = $('#account-root');
-    root.addEventListener('click', function (e) {
-      var m = e.target.closest('[data-acc-mode]');
-      if (m) {
-        var email = $('#acc-email');
-        if (email) account.email = email.value.trim();
-        account.mode = m.dataset.accMode;
-        account.msg = '';
-        renderAccount();
-        var first = $('input', root);
-        if (first) first.focus();
-      }
-      if (e.target.closest('[data-acc-out]')) {
-        DB.signOut().then(function (res) {
-          account.msg = res.error ? '<b>Could not sign out.</b> ' + esc(res.error) : '';
-          if (!res.error) toast('Signed out');
-          renderAccount();
-        });
-      }
-    });
-    root.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var form = e.target.closest('[data-acc]');
-      if (!form || account.busy) return;
-      var kind = form.dataset.acc;
-      var emailEl = $('#acc-email', form);
-      var passEl = $('#acc-pass', form);
-      var nameEl = $('#acc-name', form);
-      var email = emailEl ? emailEl.value.trim() : '';
-      var pass = passEl ? passEl.value : '';
-      var name = nameEl ? nameEl.value.trim().slice(0, 40) : '';
-      account.email = email || account.email;
-      function show(html) { account.busy = false; account.msg = html; renderAccount(); }
-      if (emailEl && !DB.isSchoolEmail(email)) { show('<b>' + esc(DB.schoolMessage) + '</b>'); $('#acc-email').focus(); return; }
-      if (passEl && (kind === 'up' || kind === 'reset') && pass.length < 8) { show('<b>Use a password with at least 8 characters.</b>'); return; }
-      if (passEl && kind === 'in' && !pass) { show('<b>Type your password.</b>'); return; }
-      account.busy = true;
-      if (kind === 'in') {
-        DB.signIn(email, pass).then(function (res) {
-          if (res.error) return show('<b>Could not sign in.</b> ' + esc(res.error));
-          show('');
-        });
-      } else if (kind === 'up') {
-        DB.signUp(email, pass, name).then(function (res) {
-          if (res.error) return show('<b>Could not make the account.</b> ' + esc(res.error));
-          account.mode = 'sent';
-          show('');
-        });
-      } else if (kind === 'forgot') {
-        DB.sendReset(email).then(function (res) {
-          if (res.error) return show('<b>Could not send the link.</b> ' + esc(res.error));
-          account.mode = 'reset-sent';
-          show('');
-        });
-      } else if (kind === 'reset') {
-        DB.setPassword(pass).then(function (res) {
-          if (res.error) return show('<b>Could not save the password.</b> ' + esc(res.error));
-          account.mode = 'in';
-          toast('Password saved');
-          show('');
-        });
-      } else if (kind === 'name') {
-        DB.saveProfile(name).then(function (res) {
-          if (res.error) return show('<b>Could not save your name.</b> ' + esc(res.error));
-          account.name = name;
-          toast('Name saved');
-          show('');
-        });
-      }
-    });
-
-    DB.onChange(function (event, user) {
-      if (event === 'PASSWORD_RECOVERY') {
-        account.mode = 'reset';
-        location.hash = 'account';
-      }
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED' || event === 'PASSWORD_RECOVERY') afterAuthChange(event, user);
-    });
-  }
-
-  // Runs on sign-in, sign-out and on load when a session already exists.
-  function afterAuthChange(event, user) {
-    if (!user) {
-      account.isAdmin = false;
-      account.name = '';
-      if (account.mode === 'reset') account.mode = 'in';
-      sync.on = false;
-      sync.dirty = {};
-      sync.state = '';
-      paintAccountLinks();
-      refreshAuthViews();
-      return;
-    }
-    var first = !sync.on;
-    sync.on = true;
-    paintAccountLinks();
-    refreshAuthViews();
-    DB.isAdmin().then(function (res) {
-      account.isAdmin = res.data === true;
-      paintAccountLinks();
-      refreshAuthViews();
-    });
-    DB.getProfile().then(function (res) {
-      var meta = user.user_metadata || {};
-      account.name = (res.data && res.data.display_name) || meta.display_name || '';
-      // A name given at sign-up is saved to the profile the first time they sign in.
-      if (!res.error && !res.data && meta.display_name) DB.saveProfile(meta.display_name);
-      if ($('#view-account').classList.contains('is-active') && !$('#acc-name:focus')) renderAccount();
-    });
-    if (first) pullProgress();
-  }
-
-  function refreshAuthViews() {
-    var active = $('.view.is-active');
-    if (!active) return;
-    if (active.id === 'view-account') renderAccount();
-    if (active.id === 'view-share') renderShare();
-    if (active.id === 'view-admin') renderAdmin();
-  }
-
-  /* ---------- Supabase: admin ---------- */
-
-  var admin = { list: null, msg: '' };
-
-  function renderAdmin() {
-    var root = $('#admin-root');
-    if (!account.isAdmin) {
-      root.innerHTML = '<p class="weak-lead">This page is only for the site admin.</p><div class="test-actions"><a class="btn" href="#home">Go to Home</a></div>';
-      return;
-    }
-    root.innerHTML = '<h2 class="t-section">Notebooks waiting for approval</h2>' +
-      (admin.msg ? '<div class="form-result" role="status">' + admin.msg + '</div>' : '') + '<div id="admin-list"><p class="note">Loading...</p></div>';
-    DB.pendingNotebooks().then(function (res) {
-      var box = $('#admin-list');
-      if (!box) return;
-      if (res.error) { box.innerHTML = '<p class="note">The list could not load. ' + esc(res.error) + '</p>'; return; }
-      var list = res.data || [];
-      box.innerHTML = list.length
-        ? '<ul class="saved-list">' + list.map(function (n) {
-            var s = subjectOf(n.class_id);
-            var url = safeUrl(n.url);
-            var when = n.created_at ? new Date(n.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
-            return '<li><span class="saved-q">' + esc(n.title || 'NotebookLM notebook') + '</span>' +
-              '<p class="note" style="margin:4px 0 0">' + esc((s ? s.name : n.class_id) + (when ? '. Sent ' + when : '')) + '</p>' +
-              (url ? '<p style="margin:4px 0 0;overflow-wrap:anywhere"><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(url) + '</a></p>' : '') +
-              '<div class="test-actions"><button type="button" class="btn solid" data-adm="approved" data-id="' + esc(n.id) + '">Approve</button>' +
-              '<button type="button" class="btn" data-adm="rejected" data-id="' + esc(n.id) + '">Reject</button>' +
-              '<button type="button" class="btn ghost" data-adm="delete" data-id="' + esc(n.id) + '">Delete</button></div></li>';
-          }).join('') + '</ul>'
-        : '<p class="note">Nothing waiting right now.</p>';
-    });
-  }
-
-  function buildAdmin() {
-    $('#admin-root').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-adm]');
-      if (!b || !account.isAdmin) return;
-      var act = b.dataset.adm;
-      if (act === 'delete' && !window.confirm('Delete this notebook for good?')) return;
-      b.disabled = true;
-      var p = act === 'delete' ? DB.deleteNotebook(b.dataset.id) : DB.setNotebookStatus(b.dataset.id, act);
-      p.then(function (res) {
-        admin.msg = res.error ? '<b>That did not work.</b> ' + esc(res.error) : '';
-        if (!res.error) {
-          toast(act === 'approved' ? 'Approved' : act === 'rejected' ? 'Rejected' : 'Deleted');
-          notebookCache = {};
-        }
-        renderAdmin();
-      });
-    });
-  }
-
-  /* ---------- Supabase: progress sync ---------- */
-
-  // localStorage is always the main copy. When signed in, each class's progress is also
-  // saved as one row in finals_progress. When the same class changed in two places,
-  // the newer change wins (last write wins).
-
-  function syncStatus() {
-    if (!DB.user()) return 'Not signed in. Progress saves on this device only.';
-    if (sync.state === 'error') return 'Your latest progress is saved on this device but not synced yet. It will try again.';
-    if (sync.state === 'busy') return 'Syncing...';
-    if (sync.last) return 'Synced ' + sync.last.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) + '.';
-    return 'Your progress syncs to your account.';
-  }
-
-  function paintSync() {
-    $$('[data-sync-status]').forEach(function (el) { el.textContent = syncStatus(); });
-  }
-
-  function pushProgress() {
-    clearTimeout(sync.timer);
-    sync.timer = null;
-    if (!sync.on || !DB.user()) return;
-    var ids = Object.keys(sync.dirty);
-    if (!ids.length) return;
-    sync.state = 'busy';
-    paintSync();
-    Promise.all(ids.map(function (id) {
-      delete sync.dirty[id];
-      var when = new Date((saved.changedAt || {})[id] || Date.now()).toISOString();
-      return DB.saveProgress(id, saved.classes[id] || {}, when).then(function (res) {
-        if (res.error) sync.dirty[id] = true;
-        return !res.error;
-      });
-    })).then(function (results) {
-      var okAll = results.every(Boolean);
-      sync.state = okAll ? '' : 'error';
-      if (okAll) sync.last = new Date();
-      paintSync();
-    });
-  }
-
-  function queuePush() {
-    if (!sync.on || !Object.keys(sync.dirty).length) return;
-    clearTimeout(sync.timer);
-    sync.timer = setTimeout(pushProgress, 1500);
-  }
-
-  // On sign-in: newer rows from the account replace this device's copy, and anything
-  // newer on this device gets sent up.
-  function pullProgress() {
-    sync.state = 'busy';
-    paintSync();
-    DB.loadProgress().then(function (res) {
-      if (res.error) {
-        sync.state = 'error';
-        paintSync();
-        return;
-      }
-      saved.classes = saved.classes || {};
-      saved.changedAt = saved.changedAt || {};
-      var remote = {};
-      (res.data || []).forEach(function (row) { if (row.key === 'progress' && subjectOf(row.class_id)) remote[row.class_id] = row; });
-      var changedCurrent = false;
-      Object.keys(remote).forEach(function (id) {
-        var row = remote[id];
-        var remoteTime = Date.parse(row.updated_at) || 0;
-        var localTime = saved.changedAt[id] || 0;
-        if (remoteTime > localTime && row.value && typeof row.value === 'object') {
-          saved.classes[id] = row.value;
-          saved.changedAt[id] = remoteTime;
-          snaps[id] = JSON.stringify(row.value);
-          if (id === cur) changedCurrent = true;
-        } else if (localTime > remoteTime) {
-          sync.dirty[id] = true;
-        }
-      });
-      Object.keys(saved.classes).forEach(function (id) {
-        if (!remote[id] && subjectOf(id) && JSON.stringify(saved.classes[id]) !== '{}') sync.dirty[id] = true;
-      });
-      writeLocal();
-      sync.state = '';
-      sync.last = new Date();
-      if (changedCurrent) {
-        var id = cur;
-        cur = null;
-        setClass(id);
-        route(false);
-        toast('Progress loaded from your account');
-      }
-      paintSync();
-      pushProgress();
-    });
-  }
-
-  function buildSyncSettings() {
-    $('#delete-synced').addEventListener('click', function () {
-      if (!DB.user()) return;
-      if (!window.confirm('Delete your synced progress from your account? Progress on this device stays.')) return;
-      var msg = $('#delete-synced-msg');
-      DB.deleteMyProgress().then(function (res) {
-        if (res.error) { msg.textContent = 'Could not delete it. ' + res.error; return; }
-        // Stop sending until something changes again.
-        sync.dirty = {};
-        msg.textContent = 'Your synced data was deleted. Progress on this device stays. New progress syncs again while you are signed in.';
-      });
-    });
-    window.addEventListener('online', pushProgress);
-  }
-
   /* ---------- Supabase: visit count ---------- */
 
   // Once per browser session. Sends nothing about the person.
@@ -2712,11 +2184,7 @@
     buildSaved();
     buildDrill();
     buildMatch();
-    buildShare();
     buildFeedbackForm();
-    buildAccount();
-    buildAdmin();
-    buildSyncSettings();
     startClock();
     if (saved.current && subjectOf(saved.current)) setClass(saved.current);
 
@@ -2736,10 +2204,7 @@
     }
     window.addEventListener('hashchange', function () { route(false); });
     route(true);
-    paintAccountLinks();
     countVisit();
-    // A session saved from last time signs the student back in quietly.
-    DB.whenReady().then(function () { if (DB.user()) afterAuthChange('INITIAL', DB.user()); });
   }
 
   loadClasses(start);

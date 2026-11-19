@@ -7,8 +7,5 @@
 // file or anywhere in this repo.
 window.FINALS_SUPABASE = {
   url: 'https://slqllkrgrgjsnjmdvxqg.supabase.co',
-  key: 'sb_publishable_JM3MHQZXUmyG7lnO3o1Zpg_vnVQM3Ka',
-
-  // Only school accounts can sign up or sign in. The database checks this too.
-  emailDomain: 'k12.ipsd.org'
+  key: 'sb_publishable_JM3MHQZXUmyG7lnO3o1Zpg_vnVQM3Ka'
 };
