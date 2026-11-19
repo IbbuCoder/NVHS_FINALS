@@ -59,9 +59,11 @@ try {
       <a href="#saved">Bookmarks</a>
       <span class="nav-sep" aria-hidden="true"></span>
       <a href="#settings">Settings</a>
-      <a href="#" data-feedback>Feedback</a>
+      <a href="#feedback">Feedback</a>
+      <a href="#account" data-account-link>Sign in</a>
+      <a href="#admin" data-admin hidden>Admin</a>
     </nav>
-    <a class="icon-btn" id="feedback-btn" href="#" data-feedback aria-label="Send feedback or report a problem" title="Send feedback or report a problem"><svg aria-hidden="true"><use href="#i-feedback"></use></svg></a>
+    <a class="icon-btn" id="feedback-btn" href="#feedback" aria-label="Send feedback or report a problem" title="Send feedback or report a problem"><svg aria-hidden="true"><use href="#i-feedback"></use></svg></a>
     <button type="button" class="icon-btn" id="search-btn" aria-label="Search the notes"><svg aria-hidden="true"><use href="#i-search"></use></svg></button>
     <button type="button" class="dumb-btn" id="dumb-btn" aria-pressed="false">Simple words</button>
     <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -105,7 +107,7 @@ try {
         <a class="big-link" href="#match"><strong>Matching game</strong><span id="home-match"></span></a>
         <a class="big-link" href="#saved"><strong>Bookmarks</strong><span>Note sections and questions you bookmarked</span></a>
       </div>
-      <a class="feedback-bar" href="#" data-feedback><b>Problem or idea?</b> <span>Report a bug, a wrong answer or a complaint. Send feedback</span></a>
+      <a class="feedback-bar" href="#feedback"><b>Problem or idea?</b> <span>Report a bug, a wrong answer or a complaint. Send feedback</span></a>
       <button type="button" class="link-btn clear-all" id="clear-all">Clear my progress</button>
     </div>
   </div>
@@ -228,7 +230,7 @@ try {
 <section class="view" id="view-share" data-title="Share a notebook">
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">Share a notebook</h1></header>
-    <p class="note" style="margin-top:14px">If you made a NotebookLM notebook from your own class notes, you can share it here. It shows up under Units for that class once it is checked.</p>
+    <p class="note" style="margin-top:14px">If you made a NotebookLM notebook from your own class notes, you can share it here. It shows up under Units for that class once the admin approves it.</p>
     <h2 class="set-group">How to share</h2>
     <ol class="steps">
       <li>Open your class notebook in NotebookLM.</li>
@@ -237,39 +239,7 @@ try {
       <li>Copy the link and paste it into the form below.</li>
       <li>Only share notebooks made from your own notes, not teacher tests or answer keys, and keep names and personal info out.</li>
     </ol>
-    <h2 class="set-group">Notebook</h2>
-    <form class="share-form" id="share-form" novalidate>
-      <div class="set-row">
-        <span class="set-label" id="share-cat-label">Core or Encore</span>
-        <div class="seg" id="share-cat" role="group" aria-labelledby="share-cat-label">
-          <button type="button" data-cat="core">Core</button>
-          <button type="button" data-cat="encore">Encore</button>
-        </div>
-        <p class="field-error" id="share-cat-error" hidden></p>
-      </div>
-      <div class="set-row">
-        <label class="set-label" for="share-class">Class</label>
-        <select class="text-input" id="share-class" aria-describedby="share-class-error"></select>
-        <p class="field-error" id="share-class-error" hidden></p>
-      </div>
-      <div class="set-row">
-        <label class="set-label" for="share-teacher">Teacher or period</label>
-        <p class="note">Optional.</p>
-        <input class="text-input" id="share-teacher" type="text" maxlength="60" autocomplete="off" placeholder="For example: 3rd period">
-      </div>
-      <div class="set-row">
-        <label class="set-label" for="share-url">NotebookLM link</label>
-        <p class="note">It starts with https://notebooklm.google.com/notebook/</p>
-        <input class="text-input" id="share-url" type="url" inputmode="url" autocomplete="off" placeholder="Paste the share link" aria-describedby="share-url-error">
-        <p class="field-error" id="share-url-error" hidden></p>
-      </div>
-      <div class="set-row">
-        <label class="check-row"><input type="checkbox" id="share-ok" aria-describedby="share-ok-error"><span>This notebook is made from my own notes. It has no tests, answer keys, names or personal info.</span></label>
-        <p class="field-error" id="share-ok-error" hidden></p>
-      </div>
-      <div class="test-actions"><button type="submit" class="btn solid">Send notebook</button></div>
-      <div class="form-result" id="share-result" role="status" aria-live="polite"></div>
-    </form>
+    <div id="share-root"></div>
   </div>
 </section>
 
@@ -393,8 +363,15 @@ try {
 
     <h2 class="set-group">Data</h2>
     <div class="set-row">
-      <span class="set-label">Where your progress is saved</span>
-      <p class="note">Only in this browser on this device. Nothing is sent anywhere. Clearing your browser data clears it too.</p>
+      <span class="set-label">Account</span>
+      <p class="note" id="set-account-note">Signing in is optional. Without it, progress saves on this device only.</p>
+      <a class="btn" href="#account" data-account-link>Sign in</a>
+    </div>
+    <div class="set-row" id="set-sync-row" hidden>
+      <span class="set-label">Synced progress</span>
+      <p class="note">Your progress is copied to your account so it follows you to other devices. Deleting it removes only your rows on the server. Progress on this device stays.</p>
+      <button type="button" class="btn" id="delete-synced">Delete my synced data</button>
+      <p class="note" id="delete-synced-msg" role="status" aria-live="polite"></p>
     </div>
     <div class="set-row">
       <span class="set-label">Backup</span>
@@ -412,7 +389,7 @@ try {
     <div class="set-row">
       <span class="set-label">Feedback</span>
       <p class="note">Found a wrong answer or have an idea? Send it with a quick form.</p>
-      <a class="btn" href="#" data-feedback>Send feedback</a>
+      <a class="btn" href="#feedback">Send feedback</a>
     </div>
     <div class="set-row">
       <span class="set-label">Welcome screen</span>
@@ -430,7 +407,9 @@ try {
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">More</h1></header>
     <nav class="more-list" aria-label="More pages">
-      <a class="more-feedback" href="#" data-feedback><b>Send feedback</b><span>Report a problem, a wrong answer or an idea</span></a>
+      <a class="more-feedback" href="#feedback"><b>Send feedback</b><span>Report a problem, a wrong answer or an idea</span></a>
+      <a href="#account"><b data-account-link>Sign in</b><span data-account-note>Optional. Saves your progress across devices</span></a>
+      <a href="#admin" data-admin hidden><b>Admin</b><span>Approve or reject shared notebooks</span></a>
       <a href="#classes"><b>Classes</b><span>Switch to another Core or Encore class</span></a>
       <a href="#weak"><b>Weak spots</b><span>What to study next, based on your misses</span></a>
       <a href="#drills"><b>Formula drills</b><span>Practice the math with new numbers each time</span></a>
@@ -440,6 +419,55 @@ try {
       <a href="#share"><b>Share a notebook</b><span>Add your NotebookLM notebook to a class</span></a>
       <a href="#settings"><b>Settings</b><span>Theme, colors, text size and more</span></a>
     </nav>
+  </div>
+</section>
+
+<!-- ACCOUNT -->
+<section class="view" id="view-account" data-title="Account">
+  <div class="wrap narrow">
+    <header class="unit-head"><h1 tabindex="-1" id="account-title">Sign in</h1></header>
+    <div id="account-root"></div>
+  </div>
+</section>
+
+<!-- FEEDBACK -->
+<section class="view" id="view-feedback" data-title="Feedback">
+  <div class="wrap narrow">
+    <header class="unit-head"><h1 tabindex="-1">Feedback</h1></header>
+    <p class="note" style="margin-top:14px">Report a bug, a wrong answer or an idea. You don't need to sign in, and your name is not sent.</p>
+    <form class="share-form" id="feedback-form" novalidate>
+      <div class="set-row">
+        <span class="set-label" id="fb-kind-label">What is it about?</span>
+        <div class="seg wrap-seg" id="fb-kind" role="group" aria-labelledby="fb-kind-label">
+          <button type="button" data-kind="bug">Bug</button>
+          <button type="button" data-kind="wrong-answer">Wrong answer</button>
+          <button type="button" data-kind="idea">Idea</button>
+          <button type="button" data-kind="other">Other</button>
+        </div>
+        <p class="field-error" id="fb-kind-error" hidden></p>
+      </div>
+      <div class="set-row">
+        <label class="set-label" for="fb-class">Class</label>
+        <p class="note">Optional.</p>
+        <select class="text-input" id="fb-class"></select>
+      </div>
+      <div class="set-row">
+        <label class="set-label" for="fb-message">Message</label>
+        <p class="note">Don't include names or personal info.</p>
+        <textarea class="text-input" id="fb-message" maxlength="1000" rows="5" aria-describedby="fb-message-error"></textarea>
+        <p class="field-error" id="fb-message-error" hidden></p>
+      </div>
+      <div class="test-actions"><button type="submit" class="btn solid">Send feedback</button></div>
+      <div class="form-result" id="fb-result" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
+
+<!-- ADMIN (only works for the admin account) -->
+<section class="view" id="view-admin" data-title="Admin">
+  <div class="wrap narrow">
+    <header class="unit-head"><h1 tabindex="-1">Admin</h1></header>
+    <div id="admin-root"></div>
   </div>
 </section>
 
@@ -454,7 +482,7 @@ try {
 
 </main>
 
-<footer class="foot"><div class="wrap">Made by students. Not an official school site. Progress saves on this device only. <a href="#share">Share a notebook</a> · <a href="#" data-feedback>Send feedback</a></div></footer>
+<footer class="foot"><div class="wrap">Made by students. Not an official school site. Progress saves on this device, and to your account if you sign in. <a href="#share">Share a notebook</a> · <a href="#feedback">Send feedback</a></div></footer>
 
 <nav class="tabbar" aria-label="App">
   <a href="#home" data-tab="home"><svg aria-hidden="true"><use href="#t-home"></use></svg>Home</a>
@@ -533,7 +561,10 @@ try {
 <script src="./js/registry.js"></script>
 <script src="./js/config.js"></script>
 <script src="./data/subjects.js"></script>
-<script src="./data/notebooks.js"></script>
+<!-- Supabase: if the CDN can't load (offline), the site still works without accounts. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="./supabase/config.js"></script>
+<script src="./supabase/client.js"></script>
 <script src="./js/main.js"></script>
 </body>
 </html>

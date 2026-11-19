@@ -9,12 +9,8 @@ window.FINALS_CONFIG = {
   // The default finals date for every class, as 'YYYY-MM-DD'. Leave '' for none.
   // A class can set its own date with exam: '...' in data/subjects.js.
   // With no date, the countdown and the day-by-day plan stay hidden.
-  finalsDate: '',
+  finalsDate: ''
 
-  // Link to a feedback form (for example a Google Form). Leave '' until you have one.
-  feedbackUrl: '',
-
-  // Where the Share a notebook form sends submissions. While it still says
-  // REPLACE-ME, the form checks everything and shows a preview but sends nothing.
-  notebookFormEndpoint: 'https://example.com/REPLACE-ME'
+  // Accounts, shared notebooks, feedback and progress sync use Supabase.
+  // Its settings are in supabase/config.js.
 };
