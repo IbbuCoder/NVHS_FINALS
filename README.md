@@ -22,7 +22,7 @@ Then open http://localhost:8000.
 index.html            The whole app (every page is a section in this file)
 404.html              Page-not-found for GitHub Pages
 css/style.css         Design system copied from the PE Midterm app
-js/config.js          Site name, finals date, feedback link, share form link
+js/config.js          Site name and finals date
 js/registry.js        Where data files put their content
 js/main.js            Everything the app does
 data/subjects.js      The list of classes (Core and Encore)
