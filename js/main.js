@@ -509,11 +509,12 @@
     var unit = cur ? unitById(id) : null;
     var needsClass = !cur && (CLASS_PAGES.indexOf(id) > -1 || /^u\d+$/.test(id));
     if (needsClass) {
-      toast('Pick a class first');
-      history.replaceState(null, '', '#classes');
-      id = 'classes';
+      pickReturn = id;
+      history.replaceState(null, '', '#pick');
+      id = 'pick';
     }
-    var viewId = unit ? 'unit' : (id === 'core' || id === 'encore') ? 'classes' : id;
+    var pickGroup = /^pick(\/(core|encore))?$/.exec(id);
+    var viewId = unit ? 'unit' : (id === 'core' || id === 'encore') ? 'classes' : pickGroup ? 'pick' : id;
     var view = document.getElementById('view-' + viewId);
     if (!view || (viewId === 'unit' && !unit)) { id = '404'; viewId = '404'; view = $('#view-404'); }
     $$('.view').forEach(function (v) { v.classList.toggle('is-active', v === view); });
@@ -529,12 +530,13 @@
       if (a.dataset.tab === tabId) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
-    if (id !== '404') { saved.lastPage = id; save(); }
+    if (id !== '404' && !pickGroup) { saved.lastPage = id; save(); }
     var title = unit ? unit.num + ' ' + unit.title : view.dataset.title;
     document.title = title + (cur && viewId !== 'classes' && viewId !== 'home' ? ' | ' + className() : '') + ' | ' + (CFG.siteTitle || 'Finals');
     closeMenu();
     if (id === 'home') renderHome();
     if (viewId === 'classes') renderClasses(id);
+    if (pickGroup) renderPick(pickGroup[2] || '');
     if (id === 'units') renderUnits();
     if (unit) renderUnit(unit);
     if (id === 'flashcards') renderCard();
@@ -574,6 +576,55 @@
         flash.pile = 'learning';
         setDeck(false);
       }
+    });
+  }
+
+  /* ---------- What do you want to study? ---------- */
+
+  // Shown every time the site opens. Step 1 is Core or Encore, step 2 is the classes in it.
+  // pickReturn is the page to open after picking (a link the site was opened with, or the
+  // "Open the site on" setting). Empty means the class's Home.
+  var pickReturn = '';
+
+  var GROUPS = {
+    core: { name: 'Core', blurb: 'Main classes' },
+    encore: { name: 'Encore', blurb: 'Electives' }
+  };
+
+  function renderPick(group) {
+    var root = $('#pick-root');
+    if (!group) {
+      root.innerHTML =
+        '<h1 class="pick-title" tabindex="-1">What do you want to study?</h1>' +
+        '<div class="pick-groups">' + ['core', 'encore'].map(function (g, i) {
+          return '<a class="pick-btn' + (i === 0 ? ' solid' : '') + '" href="#pick/' + g + '"><strong>' + GROUPS[g].name + '</strong>' +
+            '<span>' + GROUPS[g].blurb + ': ' + esc(classNames(g)) + '</span></a>';
+        }).join('') + '</div>' +
+        (cur ? '<a class="link-btn pick-skip" href="#home" data-pick-keep>Keep studying ' + esc(className()) + '</a>' : '');
+      return;
+    }
+    var list = SUBJECTS.filter(function (s) { return s.category === group; });
+    root.innerHTML =
+      '<div class="pick-head"><h1 tabindex="-1">' + GROUPS[group].name + '</h1><a class="btn ghost" href="#pick">Back</a></div>' +
+      '<p class="pick-sub">' + GROUPS[group].blurb + '. Pick your class.</p>' +
+      '<div class="pick-subjects">' + list.map(function (s) {
+        var units = dataOf(s.id).units.length;
+        var last = s.id === cur;
+        return '<button type="button" class="pick-subject' + (last ? ' is-last' : '') + '" data-pick-class="' + s.id + '">' +
+          '<b>' + esc(s.name) + '</b><span>' + (last ? 'Studied last time' : units ? units + (units === 1 ? ' unit' : ' units') : 'No units yet') + '</span></button>';
+      }).join('') + '</div>';
+  }
+
+  function buildPick() {
+    $('#pick-root').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-pick-class]');
+      if (b) {
+        setClass(b.dataset.pickClass);
+        var go = pickReturn || 'home';
+        pickReturn = '';
+        location.hash = go;
+      }
+      if (e.target.closest('[data-pick-keep]')) pickReturn = '';
     });
   }
 
@@ -2185,6 +2236,7 @@
     buildDrill();
     buildMatch();
     buildFeedbackForm();
+    buildPick();
     startClock();
     if (saved.current && subjectOf(saved.current)) setClass(saved.current);
 
@@ -2198,10 +2250,14 @@
 
     buildSearch();
 
-    if (!location.hash && settings.startPage !== 'home') {
-      var opening = settings.startPage === 'last' ? saved.lastPage : settings.startPage;
-      if (opening && opening !== '404') history.replaceState(null, '', '#' + opening);
+    // Every time the site opens, it starts on "What do you want to study?". A link to a
+    // particular page (like #flashcards) opens that page after a class is picked.
+    var opening = location.hash.slice(1);
+    if (!opening || opening === 'home') {
+      opening = settings.startPage === 'last' ? saved.lastPage : settings.startPage === 'home' ? '' : settings.startPage;
     }
+    if (opening && !/^(pick|class\/|home$|404$)/.test(opening)) pickReturn = opening;
+    history.replaceState(null, '', '#' + (/^pick\/(core|encore)$/.test(location.hash.slice(1)) ? location.hash.slice(1) : 'pick'));
     window.addEventListener('hashchange', function () { route(false); });
     route(true);
     countVisit();

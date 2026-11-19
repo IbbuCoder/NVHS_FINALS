@@ -82,15 +82,15 @@ try {
       <h1 class="home-title" tabindex="-1"><span data-site-title>Finals</span> <span>Pick a class</span></h1>
       <p class="pick-lead">Core is your main classes. Encore is your electives.</p>
       <div class="home-links">
-        <a class="big-link solid" href="#core"><strong>Core</strong><span data-class-names="core"></span></a>
-        <a class="big-link" href="#encore"><strong>Encore</strong><span data-class-names="encore"></span></a>
+        <a class="big-link solid" href="#pick/core"><strong>Core</strong><span data-class-names="core"></span></a>
+        <a class="big-link" href="#pick/encore"><strong>Encore</strong><span data-class-names="encore"></span></a>
       </div>
     </div>
 
     <!-- Shown once a class is picked -->
     <div id="home-class" hidden>
       <h1 class="home-title" tabindex="-1"><span id="home-class-name"></span> <span>Final</span></h1>
-      <a class="link-btn class-switch" href="#classes">Change class</a>
+      <a class="link-btn class-switch" href="#pick">Switch class</a>
       <div class="board" id="board"></div>
       <section class="plan" id="home-plan" aria-label="Study plan" hidden></section>
       <button type="button" class="ask-bar" id="home-ask"><svg aria-hidden="true"><use href="#i-search"></use></svg><span>Search the notes, cards and questions</span></button>
@@ -108,6 +108,13 @@ try {
       <a class="feedback-bar" href="#feedback"><b>Problem or idea?</b> <span>Report a bug, a wrong answer or a complaint. Send feedback</span></a>
       <button type="button" class="link-btn clear-all" id="clear-all">Clear my progress</button>
     </div>
+  </div>
+</section>
+
+<!-- WHAT DO YOU WANT TO STUDY? (shown every time the site opens; #pick, #pick/core, #pick/encore) -->
+<section class="view" id="view-pick" data-title="What do you want to study?">
+  <div class="wrap narrow">
+    <div id="pick-root"></div>
   </div>
 </section>
 
@@ -395,7 +402,8 @@ try {
     <header class="unit-head"><h1 tabindex="-1">More</h1></header>
     <nav class="more-list" aria-label="More pages">
       <a class="more-feedback" href="#feedback"><b>Send feedback</b><span>Report a problem, a wrong answer or an idea</span></a>
-      <a href="#classes"><b>Classes</b><span>Switch to another Core or Encore class</span></a>
+      <a href="#pick"><b>Switch class</b><span>Pick Core or Encore, then another class</span></a>
+      <a href="#classes"><b>Classes</b><span>Every class with how ready you are</span></a>
       <a href="#weak"><b>Weak spots</b><span>What to study next, based on your misses</span></a>
       <a href="#drills"><b>Formula drills</b><span>Practice the math with new numbers each time</span></a>
       <a href="#match"><b>Matching game</b><span>Match terms to their meanings on the clock</span></a>

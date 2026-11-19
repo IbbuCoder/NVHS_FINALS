@@ -626,3 +626,30 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
 .form-result:empty { display: none; }
 textarea.text-input { display: block; max-width: none; min-height: 140px; resize: vertical; font: inherit; }
 .share-form .seg.wrap-seg { max-width: none; }
+
+/* What do you want to study? (shown every time the site opens) */
+.pick-title { font-size: clamp(44px, 11vw, 92px); font-weight: 700; line-height: .95; text-transform: uppercase; padding: 36px 0 24px; }
+.pick-title:focus, .pick-head h1:focus { outline: none; }
+.pick-groups { display: grid; gap: 12px; }
+.pick-btn { display: block; width: 100%; padding: 20px 20px 22px; text-align: left; text-decoration: none; background: var(--surface); border: 3px solid var(--ink); }
+.pick-btn strong { display: block; font: 700 clamp(52px, 13vw, 76px)/.95 var(--head); text-transform: uppercase; }
+.pick-btn span { display: block; margin-top: 8px; color: var(--mute); font-size: 17px; line-height: 1.35; }
+.pick-btn.solid { background: var(--chrome); color: var(--chrome-text); border-color: var(--chrome); border-left: 10px solid var(--accent); }
+.pick-btn.solid span { color: #c8c9c2; }
+.pick-btn:hover { border-color: var(--accent); }
+.pick-btn:hover strong { text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 6px; }
+.pick-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 28px 0 14px; border-bottom: 5px solid var(--ink); }
+.pick-head h1 { font-size: clamp(48px, 12vw, 84px); font-weight: 700; line-height: .9; text-transform: uppercase; }
+.pick-head .btn { flex: none; margin-bottom: 4px; }
+.pick-sub { margin: 12px 0 0; color: var(--mute); }
+.pick-subjects { display: grid; gap: 10px; margin-top: 16px; }
+.pick-subject { display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: 76px; padding: 12px 16px; text-align: left; background: var(--surface); border: 2px solid var(--ink); }
+.pick-subject b { font: 700 32px/1.05 var(--head); }
+.pick-subject span { margin-top: 2px; color: var(--mute); font-size: 15px; }
+.pick-subject:hover { border-color: var(--accent); }
+.pick-subject:hover b { color: var(--accent); }
+.pick-subject.is-last { border-left: 8px solid var(--accent); }
+.pick-skip { display: inline-block; margin-top: 22px; font-size: 17px; }
+@media (min-width: 560px) {
+  .pick-groups, .pick-subjects { grid-template-columns: 1fr 1fr; }
+}
