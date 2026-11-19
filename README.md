@@ -16,6 +16,17 @@ python3 -m http.server 8000
 
 Then open http://localhost:8000.
 
+## Opening the site
+
+Every time the site opens (each fresh load, not just the first visit), it starts on **What do you want to study?**
+
+1. Tap **Core** or **Encore**.
+2. Tap a class. Its list comes from `data/subjects.js` (`category: 'core'` or `'encore'`), and Back returns to step 1.
+
+Picking a class opens that class's Home. If the site was opened with a link to a particular page (for example `.../#flashcards` or `.../#u2`), that page opens after the pick instead. The Settings option "Open the site on" also decides where you land.
+
+It never locks you in: the bottom tabs and menu links work from the picker, "Keep studying" goes straight back to the last class, and **Switch class** (in More, or on Home) opens the picker again. The picker's addresses are `#pick`, `#pick/core` and `#pick/encore`.
+
 ## How it's organized
 
 ```
