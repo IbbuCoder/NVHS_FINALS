@@ -1,12 +1,14 @@
-// Supabase settings. NOT USED YET: no page loads this file and no feature calls Supabase.
+// Supabase project for the finals site.
 //
-// Never commit keys. When you are ready:
-//   1. Copy this file to supabase/config.local.js (that name is in .gitignore).
-//   2. Fill in the copy with your project URL and the PUBLISHABLE key only
-//      (starts with sb_publishable_). Never put the secret / service_role key in
-//      any file the website loads.
-//   3. Turn on Row Level Security for every table before any feature uses it.
+// The publishable key is meant to be in the browser. Row Level Security on every
+// table decides what each person can read or change.
+//
+// NEVER put a secret key (sb_secret_...) or the legacy service_role key in this
+// file or anywhere in this repo.
 window.FINALS_SUPABASE = {
-  url: '',  // e.g. 'https://abcd1234.supabase.co'
-  key: ''   // publishable key
+  url: 'https://slqllkrgrgjsnjmdvxqg.supabase.co',
+  key: 'sb_publishable_JM3MHQZXUmyG7lnO3o1Zpg_vnVQM3Ka',
+
+  // Only school accounts can sign up or sign in. The database checks this too.
+  emailDomain: 'k12.ipsd.org'
 };
