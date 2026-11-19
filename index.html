@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+  <!-- Set the theme before the page draws, so dark mode doesn't flash white. -->
+  <script>
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = "light"; }
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/config.js" defer></script>
+  <script src="js/data.js" defer></script>
+  <script src="js/common.js" defer></script>
+  <script src="js/home.js" defer></script>
+  <title>Finals Study Guide</title>
+  <meta name="description" content="Free, student-made finals study guides: key terms, flashcards, quizzes, and shared NotebookLM notebooks.">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">✏️</span>
+        <span class="brand-text">
+          <span class="brand-title" data-site-title>Finals Study Guide</span>
+          <span class="brand-school" data-school-name hidden></span>
+        </span>
+      </a>
+      <nav class="header-nav" aria-label="Main">
+        <a href="share.html">Share<span class="wide-only"> a notebook</span></a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-pressed="false">
+        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <span class="visually-hidden">Dark mode</span>
+      </button>
+    </div>
+  </header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow" data-school-name hidden></p>
+      <h1 id="hero-title">Get ready for finals.</h1>
+      <p class="lede">Key terms, flashcards, and quick quizzes for every class, plus notebooks shared by other students.</p>
+
+      <!-- Filled in by home.js from SITE_CONFIG.finalsDate -->
+      <div class="countdown" id="countdown" role="timer" aria-live="off" hidden></div>
+    </section>
+
+    <section aria-labelledby="pick-title">
+      <h2 id="pick-title" class="section-title">Pick your classes</h2>
+      <div class="category-buttons">
+        <a class="category-button category-button--core" href="category.html?type=core">
+          <span class="category-button__icon" aria-hidden="true">📘</span>
+          <span class="category-button__label">Core</span>
+          <span class="category-button__sub">Main classes <span data-count="core"></span></span>
+        </a>
+        <a class="category-button category-button--encore" href="category.html?type=encore">
+          <span class="category-button__icon" aria-hidden="true">🎨</span>
+          <span class="category-button__label">Encore</span>
+          <span class="category-button__sub">Electives <span data-count="encore"></span></span>
+        </a>
+      </div>
+    </section>
+
+    <section class="search" aria-labelledby="search-title" role="search">
+      <h2 id="search-title" class="section-title">Or search for a class</h2>
+      <label class="visually-hidden" for="subject-search">Search classes by name</label>
+      <input class="search__input" id="subject-search" type="search" placeholder="Try “science” or “band”" autocomplete="off">
+      <p class="search__status" id="search-status" aria-live="polite"></p>
+      <ul class="search__results" id="search-results"></ul>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Made by students, for students. Not an official school site.</p>
+      <p><a href="share.html">Share your NotebookLM notebook</a></p>
+    </div>
+  </footer>
+</body>
+</html>
