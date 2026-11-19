@@ -60,8 +60,6 @@ try {
       <span class="nav-sep" aria-hidden="true"></span>
       <a href="#settings">Settings</a>
       <a href="#feedback">Feedback</a>
-      <a href="#account" data-account-link>Sign in</a>
-      <a href="#admin" data-admin hidden>Admin</a>
     </nav>
     <a class="icon-btn" id="feedback-btn" href="#feedback" aria-label="Send feedback or report a problem" title="Send feedback or report a problem"><svg aria-hidden="true"><use href="#i-feedback"></use></svg></a>
     <button type="button" class="icon-btn" id="search-btn" aria-label="Search the notes"><svg aria-hidden="true"><use href="#i-search"></use></svg></button>
@@ -230,16 +228,12 @@ try {
 <section class="view" id="view-share" data-title="Share a notebook">
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">Share a notebook</h1></header>
-    <p class="note" style="margin-top:14px">If you made a NotebookLM notebook from your own class notes, you can share it here. It shows up under Units for that class once the admin approves it.</p>
-    <h2 class="set-group">How to share</h2>
-    <ol class="steps">
-      <li>Open your class notebook in NotebookLM.</li>
-      <li>Click Share (top right).</li>
-      <li>Set general access to "Anyone with the link" as Viewer.</li>
-      <li>Copy the link and paste it into the form below.</li>
-      <li>Only share notebooks made from your own notes, not teacher tests or answer keys, and keep names and personal info out.</li>
-    </ol>
-    <div id="share-root"></div>
+    <div class="nb-box">
+      <h2>Not open yet</h2>
+      <p>Sharing NotebookLM notebooks isn't open yet. When it opens, you'll be able to add a notebook made from your own class notes here.</p>
+      <p class="note">Notebooks that are already approved show under Units for each class.</p>
+      <a class="btn solid" href="#units">Go to Units</a>
+    </div>
   </div>
 </section>
 
@@ -363,15 +357,8 @@ try {
 
     <h2 class="set-group">Data</h2>
     <div class="set-row">
-      <span class="set-label">Account</span>
-      <p class="note" id="set-account-note">Signing in is optional. Without it, progress saves on this device only.</p>
-      <a class="btn" href="#account" data-account-link>Sign in</a>
-    </div>
-    <div class="set-row" id="set-sync-row" hidden>
-      <span class="set-label">Synced progress</span>
-      <p class="note">Your progress is copied to your account so it follows you to other devices. Deleting it removes only your rows on the server. Progress on this device stays.</p>
-      <button type="button" class="btn" id="delete-synced">Delete my synced data</button>
-      <p class="note" id="delete-synced-msg" role="status" aria-live="polite"></p>
+      <span class="set-label">Where your progress is saved</span>
+      <p class="note">Only in this browser on this device. Clearing your browser data clears it too.</p>
     </div>
     <div class="set-row">
       <span class="set-label">Backup</span>
@@ -408,8 +395,6 @@ try {
     <header class="unit-head"><h1 tabindex="-1">More</h1></header>
     <nav class="more-list" aria-label="More pages">
       <a class="more-feedback" href="#feedback"><b>Send feedback</b><span>Report a problem, a wrong answer or an idea</span></a>
-      <a href="#account"><b data-account-link>Sign in</b><span data-account-note>Optional. Saves your progress across devices</span></a>
-      <a href="#admin" data-admin hidden><b>Admin</b><span>Approve or reject shared notebooks</span></a>
       <a href="#classes"><b>Classes</b><span>Switch to another Core or Encore class</span></a>
       <a href="#weak"><b>Weak spots</b><span>What to study next, based on your misses</span></a>
       <a href="#drills"><b>Formula drills</b><span>Practice the math with new numbers each time</span></a>
@@ -422,19 +407,11 @@ try {
   </div>
 </section>
 
-<!-- ACCOUNT -->
-<section class="view" id="view-account" data-title="Account">
-  <div class="wrap narrow">
-    <header class="unit-head"><h1 tabindex="-1" id="account-title">Sign in</h1></header>
-    <div id="account-root"></div>
-  </div>
-</section>
-
 <!-- FEEDBACK -->
 <section class="view" id="view-feedback" data-title="Feedback">
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">Feedback</h1></header>
-    <p class="note" style="margin-top:14px">Report a bug, a wrong answer or an idea. You don't need to sign in, and your name is not sent.</p>
+    <p class="note" style="margin-top:14px">Report a bug, a wrong answer or an idea. Your name is not sent.</p>
     <form class="share-form" id="feedback-form" novalidate>
       <div class="set-row">
         <span class="set-label" id="fb-kind-label">What is it about?</span>
@@ -463,14 +440,6 @@ try {
   </div>
 </section>
 
-<!-- ADMIN (only works for the admin account) -->
-<section class="view" id="view-admin" data-title="Admin">
-  <div class="wrap narrow">
-    <header class="unit-head"><h1 tabindex="-1">Admin</h1></header>
-    <div id="admin-root"></div>
-  </div>
-</section>
-
 <!-- NOT FOUND -->
 <section class="view" id="view-404" data-title="Page not found">
   <div class="wrap narrow">
@@ -482,7 +451,7 @@ try {
 
 </main>
 
-<footer class="foot"><div class="wrap">Made by students. Not an official school site. Progress saves on this device, and to your account if you sign in. <a href="#share">Share a notebook</a> · <a href="#feedback">Send feedback</a></div></footer>
+<footer class="foot"><div class="wrap">Made by students. Not an official school site. Progress saves on this device only. <a href="#share">Share a notebook</a> · <a href="#feedback">Send feedback</a></div></footer>
 
 <nav class="tabbar" aria-label="App">
   <a href="#home" data-tab="home"><svg aria-hidden="true"><use href="#t-home"></use></svg>Home</a>
@@ -561,7 +530,7 @@ try {
 <script src="./js/registry.js"></script>
 <script src="./js/config.js"></script>
 <script src="./data/subjects.js"></script>
-<!-- Supabase: if the CDN can't load (offline), the site still works without accounts. -->
+<!-- Supabase: approved notebooks, feedback and the visit count. If the CDN can't load (offline), the rest of the site still works. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="./supabase/config.js"></script>
 <script src="./supabase/client.js"></script>

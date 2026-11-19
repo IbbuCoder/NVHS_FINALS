@@ -11,6 +11,6 @@ window.FINALS_CONFIG = {
   // With no date, the countdown and the day-by-day plan stay hidden.
   finalsDate: ''
 
-  // Accounts, shared notebooks, feedback and progress sync use Supabase.
+  // Approved notebooks, feedback and the visit count use Supabase.
   // Its settings are in supabase/config.js.
 };

@@ -617,18 +617,12 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
 .block .tbl { margin-top: 8px; }
 .ph-flag { display: inline-block; margin: 12px 0 0; padding: 4px 10px; border: 2px solid var(--accent); color: var(--accent); font: 600 16px/1.2 var(--head); }
 
-/* Share a notebook form */
-.steps { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: n; }
-.steps li { counter-increment: n; display: flex; gap: 14px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--rule); }
-.steps li::before { content: counter(n); font: 700 30px/1 var(--head); color: var(--accent); width: 18px; flex: none; }
+/* Feedback form */
 .share-form select.text-input { appearance: auto; }
 .share-form .seg { max-width: 420px; }
 .field-error { margin: 6px 0 0; color: var(--accent); font-weight: 600; }
 [aria-invalid="true"] { border-color: var(--accent) !important; }
-.check-row { display: flex; gap: 12px; align-items: flex-start; font-weight: 600; cursor: pointer; }
-.check-row input { width: 22px; height: 22px; margin-top: 2px; flex: none; accent-color: var(--accent); }
 .form-result { margin-top: 14px; padding: 12px 14px; background: var(--fill); border-left: 5px solid var(--accent); }
 .form-result:empty { display: none; }
-.form-result pre { margin: 8px 0 0; overflow-x: auto; font-size: 14px; white-space: pre-wrap; }
 textarea.text-input { display: block; max-width: none; min-height: 140px; resize: vertical; font: inherit; }
 .share-form .seg.wrap-seg { max-width: none; }
