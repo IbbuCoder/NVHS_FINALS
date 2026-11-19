@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page not found | Finals</title>
+<meta name="robots" content="noindex">
+<script>
+try {
+  var s = (JSON.parse(localStorage.getItem('finals-v1')) || {}).settings || {}, r = document.documentElement;
+  var t = s.theme === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : s.theme;
+  if (t) r.dataset.theme = t;
+  if (s.accent) r.dataset.accent = s.accent;
+} catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+  /* Kept separate from css/style.css because this page can load from any path. */
+  :root { --paper: #f3f4ef; --ink: #15171a; --accent: #c4122f; --mute: #55585a; --head: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; }
+  html[data-accent="green"] { --accent: #0b7a3e; } html[data-accent="blue"] { --accent: #1457b8; } html[data-accent="orange"] { --accent: #b84a00; }
+  html[data-theme="dark"] { --paper: #17191c; --ink: #eceee8; --accent: #ff5c73; --mute: #a9adab; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.5 'Source Sans 3', Arial, sans-serif; }
+  .nf { max-width: 640px; margin: 0 auto; padding: 12vh 16px 48px; }
+  .nf-code { font: 700 clamp(88px, 22vw, 160px)/0.9 var(--head); color: var(--accent); margin: 0; }
+  h1 { font: 700 clamp(34px, 7vw, 48px)/1.05 var(--head); margin: 12px 0 10px; text-transform: uppercase; }
+  p { color: var(--mute); }
+  a { display: inline-block; margin-top: 12px; padding: 8px 18px; border: 2px solid var(--ink); background: var(--ink); color: var(--paper); font: 600 20px/1.1 var(--head); text-decoration: none; }
+</style>
+</head>
+<body>
+<main class="nf">
+  <p class="nf-code" aria-hidden="true">404</p>
+  <h1>Page not found</h1>
+  <p>That address doesn't go to anything on the finals site. It may be old or mistyped.</p>
+  <a id="home" href="./">Go to Home</a>
+</main>
+<script>
+  // On GitHub Pages the site lives in a folder named after the repo; send people to its Home.
+  var parts = location.pathname.split('/').filter(Boolean);
+  if (location.hostname.endsWith('github.io') && parts.length) document.getElementById('home').href = '/' + parts[0] + '/';
+</script>
+</body>
+</html>

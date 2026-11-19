@@ -1,20 +1,16 @@
-/*
- * config.js — the ONE place for site-wide settings.
- * Change these values; you shouldn't need to touch any other file for them.
- */
-window.SITE_CONFIG = {
-  // Shown in the header and on the home page.
-  siteTitle: "Finals Study Guide",
+// Site settings. Change these values; no other file needs to change for them.
+window.FINALS_CONFIG = {
+  // Name in the top bar and on Home.
+  siteTitle: 'Finals',
 
-  // Your school's name. Leave "" to hide it.
-  schoolName: "",
+  // Your school's name. Leave '' to hide it.
+  schoolName: '',
 
-  // When finals start, in local time, format "YYYY-MM-DDTHH:MM".
-  // Example: "2027-01-20T08:00". Leave "" to hide the countdown.
-  finalsDate: "",
+  // The default finals date for every class, as 'YYYY-MM-DD'. Leave '' for none.
+  // A class can set its own date with exam: '...' in data/subjects.js.
+  // With no date, the countdown and the day-by-day plan stay hidden.
+  finalsDate: ''
 
-  // Where the "Share a notebook" form sends submissions.
-  // While this still contains "REPLACE-ME", the form validates and shows a
-  // preview but does NOT send anything.
-  notebookFormEndpoint: "https://example.com/REPLACE-ME",
+  // Accounts, shared notebooks, feedback and progress sync use Supabase.
+  // Its settings are in supabase/config.js.
 };

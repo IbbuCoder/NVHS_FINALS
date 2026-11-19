@@ -1,0 +1,5 @@
+# Keys and local settings never go in the repo.
+supabase/config.local.js
+*.local.js
+.env
+.env.*
