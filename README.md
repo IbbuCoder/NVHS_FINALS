@@ -31,7 +31,7 @@ It never locks you in: the menu works from the picker, "Keep studying" goes stra
 
 While the site is being built it warns everyone, very clearly:
 
-- **Popup every time the site opens, and a yellow strip on every page.** To turn both off, open `js/config.js` and change `notFinished: true` to `notFinished: false`.
+- **Popup every time the site opens, and a red strip on every page.** To turn both off, open `js/config.js` and change `notFinished: true` to `notFinished: false`.
 - **"Not filled in yet" warning on a class, and a tag on it in the class picker.** To turn it off for one class, open `data/subjects.js` and delete `, unfinished: true` from that class's line.
 
 Nothing turns these off on its own.
