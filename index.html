@@ -94,6 +94,14 @@ try {
   </div>
 </header>
 
+<!-- NOT FINISHED NOTICE: shown while notFinished is true in js/config.js -->
+<div class="wip-strip" id="wip-strip" hidden>
+  <div class="wip-strip-in"><strong>This site is still being built.</strong> <span>Some classes aren't filled in yet.</span>
+  <button type="button" class="wip-more" id="wip-more">Read more</button></div>
+</div>
+<!-- Shown on a class that has unfinished: true in data/subjects.js -->
+<div class="wip-class" id="wip-class" hidden></div>
+
 <noscript><p class="noscript">This study site needs JavaScript. Turn it on in your browser, then reload.</p></noscript>
 
 <main id="main">
@@ -406,6 +414,22 @@ try {
   <div class="search-results" id="search-results"></div>
 </dialog>
 
+
+<!-- NOT FINISHED POPUP: opens every time the site loads while notFinished is true in js/config.js -->
+<dialog class="welcome wip-pop" id="wip-pop" aria-labelledby="wip-title">
+  <div class="welcome-in">
+    <p class="wip-badge">Not finished yet</p>
+    <h2 id="wip-title">This site is still being built</h2>
+    <p class="welcome-lead">Thanks for checking it out! This is an early version, so not everything is finished yet.</p>
+    <ul class="wip-list">
+      <li><strong>PE / Health</strong> is the finished example. It shows what every class will look like.</li>
+      <li>The other classes are <strong>not filled in yet</strong>. Their notes, flashcards and questions are <strong>samples</strong> that will be replaced with real class content.</li>
+      <li>Some things may still change or have mistakes. If you see one, use <strong>Send feedback</strong> under More.</li>
+    </ul>
+    <p class="note">Made by students. Not an official school site.</p>
+    <div class="welcome-actions"><button type="button" class="btn solid wip-ok" id="wip-ok">Got it, show me the site</button></div>
+  </div>
+</dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

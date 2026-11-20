@@ -499,6 +499,7 @@
       else a.removeAttribute('aria-current');
     });
     paintClassChip(pickGroup);
+    paintClassWarning(pickGroup || id === '404');
     if (id !== 'test') test.mockIntro = false;
     $$('.tabbar a').forEach(function (a) {
       if (a.dataset.tab === tabId) a.setAttribute('aria-current', 'page');
@@ -526,6 +527,31 @@
     if (!first) {
       var h = $('h1', view);
       if (h && h.offsetParent) h.focus({ preventScroll: true });
+    }
+  }
+
+  /* ---------- Not finished notices (turned on and off by hand) ---------- */
+
+  // The popup and strip follow notFinished in js/config.js.
+  function buildNotFinished() {
+    if (!CFG.notFinished) return;
+    var pop = $('#wip-pop');
+    $('#wip-strip').hidden = false;
+    $('#wip-ok').addEventListener('click', function () { closeDialog(pop); });
+    $('#wip-more').addEventListener('click', function () { openDialog(pop); });
+    pop.addEventListener('click', function (e) { if (e.target === pop) closeDialog(pop); });
+    openDialog(pop);
+  }
+
+  // The warning on a class with unfinished: true in data/subjects.js.
+  function paintClassWarning(onPicker) {
+    var box = $('#wip-class');
+    var s = subjectOf(cur);
+    var show = !!(s && s.unfinished && !onPicker);
+    box.hidden = !show;
+    if (show) {
+      box.innerHTML = '<div class="wip-class-in"><strong>' + esc(s.name) + ' is not filled in yet.</strong> ' +
+        '<span>The notes, flashcards and questions here are samples, not real class content.</span></div>';
     }
   }
 
@@ -607,7 +633,8 @@
         var units = dataOf(s.id).units.length;
         var last = s.id === cur;
         return '<button type="button" class="pick-subject' + (last ? ' is-last' : '') + '" data-pick-class="' + s.id + '">' +
-          '<b>' + esc(s.name) + '</b><span>' + (last ? 'Studied last time' : units ? units + (units === 1 ? ' lesson' : ' lessons') : 'No lessons yet') + '</span></button>';
+          '<b>' + esc(s.name) + '</b><span>' + (last ? 'Studied last time' : units ? units + (units === 1 ? ' lesson' : ' lessons') : 'No lessons yet') + '</span>' +
+          (s.unfinished ? '<em class="wip-tag">Not filled in yet</em>' : '') + '</button>';
       }).join('') + '</div>';
   }
 
@@ -2223,6 +2250,7 @@
     applySettings();
     $$('[data-site-title]').forEach(function (el) { el.textContent = CFG.siteTitle || 'Finals'; });
     buildShortcuts();
+    buildNotFinished();
     buildUnitPage();
     buildFlashcards();
     buildTest();

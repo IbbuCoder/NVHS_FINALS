@@ -27,6 +27,15 @@ Picking a class opens that class's Home. If the site was opened with a link to a
 
 It never locks you in: the menu works from the picker, "Keep studying" goes straight back to the last class, and the class name in the top bar (or **Change class** on Home and in More) opens the picker again. The picker's addresses are `#pick`, `#pick/core` and `#pick/encore`.
 
+## "Not finished" notices (turn these off by hand)
+
+While the site is being built it warns everyone, very clearly:
+
+- **Popup every time the site opens, and a yellow strip on every page.** To turn both off, open `js/config.js` and change `notFinished: true` to `notFinished: false`.
+- **"Not filled in yet" warning on a class, and a tag on it in the class picker.** To turn it off for one class, open `data/subjects.js` and delete `, unfinished: true` from that class's line.
+
+Nothing turns these off on its own.
+
 ## How it's laid out
 
 Every class has the same 5 places, in the bottom bar on phones and the top menu on computers:
