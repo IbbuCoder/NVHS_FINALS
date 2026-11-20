@@ -342,7 +342,7 @@
       d.units.forEach(function (u) {
         items.push({ kind: s.name + ' unit', title: u.num + ' ' + u.title, text: '', go: function () { setClass(s.id); location.hash = u.id; } });
         (u.sections || []).forEach(function (sec) {
-          var text = (sec.body || []).concat(sec.list || []).concat(sec.table ? [].concat.apply([], sec.table.rows) : []).join(' ');
+          var text = sectionText(sec);
           items.push({ kind: s.name + ' notes, ' + u.num, title: sec.title, text: text, go: function () { setClass(s.id); goToSection(u.id, sec.id); } });
         });
       });
@@ -808,13 +808,27 @@
           }).join('') + '</tr>';
         }).join('') + '</tbody></table>'
       : '';
-    return '<div class="block' + (marked ? ' is-marked' : '') + '" id="sec-' + esc(sec.id) + '" data-sec="' + esc(sec.id) + '">' +
+    // html: a section written as HTML (from this site's own data files), used as is.
+    // tool: shows the section as a full-width tool panel, like the PE Midterm app.
+    var content = sec.html || (
+      (sec.body || []).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
+      (sec.list && sec.list.length ? '<ul class="ruled">' + sec.list.map(function (li) { return '<li>' + esc(li) + '</li>'; }).join('') + '</ul>' : '') +
+      table);
+    return '<div class="' + (sec.tool ? 'tool' : 'block') + (marked ? ' is-marked' : '') + '" id="sec-' + esc(sec.id) + '" data-sec="' + esc(sec.id) + '">' +
       '<h2>' + esc(sec.title) + '<button type="button" class="mark-icon" data-mark="' + esc(sec.id) + '" aria-pressed="' + marked + '" aria-label="' +
         (marked ? 'Remove bookmark from ' : 'Bookmark ') + esc(sec.title) + '"><svg aria-hidden="true"><use href="#i-bookmark"></use></svg></button></h2>' +
-      '<div>' + (sec.simple ? '<p class="simple">' + esc(sec.simple) + '</p>' : '') +
-        (sec.body || []).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
-        (sec.list && sec.list.length ? '<ul class="ruled">' + sec.list.map(function (li) { return '<li>' + esc(li) + '</li>'; }).join('') + '</ul>' : '') +
-        table + '</div></div>';
+      '<div>' + (sec.simple ? '<p class="simple">' + esc(sec.simple) + '</p>' : '') + content + '</div></div>';
+  }
+
+  // The words in a section, for search.
+  function sectionText(sec) {
+    var text = (sec.body || []).concat(sec.list || []).concat(sec.table ? [].concat.apply([], sec.table.rows) : []).join(' ');
+    if (sec.html) {
+      var div = document.createElement('div');
+      div.innerHTML = sec.html.replace(/<\/(p|li|td|th|h3|dd|dt|figcaption|caption)>/g, ' $&');
+      text += ' ' + div.textContent;
+    }
+    return text.replace(/\s+/g, ' ').trim();
   }
 
   function renderUnit(u) {
@@ -831,6 +845,11 @@
       '<a class="quiz-link" href="#test" data-scope="' + u.id + '">Quiz yourself on this unit</a>' +
       '<button type="button" class="link-btn" data-print>Print this page</button>' +
       (next ? '<a href="#' + next.id + '">Next: ' + esc(next.num + ' ' + next.title) + '</a>' : '<a href="#flashcards">Next: Flashcards</a>');
+    // A class with its own tools file (data/classes/<id>-tools.js) sets up its interactive parts here.
+    var tools = window.FINALS.tools[cur];
+    if (tools) {
+      try { tools($('#unit-body'), u, window.FINALS.classes[cur]); } catch (err) { if (window.console) console.error(err); }
+    }
   }
 
   function goToSection(unitId, secId) {
@@ -854,7 +873,7 @@
         toggleMark(m.dataset.mark);
         var on = markList().indexOf(m.dataset.mark) > -1;
         m.setAttribute('aria-pressed', String(on));
-        m.closest('.block').classList.toggle('is-marked', on);
+        m.closest('[data-sec]').classList.toggle('is-marked', on);
       }
     });
   }
@@ -2212,11 +2231,17 @@
 
   // Loads every class file listed in data/subjects.js, then starts the app.
   function loadClasses(done) {
-    var left = SUBJECTS.length;
-    if (!left) { done(); return; }
+    // A class with tools: true in data/subjects.js also loads data/classes/<id>-tools.js.
+    var files = [];
     SUBJECTS.forEach(function (s) {
+      files.push(s.id);
+      if (s.tools) files.push(s.id + '-tools');
+    });
+    var left = files.length;
+    if (!left) { done(); return; }
+    files.forEach(function (name) {
       var tag = document.createElement('script');
-      tag.src = './data/classes/' + encodeURIComponent(s.id) + '.js';
+      tag.src = './data/classes/' + encodeURIComponent(name) + '.js';
       tag.onload = tag.onerror = function () { if (--left === 0) done(); };
       document.head.appendChild(tag);
     });
