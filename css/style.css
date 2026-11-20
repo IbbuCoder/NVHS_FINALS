@@ -509,7 +509,7 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
   .top { padding-top: env(safe-area-inset-top); }
   .menu-btn { display: none; }
   .dumb-btn { margin-left: 0; }
-  .icon-btn { width: 38px; height: 38px; }
+  .icon-btn { width: 44px; height: 44px; }
   .brand { font-size: 21px; gap: 6px; }
   .brand-logo { width: 24px; height: 24px; }
   .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); background: var(--chrome); color: var(--chrome-text); }
@@ -569,13 +569,12 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
   html { scroll-behavior: auto; }
 }
 
-/* Very narrow phones: keep the top bar on one line with the feedback button in it. */
+/* Very narrow phones: keep the top bar on one line, with buttons still big enough to tap. */
 @media (max-width: 370px) {
-  .brand { font-size: 18px; }
-  .brand-logo { width: 22px; height: 22px; }
-  .top .icon-btn { width: 34px; height: 34px; }
-  #search-btn { margin-left: 6px; }
-  .dumb-btn { font-size: 15px; padding: 6px 7px; min-height: 34px; }
+  .brand-logo { width: 26px; height: 26px; }
+  .top .icon-btn { width: 44px; height: 44px; }
+  #search-btn { margin-left: auto; }
+  .dumb-btn { font-size: 15px; padding: 6px 7px; min-height: 44px; }
 }
 
 /* Six tabs on a narrow phone: smaller labels so Bookmarks fits. */
@@ -889,3 +888,81 @@ span.stat { display: block; }
 .quiz-option h2 i { display: inline-grid; place-items: center; width: 36px; height: 36px; flex: none; background: var(--accent); color: var(--on-accent); font-style: normal; font-size: 22px; }
 .quiz-option > .note { margin: 8px 0 12px; }
 .quiz-option .scope-list { margin-bottom: 14px; }
+
+/* ---------- Every device: big, easy-to-tap buttons ----------
+   Anything you tap is at least 44px tall (48px for the main ones), on phones, iPads and computers. */
+
+/* Top bar */
+.top-in { min-height: 60px; }
+.brand { min-height: 44px; }
+.icon-btn { width: 44px; height: 44px; }
+.dumb-btn, .menu-btn, .class-chip { min-height: 44px; }
+.nav a { padding: 0 6px; line-height: 60px; height: 60px; }
+
+/* Text links that do something become real buttons */
+.link-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 16px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); font: 600 18px/1.15 var(--head); text-decoration: none; text-align: center; }
+.link-btn:hover { border-color: var(--accent); color: var(--accent); }
+.class-switch { margin: -10px 0 22px; }
+.pick-skip { margin-top: 22px; }
+
+/* Back links */
+.back-link { min-height: 48px; margin-top: 14px; padding: 8px 16px 8px 14px; border: 2px solid var(--ink); background: var(--paper); font-size: 20px; }
+.back-link::before { width: 10px; height: 10px; }
+
+/* Jump to a section inside a lesson */
+.jump { gap: 8px; padding: 14px 0; }
+.jump button { min-height: 44px; padding: 8px 14px; border: 2px solid var(--rule); background: var(--paper); color: var(--ink); text-decoration: none; font: 600 17px/1.15 var(--head); }
+.jump button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Bookmark buttons on each section */
+.mark-icon { width: 44px; height: 44px; vertical-align: middle; border-width: 2px; }
+.mark-icon svg { width: 22px; height: 22px; }
+
+/* Bottom of a lesson: Quiz, Print, Next */
+.pager { gap: 10px; }
+.pager a, .pager .link-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 10px 16px; border: 2px solid var(--ink); text-decoration: none; }
+.pager .quiz-link { background: var(--accent); border-color: var(--accent); color: var(--on-accent); text-decoration: none; }
+.pager .quiz-link:hover { filter: brightness(.9); color: var(--on-accent); }
+
+/* "Show the formulas" and other fold-outs */
+summary { display: flex; align-items: center; min-height: 48px; padding: 8px 0; }
+
+/* Footer links */
+.foot a { display: inline-block; padding: 12px 4px; }
+
+/* Answer choices and big buttons stay easy to hit */
+.btn { min-height: 48px; }
+.opt { min-height: 52px; }
+.scope-list label { min-height: 52px; }
+
+/* iPads and small laptops: use the bottom bar like phones (no Menu dropdown) */
+@media (max-width: 1099px) {
+  .nav, .nav.is-open, .menu-btn { display: none !important; }
+  body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); background: var(--chrome); color: var(--chrome-text); }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 64px; border-top: 3px solid transparent; text-decoration: none; font: 600 15px/1 var(--head); min-width: 0; white-space: nowrap; }
+  .tabbar svg { width: 25px; height: 25px; }
+  .tabbar a[aria-current] { border-top-color: var(--accent-bright); color: var(--accent-bright); }
+  .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
+  #search-btn { margin-left: auto; }
+}
+@media (min-width: 761px) and (max-width: 1099px) {
+  .tabbar a { flex-direction: row; gap: 8px; font-size: 18px; }
+}
+@media (max-width: 760px) {
+  .tabbar a { height: 64px; font-size: 13px; }
+  .back-link { font-size: 18px; }
+  .pager { flex-direction: column; align-items: stretch; }
+  .pager a, .pager .link-btn { justify-content: center; }
+}
+@media (max-width: 380px) {
+  .dumb-btn { font-size: 15px; padding: 6px 8px; }
+  .class-chip { max-width: 38vw; }
+}
+
+/* The logo is a Home button: make it a full-size target when only the icon shows */
+.brand { min-width: 44px; justify-content: center; }
+@media (max-width: 760px) {
+  .brand { padding-right: 6px; }
+  .brand-logo { width: 28px; height: 28px; }
+}
