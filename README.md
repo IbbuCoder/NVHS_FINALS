@@ -4,7 +4,7 @@ A study site for finals. Pick a Core or Encore class, then study it with notes, 
 
 Plain HTML, CSS and JavaScript. No build step. The only outside files are the Google Fonts (Barlow Condensed, Oswald, Source Sans 3) and supabase-js from the jsDelivr CDN.
 
-**Right now every class has placeholder content only.** Look for `PLACEHOLDER` and `Placeholder` in `data/classes/`.
+**PE / Health has real content** (all of the PE Midterm app, plus Flexibility and Nutrition for the final). Every other class still has placeholder content only. Look for `PLACEHOLDER` and `Placeholder` in `data/classes/`.
 
 ## Run it locally
 
@@ -39,6 +39,7 @@ js/main.js            Everything the app does
 data/subjects.js      The list of classes (Core and Encore)
 data/classes/<id>.js  One file per class: units, notes, flashcards, questions, drills
 data/classes/_template.js   Copy this to start a class
+data/classes/pe-health-tools.js  PE / Health's interactive parts (muscle map, calculators, games)
 supabase/config.js    Supabase project URL and publishable key
 supabase/client.js    Every Supabase call the site makes (window.FinalsDB)
 ```
@@ -63,6 +64,12 @@ Open the class's file in `data/classes/` and replace the placeholders. `_templat
 - **formulas** and **drills**: optional. Each drill makes a new problem with random numbers.
 
 One missing comma breaks a file. If a class shows nothing, open the browser console (F12) to find the line.
+
+## Sections written as HTML, and class tools
+
+A section can use `html: '...'` instead of `body`, `list` and `table`, to keep a layout the plain fields can't make (PE / Health uses this to keep the PE Midterm app's tables and diagrams). Add `tool: true` to show it as a full-width tool panel.
+
+A class that needs its own interactive parts sets `tools: true` in `data/subjects.js`. The site then also loads `data/classes/<id>-tools.js`, which calls `FINALS.addTools(id, function (root, unit, content) { ... })`. That function runs every time one of the class's units is shown.
 
 ## Settings in js/config.js
 
