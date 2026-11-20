@@ -10,9 +10,6 @@ FINALS.subjects = [
   { id: "math", name: "Math", category: "core", exam: "" },
   { id: "science", name: "Science", category: "core", exam: "" },
   { id: "social-studies", name: "Social Studies", category: "core", exam: "" },
-  { id: "art", name: "Art", category: "encore", exam: "" },
-  { id: "band", name: "Band", category: "encore", exam: "" },
   { id: "pe-health", name: "PE / Health", category: "encore", exam: "", tools: true },
   { id: "spanish", name: "Spanish", category: "encore", exam: "" },
-  { id: "tech", name: "Tech", category: "encore", exam: "" },
 ];
