@@ -98,7 +98,7 @@
     MUSCLES[view].forEach(function (m) {
       shapesHtml += '<g class="m" data-muscle="' + m.id + '">' + paths(m.paths, 'm-shape') + paths(m.paths, 'm-hit') + '</g>';
       badges += '<g class="m-badge" data-muscle="' + m.id + '" tabindex="0" role="button" transform="translate(' + m.badge[0] + ' ' + m.badge[1] + ')">' +
-        '<circle class="b-hit" r="15"/><circle class="b-dot" r="9.5"/><text class="b-num" dy="0.35em">' + numbers[m.id] + '</text></g>';
+        '<circle class="b-hit" r="19"/><circle class="b-dot" r="9.5"/><text class="b-num" dy="0.35em">' + numbers[m.id] + '</text></g>';
     });
     return html + shapesHtml + badges + '</g>';
   }

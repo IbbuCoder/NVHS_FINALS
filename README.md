@@ -23,9 +23,30 @@ Every time the site opens (each fresh load, not just the first visit), it starts
 1. Tap **Core** or **Encore**.
 2. Tap a class. Its list comes from `data/subjects.js` (`category: 'core'` or `'encore'`), and Back returns to step 1.
 
-Picking a class opens that class's Home. If the site was opened with a link to a particular page (for example `.../#flashcards` or `.../#u2`), that page opens after the pick instead. The Settings option "Open the site on" also decides where you land.
+Picking a class opens that class's Home. If the site was opened with a link to a particular page (for example `.../#flashcards` or `.../#u2`), that page opens after the pick instead.
 
-It never locks you in: the bottom tabs and menu links work from the picker, "Keep studying" goes straight back to the last class, and **Switch class** (in More, or on Home) opens the picker again. The picker's addresses are `#pick`, `#pick/core` and `#pick/encore`.
+It never locks you in: the menu works from the picker, "Keep studying" goes straight back to the last class, and the class name in the top bar (or **Change class** on Home and in More) opens the picker again. The picker's addresses are `#pick`, `#pick/core` and `#pick/encore`.
+
+## "Not finished" notices (turn these off by hand)
+
+While the site is being built it warns everyone, very clearly:
+
+- **Popup every time the site opens, and a yellow strip on every page.** To turn both off, open `js/config.js` and change `notFinished: true` to `notFinished: false`.
+- **"Not filled in yet" warning on a class, and a tag on it in the class picker.** To turn it off for one class, open `data/subjects.js` and delete `, unfinished: true` from that class's line.
+
+Nothing turns these off on its own.
+
+## How it's laid out
+
+Every class has the same 5 places, in the bottom bar on phones and the top menu on computers:
+
+- **Home**: how ready you are, one thing to do next, and big buttons for Lessons, Flashcards and Quiz, plus Quick study (10 things picked for you).
+- **Lessons**: every unit's notes. Each lesson has an "All lessons" link back.
+- **Flashcards**
+- **Quiz**: 3 choices. Practice quiz (pick a lesson, answers right away), Timed test (like the real final) and Fix my mistakes.
+- **More**: Games (matching game, math practice), Bookmarks, the printable review sheet, Change class, Settings and Feedback.
+
+Settings only has Dark mode, Text size, Simple words, Backup and Clear progress.
 
 ## How it's organized
 
@@ -79,7 +100,7 @@ A class that needs its own interactive parts sets `tools: true` in `data/subject
 
 The site has no accounts and no sign-in. It works fully offline. Supabase is used for three things only:
 
-- **Approved notebooks.** Each class's Units page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class. With none, it shows "No notebooks yet. Be the first to share one!" Add or approve notebooks in the Supabase dashboard; the site can't submit or change them.
+- **Approved notebooks.** Each class's Lessons page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class. With none, it shows "No notebooks yet. Be the first to share one!" Add or approve notebooks in the Supabase dashboard; the site can't submit or change them.
 - **Feedback.** The Feedback page sends an anonymous row to `finals_feedback`: a kind (bug, wrong answer, idea, other), an optional class and a message. "Think this answer is wrong?" in a test fills it in.
 - **Visits.** `finals_count_visit()` is called once per browser session, with no personal data.
 

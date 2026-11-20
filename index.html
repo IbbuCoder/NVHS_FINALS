@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Finals Study Guide</title>
-<meta name="description" content="Notes, flashcards and practice tests for finals, class by class.">
+<meta name="description" content="Lessons, flashcards and quizzes for finals, class by class.">
 <meta name="theme-color" id="theme-color" content="#15171a">
 <link rel="icon" id="icon-svg" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c4122f'/%3E%3Cpath d='M9 6h15v5H14v4h8v5h-8v6H9z' fill='%23fff'/%3E%3C/svg%3E">
 <script>
@@ -39,6 +39,7 @@ try {
   <symbol id="t-units" viewBox="0 0 24 24"><path d="M4 5h3M10 5h10M4 12h3M10 12h10M4 19h3M10 19h10" fill="none" stroke="currentColor" stroke-width="2.4"/></symbol>
   <symbol id="t-cards" viewBox="0 0 24 24"><path d="M3 7h14v13H3zM7 7V4h14v13h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
   <symbol id="t-test" viewBox="0 0 24 24"><path d="M5 3h14v18H5zM9 12l2.500 2.500L15.500 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="t-games" viewBox="0 0 24 24"><path d="M6 8h12a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4c-1.500 0-2.500-1-3.500-2h-5C8.500 16 7.500 17 6 17a4 4 0 0 1-4-4v-1a4 4 0 0 1 4-4zM7 10v4M5 12h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="15.500" cy="11.500" r="1.200" fill="currentColor"/><circle cx="18" cy="13.500" r="1.200" fill="currentColor"/></symbol>
   <symbol id="t-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="12" r="2.2" fill="currentColor"/></symbol>
   <symbol id="i-feedback" viewBox="0 0 24 24"><path d="M4 4h16v12H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 7.5v4M12 13.2v.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
   <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-5-6 5z" fill="currentColor" fill-opacity="var(--bm-fill, 0)" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
@@ -80,23 +81,26 @@ try {
     <a class="brand" href="#home"><svg class="brand-logo" aria-hidden="true"><use href="#i-logo"></use></svg><span data-site-title>Finals</span></a>
     <nav id="nav" class="nav" aria-label="Main">
       <a href="#home">Home</a>
-      <a href="#classes">Classes</a>
-      <span class="nav-sep" aria-hidden="true"></span>
-      <a href="#units">Units</a>
+      <a href="#units">Lessons</a>
       <a href="#flashcards">Flashcards</a>
-      <a href="#test">Practice test</a>
-      <a href="#weak">Weak spots</a>
-      <a href="#saved">Bookmarks</a>
-      <span class="nav-sep" aria-hidden="true"></span>
-      <a href="#settings">Settings</a>
-      <a href="#feedback">Feedback</a>
+      <a href="#test">Quiz</a>
+      <a href="#games">Games</a>
+      <a href="#more">More</a>
     </nav>
-    <a class="icon-btn" id="feedback-btn" href="#feedback" aria-label="Send feedback or report a problem" title="Send feedback or report a problem"><svg aria-hidden="true"><use href="#i-feedback"></use></svg></a>
+    <a class="class-chip" id="class-chip" href="#pick" hidden><span class="class-chip-name" id="class-chip-name"></span><span class="class-chip-change">Change</span></a>
     <button type="button" class="icon-btn" id="search-btn" aria-label="Search the notes"><svg aria-hidden="true"><use href="#i-search"></use></svg></button>
     <button type="button" class="dumb-btn" id="dumb-btn" aria-pressed="false">Simple words</button>
     <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
   </div>
 </header>
+
+<!-- NOT FINISHED NOTICE: shown while notFinished is true in js/config.js -->
+<div class="wip-strip" id="wip-strip" hidden>
+  <div class="wip-strip-in"><strong>This site is still being built.</strong> <span>Some classes aren't filled in yet.</span>
+  <button type="button" class="wip-more" id="wip-more">Read more</button></div>
+</div>
+<!-- Shown on a class that has unfinished: true in data/subjects.js -->
+<div class="wip-class" id="wip-class" hidden></div>
 
 <noscript><p class="noscript">This study site needs JavaScript. Turn it on in your browser, then reload.</p></noscript>
 
@@ -119,24 +123,18 @@ try {
 
     <!-- Shown once a class is picked -->
     <div id="home-class" hidden>
-      <h1 class="home-title" tabindex="-1"><span id="home-class-name"></span> <span>Final</span></h1>
-      <a class="link-btn class-switch" href="#pick">Switch class</a>
+      <h1 class="home-title" tabindex="-1"><span id="home-class-name"></span></h1>
+      <a class="link-btn class-switch" href="#pick">Change class</a>
       <div class="board" id="board"></div>
       <section class="plan" id="home-plan" aria-label="Study plan" hidden></section>
-      <button type="button" class="ask-bar" id="home-ask"><svg aria-hidden="true"><use href="#i-search"></use></svg><span>Search the notes, cards and questions</span></button>
-      <div class="home-links">
-        <button type="button" class="big-link solid study-link" id="home-study-btn" data-quick="study"><strong id="home-study"></strong><span id="home-study-note"></span></button>
-        <a class="big-link" href="#flashcards"><strong>Flashcards</strong><span id="home-flash"></span></a>
-        <a class="big-link" href="#test"><strong>Practice test</strong><span id="home-test"></span></a>
-        <button type="button" class="big-link" data-quick="daily"><strong>Daily 10</strong><span id="home-daily"></span></button>
-        <button type="button" class="big-link" data-quick="game"><strong>Game Day</strong><span id="home-game"></span></button>
-        <button type="button" class="big-link" data-mock><strong>Mock quiz</strong><span id="home-mock"></span></button>
-        <a class="big-link" href="#drills"><strong>Formula drills</strong><span id="home-drills"></span></a>
-        <a class="big-link" href="#match"><strong>Matching game</strong><span id="home-match"></span></a>
-        <a class="big-link" href="#saved"><strong>Bookmarks</strong><span>Note sections and questions you bookmarked</span></a>
+      <div class="main-three">
+        <a class="main-btn" href="#units"><svg aria-hidden="true"><use href="#t-units"></use></svg><strong>Lessons</strong><span id="home-lessons"></span></a>
+        <a class="main-btn" href="#flashcards"><svg aria-hidden="true"><use href="#t-cards"></use></svg><strong>Flashcards</strong><span id="home-flash"></span></a>
+        <a class="main-btn" href="#test"><svg aria-hidden="true"><use href="#t-test"></use></svg><strong>Quiz</strong><span id="home-test"></span></a>
       </div>
-      <a class="feedback-bar" href="#feedback"><b>Problem or idea?</b> <span>Report a bug, a wrong answer or a complaint. Send feedback</span></a>
-      <button type="button" class="link-btn clear-all" id="clear-all">Clear my progress</button>
+      <button type="button" class="big-link solid study-link" id="home-study-btn" data-quick="study"><strong id="home-study"></strong><span id="home-study-note"></span></button>
+      <button type="button" class="ask-bar" id="home-ask"><svg aria-hidden="true"><use href="#i-search"></use></svg><span>Search the lessons, cards and questions</span></button>
+      <a class="games-bar" href="#games"><svg aria-hidden="true"><use href="#t-games"></use></svg><b>Games</b><span>Matching game and math practice</span></a>
     </div>
   </div>
 </section>
@@ -151,24 +149,25 @@ try {
 <!-- CLASSES (also #core and #encore) -->
 <section class="view" id="view-classes" data-title="Classes">
   <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1" id="classes-title">Classes</h1></header>
     <div id="classes-root"></div>
   </div>
 </section>
 
 <!-- UNITS -->
-<section class="view" id="view-units" data-title="Units">
+<section class="view" id="view-units" data-title="Lessons">
   <div class="wrap narrow">
-    <header class="unit-head"><h1 tabindex="-1" id="units-title">Units</h1></header>
+    <header class="unit-head"><h1 tabindex="-1" id="units-title">Lessons</h1></header>
     <div class="unit-list" id="unit-list"></div>
-    <a class="sheet-link" href="#sheet"><b>Review sheet</b><span>Every flashcard on a few printable pages</span></a>
     <section class="nb-box" id="notebooks" aria-labelledby="nb-title"></section>
   </div>
 </section>
 
 <!-- ONE UNIT (#u1, #u2, ...) -->
-<section class="view unit" id="view-unit" data-title="Unit">
+<section class="view unit" id="view-unit" data-title="Lesson">
   <div class="wrap">
+    <a class="back-link" href="#units">All lessons</a>
     <header class="unit-head"><span class="unit-num" id="unit-num"></span><h1 tabindex="-1" id="unit-title"></h1></header>
     <div class="jump" id="unit-jump"></div>
     <div id="unit-body"></div>
@@ -211,9 +210,9 @@ try {
 </section>
 
 <!-- PRACTICE TEST -->
-<section class="view" id="view-test" data-title="Practice test">
+<section class="view" id="view-test" data-title="Quiz">
   <div class="wrap narrow">
-    <header class="unit-head"><h1 tabindex="-1">Practice test</h1></header>
+    <header class="unit-head"><h1 tabindex="-1">Quiz</h1></header>
     <div id="test-root"></div>
   </div>
 </section>
@@ -221,6 +220,7 @@ try {
 <!-- BOOKMARKS -->
 <section class="view" id="view-saved" data-title="Bookmarks">
   <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Bookmarks</h1></header>
     <p class="note">Note sections and test questions you bookmarked. They stay on this device, even if you clear your progress.</p>
     <div id="saved-root"></div>
@@ -228,9 +228,10 @@ try {
 </section>
 
 <!-- WEAK SPOTS -->
-<section class="view" id="view-weak" data-title="Weak spots">
+<section class="view" id="view-weak" data-title="What to study next">
   <div class="wrap narrow">
-    <header class="unit-head"><h1 tabindex="-1">Weak spots</h1></header>
+    <a class="back-link" href="#test">Quiz</a>
+    <header class="unit-head"><h1 tabindex="-1">What to study next</h1></header>
     <div id="weak-root"></div>
   </div>
 </section>
@@ -238,6 +239,7 @@ try {
 <!-- REVIEW SHEET -->
 <section class="view" id="view-sheet" data-title="Review sheet">
   <div class="wrap">
+    <a class="back-link" href="#more">More</a>
     <header class="unit-head sheet-head"><h1 tabindex="-1">Review sheet</h1><button type="button" class="btn solid" data-print>Print</button></header>
     <p class="note sheet-intro">Every flashcard, grouped by unit. Print it or save it as a PDF from the print screen.</p>
     <div id="sheet-root"></div>
@@ -245,9 +247,10 @@ try {
 </section>
 
 <!-- FORMULA DRILLS -->
-<section class="view" id="view-drills" data-title="Formula drills">
+<section class="view" id="view-drills" data-title="Math practice">
   <div class="wrap narrow">
-    <header class="unit-head"><h1 tabindex="-1">Formula drills</h1></header>
+    <a class="back-link" href="#games">Games</a>
+    <header class="unit-head"><h1 tabindex="-1">Math practice</h1></header>
     <p class="note">New numbers every time. Type the answer, then check it.</p>
     <div id="drill-root"></div>
   </div>
@@ -256,20 +259,30 @@ try {
 <!-- MATCHING GAME -->
 <section class="view" id="view-match" data-title="Matching game">
   <div class="wrap">
+    <a class="back-link" href="#games">Games</a>
     <header class="unit-head"><h1 tabindex="-1">Matching game</h1></header>
     <div id="match-root"></div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section class="view" id="view-games" data-title="Games">
+  <div class="wrap narrow">
+    <header class="unit-head"><h1 tabindex="-1">Games</h1></header>
+    <div class="more-list" id="games-root"></div>
   </div>
 </section>
 
 <!-- SHARE A NOTEBOOK -->
 <section class="view" id="view-share" data-title="Share a notebook">
   <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Share a notebook</h1></header>
     <div class="nb-box">
       <h2>Not open yet</h2>
       <p>Sharing NotebookLM notebooks isn't open yet. When it opens, you'll be able to add a notebook made from your own class notes here.</p>
-      <p class="note">Notebooks that are already approved show under Units for each class.</p>
-      <a class="btn solid" href="#units">Go to Units</a>
+      <p class="note">Notebooks that are already approved show under Lessons for each class.</p>
+      <a class="btn solid" href="#units">Go to Lessons</a>
     </div>
   </div>
 </section>
@@ -277,45 +290,14 @@ try {
 <!-- SETTINGS -->
 <section class="view" id="view-settings" data-title="Settings">
   <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Settings</h1></header>
 
-    <h2 class="set-group">You</h2>
     <div class="set-row">
-      <label class="set-label" for="set-name">Your name</label>
-      <p class="note">Shows on Home. Saved on this device only.</p>
-      <input class="text-input" id="set-name" type="text" maxlength="24" autocomplete="off" placeholder="Type your name">
-    </div>
-    <div class="set-row">
-      <label class="set-label" for="set-teacher">Your teacher</label>
-      <p class="note">Optional. Saved on this device only.</p>
-      <input class="text-input" id="set-teacher" type="text" maxlength="40" autocomplete="off" placeholder="For example: Ms. Lee">
-    </div>
-
-    <h2 class="set-group">Look</h2>
-    <div class="set-row">
-      <span class="set-label">Theme</span>
+      <span class="set-label">Dark mode</span>
       <div class="seg" data-set="theme">
-        <button type="button" data-val="light">Light</button>
-        <button type="button" data-val="dark">Dark</button>
-        <button type="button" data-val="auto">Match device</button>
-      </div>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Team color</span>
-      <div class="seg wrap-seg" data-set="accent">
-        <button type="button" data-val="red"><i class="dot" style="background:#c4122f"></i>Red</button>
-        <button type="button" data-val="green"><i class="dot" style="background:#0b7a3e"></i>Green</button>
-        <button type="button" data-val="blue"><i class="dot" style="background:#1457b8"></i>Blue</button>
-        <button type="button" data-val="orange"><i class="dot" style="background:#b84a00"></i>Orange</button>
-      </div>
-      <label class="color-pick">Or pick your school color <input type="color" id="set-color" value="#c4122f"></label>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Heading font</span>
-      <div class="seg" data-set="font">
-        <button type="button" data-val="barlow">Sporty</button>
-        <button type="button" data-val="oswald">Bold</button>
-        <button type="button" data-val="plain">Plain</button>
+        <button type="button" data-val="light">Off</button>
+        <button type="button" data-val="dark">On</button>
       </div>
     </div>
     <div class="set-row">
@@ -327,101 +309,28 @@ try {
       </div>
     </div>
     <div class="set-row">
-      <span class="set-label">Spacing</span>
-      <div class="seg" data-set="density">
-        <button type="button" data-val="comfy">Roomy</button>
-        <button type="button" data-val="compact">Compact</button>
-      </div>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Animations</span>
-      <div class="seg" data-set="motion">
-        <button type="button" data-val="on">On</button>
-        <button type="button" data-val="off">Off</button>
-      </div>
-    </div>
-
-    <h2 class="set-group">Studying</h2>
-    <div class="set-row">
       <span class="set-label">Simple words</span>
-      <p class="note">Adds a plain-English note under the class wording. Test answers stay in the class wording.</p>
+      <p class="note">Adds an easy-to-read note under the lessons and flashcards.</p>
       <div class="seg" data-set="simple">
         <button type="button" data-val="off">Off</button>
         <button type="button" data-val="on">On</button>
       </div>
     </div>
     <div class="set-row">
-      <span class="set-label">Flashcards show first</span>
-      <div class="seg" data-set="cardFirst">
-        <button type="button" data-val="term">Term</button>
-        <button type="button" data-val="answer">Answer</button>
-      </div>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Daily goal</span>
-      <p class="note">Flashcards and questions to answer each day, across all your classes. Shows on the Home scoreboard.</p>
-      <div class="seg" data-set="goal">
-        <button type="button" data-val="off">Off</button>
-        <button type="button" data-val="10">10</button>
-        <button type="button" data-val="20">20</button>
-        <button type="button" data-val="40">40</button>
-      </div>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Game Day length</span>
-      <div class="seg" data-set="gameLength">
-        <button type="button" data-val="15">15</button>
-        <button type="button" data-val="30">30</button>
-        <button type="button" data-val="all">All</button>
-      </div>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Open the site on</span>
-      <div class="seg wrap-seg" data-set="startPage">
-        <button type="button" data-val="home">Home</button>
-        <button type="button" data-val="last">Last page</button>
-        <button type="button" data-val="flashcards">Flashcards</button>
-        <button type="button" data-val="test">Test</button>
-      </div>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Home scoreboard</span>
-      <div class="seg" data-set="board">
-        <button type="button" data-val="show">Show</button>
-        <button type="button" data-val="hide">Hide</button>
-      </div>
-    </div>
-
-    <h2 class="set-group">Data</h2>
-    <div class="set-row">
-      <span class="set-label">Where your progress is saved</span>
-      <p class="note">Only in this browser on this device. Clearing your browser data clears it too.</p>
-    </div>
-    <div class="set-row">
       <span class="set-label">Backup</span>
-      <p class="note">Save your scores and settings to a file, then load it on another device.</p>
+      <p class="note">Your progress is only saved on this device. Save a backup file to move it to another device.</p>
       <div class="test-actions">
         <button type="button" class="btn" id="backup-save">Save backup</button>
         <label class="btn file-btn">Load backup<input type="file" id="backup-load" accept=".json,application/json"></label>
       </div>
     </div>
     <div class="set-row">
-      <span class="set-label">Clear progress for every class</span>
-      <p class="note">Scores, flashcard marks and misses for all classes. Settings and bookmarks stay.</p>
-      <button type="button" class="btn" id="clear-every">Clear all progress</button>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Feedback</span>
-      <p class="note">Found a wrong answer or have an idea? Send it with a quick form.</p>
-      <a class="btn" href="#feedback">Send feedback</a>
-    </div>
-    <div class="set-row">
-      <span class="set-label">Welcome screen</span>
-      <p class="note">See the setup screen from your first visit again.</p>
-      <button type="button" class="btn" id="welcome-again">Show welcome screen</button>
-    </div>
-    <div class="test-actions">
-      <button type="button" class="btn ghost" id="settings-reset">Reset settings</button>
+      <span class="set-label">Clear progress</span>
+      <p class="note">Erases your scores and flashcard marks. Bookmarks stay.</p>
+      <div class="test-actions">
+        <button type="button" class="btn" id="clear-all">This class</button>
+        <button type="button" class="btn" id="clear-every">Every class</button>
+      </div>
     </div>
   </div>
 </section>
@@ -431,16 +340,13 @@ try {
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">More</h1></header>
     <nav class="more-list" aria-label="More pages">
+      <a href="#games"><b>Games</b><span>Matching game and math practice</span></a>
+      <a href="#saved"><b>Bookmarks</b><span>Lessons and questions you saved</span></a>
+      <a href="#sheet"><b>Printable review sheet</b><span>Every flashcard on a few pages</span></a>
+      <a href="#pick"><b>Change class</b><span>Study a different class</span></a>
+      <a href="#settings"><b>Settings</b><span>Dark mode, text size, simple words, backup</span></a>
       <a class="more-feedback" href="#feedback"><b>Send feedback</b><span>Report a problem, a wrong answer or an idea</span></a>
-      <a href="#pick"><b>Switch class</b><span>Pick Core or Encore, then another class</span></a>
-      <a href="#classes"><b>Classes</b><span>Every class with how ready you are</span></a>
-      <a href="#weak"><b>Weak spots</b><span>What to study next, based on your misses</span></a>
-      <a href="#drills"><b>Formula drills</b><span>Practice the math with new numbers each time</span></a>
-      <a href="#match"><b>Matching game</b><span>Match terms to their meanings on the clock</span></a>
-      <a href="#test" data-mock><b>Mock quiz</b><span>A timed quiz with answers at the end</span></a>
-      <a href="#sheet"><b>Review sheet</b><span>Every flashcard on a few printable pages</span></a>
       <a href="#share"><b>Share a notebook</b><span>Add your NotebookLM notebook to a class</span></a>
-      <a href="#settings"><b>Settings</b><span>Theme, colors, text size and more</span></a>
     </nav>
   </div>
 </section>
@@ -448,6 +354,7 @@ try {
 <!-- FEEDBACK -->
 <section class="view" id="view-feedback" data-title="Feedback">
   <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Feedback</h1></header>
     <p class="note" style="margin-top:14px">Report a bug, a wrong answer or an idea. Your name is not sent.</p>
     <form class="share-form" id="feedback-form" novalidate>
@@ -483,7 +390,7 @@ try {
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">Page not found</h1></header>
     <p class="note" style="margin-top:14px">That link doesn't go to anything on this site. It may be old or mistyped.</p>
-    <p class="nf-links"><a class="btn solid" href="#home">Go to Home</a> <a class="btn" href="#classes">See the classes</a></p>
+    <p class="nf-links"><a class="btn solid" href="#home">Go to Home</a> <a class="btn" href="#pick">Pick a class</a></p>
   </div>
 </section>
 
@@ -493,10 +400,9 @@ try {
 
 <nav class="tabbar" aria-label="App">
   <a href="#home" data-tab="home"><svg aria-hidden="true"><use href="#t-home"></use></svg>Home</a>
-  <a href="#units" data-tab="units"><svg aria-hidden="true"><use href="#t-units"></use></svg>Units</a>
-  <a href="#flashcards" data-tab="flashcards"><svg aria-hidden="true"><use href="#t-cards"></use></svg>Cards</a>
-  <a href="#test" data-tab="test"><svg aria-hidden="true"><use href="#t-test"></use></svg>Test</a>
-  <a href="#saved" data-tab="saved"><svg aria-hidden="true"><use href="#i-bookmark"></use></svg>Bookmarks</a>
+  <a href="#units" data-tab="units"><svg aria-hidden="true"><use href="#t-units"></use></svg>Lessons</a>
+  <a href="#flashcards" data-tab="flashcards"><svg aria-hidden="true"><use href="#t-cards"></use></svg>Flashcards</a>
+  <a href="#test" data-tab="test"><svg aria-hidden="true"><use href="#t-test"></use></svg>Quiz</a>
   <a href="#more" data-tab="more"><svg aria-hidden="true"><use href="#t-more"></use></svg>More</a>
 </nav>
 
@@ -508,58 +414,20 @@ try {
   <div class="search-results" id="search-results"></div>
 </dialog>
 
-<dialog class="welcome" id="welcome" aria-labelledby="welcome-title">
-  <div class="welcome-in" tabindex="-1" autofocus>
-    <p class="kicker">Welcome to <span data-site-title>Finals</span></p>
-    <h2 id="welcome-title">Make it yours</h2>
-    <p class="welcome-lead">Set it up the way you like. You can change all of this later in Settings.</p>
 
-    <div class="welcome-row">
-      <label class="set-label" for="welcome-name">Your name</label>
-      <input class="text-input welcome-name" id="welcome-name" type="text" maxlength="24" autocomplete="off" placeholder="Shows on Home (optional)">
-    </div>
-    <div class="welcome-row">
-      <label class="set-label" for="welcome-teacher">Your teacher</label>
-      <input class="text-input welcome-name" id="welcome-teacher" type="text" maxlength="40" autocomplete="off" placeholder="Optional. Saved on this device only">
-    </div>
-    <div class="welcome-row">
-      <span class="set-label">Theme</span>
-      <div class="seg" data-set="theme">
-        <button type="button" data-val="light">Light</button>
-        <button type="button" data-val="dark">Dark</button>
-        <button type="button" data-val="auto">Match device</button>
-      </div>
-    </div>
-    <div class="welcome-row">
-      <span class="set-label">Team color</span>
-      <div class="seg wrap-seg" data-set="accent">
-        <button type="button" data-val="red"><i class="dot" style="background:#c4122f"></i>Red</button>
-        <button type="button" data-val="green"><i class="dot" style="background:#0b7a3e"></i>Green</button>
-        <button type="button" data-val="blue"><i class="dot" style="background:#1457b8"></i>Blue</button>
-        <button type="button" data-val="orange"><i class="dot" style="background:#b84a00"></i>Orange</button>
-      </div>
-    </div>
-    <div class="welcome-row">
-      <span class="set-label">Text size</span>
-      <div class="seg" data-set="size">
-        <button type="button" data-val="normal">Normal</button>
-        <button type="button" data-val="large">Large</button>
-        <button type="button" data-val="xl">Extra large</button>
-      </div>
-    </div>
-    <div class="welcome-row">
-      <span class="set-label">Simple words</span>
-      <div class="seg" data-set="simple">
-        <button type="button" data-val="off">Off</button>
-        <button type="button" data-val="on">On</button>
-      </div>
-    </div>
-
-    <p class="note welcome-more">More in Settings: school color, heading font, spacing, animations, flashcard order and more.</p>
-    <div class="welcome-actions">
-      <button type="button" class="btn ghost" id="welcome-settings">All settings</button>
-      <button type="button" class="btn solid" id="welcome-start">Start studying</button>
-    </div>
+<!-- NOT FINISHED POPUP: opens every time the site loads while notFinished is true in js/config.js -->
+<dialog class="welcome wip-pop" id="wip-pop" aria-labelledby="wip-title">
+  <div class="welcome-in">
+    <p class="wip-badge">Not finished yet</p>
+    <h2 id="wip-title">This site is still being built</h2>
+    <p class="welcome-lead">Thanks for checking it out! This is an early version, so not everything is finished yet.</p>
+    <ul class="wip-list">
+      <li><strong>PE / Health</strong> is the finished example. It shows what every class will look like.</li>
+      <li>The other classes are <strong>not filled in yet</strong>. Their notes, flashcards and questions are <strong>samples</strong> that will be replaced with real class content.</li>
+      <li>Some things may still change or have mistakes. If you see one, use <strong>Send feedback</strong> under More.</li>
+    </ul>
+    <p class="note">Made by students. Not an official school site.</p>
+    <div class="welcome-actions"><button type="button" class="btn solid wip-ok" id="wip-ok">Got it, show me the site</button></div>
   </div>
 </dialog>
 

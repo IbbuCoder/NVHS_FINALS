@@ -103,11 +103,10 @@ figure { margin: 0; }
 .dumb-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .menu-btn { display: none; margin-left: auto; background: none; border: 2px solid var(--chrome-text); color: var(--chrome-text); font: 600 18px/1 var(--head); padding: 8px 14px; min-height: 40px; }
 
-@media (max-width: 1199px) {
+@media (max-width: 1099px) {
   .top-in { flex-wrap: wrap; gap: 0; }
   .menu-btn { display: block; margin-left: 8px; }
-  #feedback-btn { display: grid; margin-left: auto; }
-  #search-btn { margin-left: 8px; }
+  #search-btn { margin-left: auto; }
   .nav { display: none; order: 3; width: 100%; flex-direction: column; gap: 0; padding-bottom: 8px; }
   .nav.is-open { display: flex; }
   .nav a { line-height: 46px; height: 46px; border-bottom: 1px solid #3a3d40; border-left: 4px solid transparent; padding-left: 10px; }
@@ -510,10 +509,10 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
   .top { padding-top: env(safe-area-inset-top); }
   .menu-btn { display: none; }
   .dumb-btn { margin-left: 0; }
-  .icon-btn { width: 38px; height: 38px; }
+  .icon-btn { width: 44px; height: 44px; }
   .brand { font-size: 21px; gap: 6px; }
   .brand-logo { width: 24px; height: 24px; }
-  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(6, 1fr); padding-bottom: env(safe-area-inset-bottom); background: var(--chrome); color: var(--chrome-text); }
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); background: var(--chrome); color: var(--chrome-text); }
   .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 60px; border-top: 3px solid transparent; text-decoration: none; font: 600 14px/1 var(--head); min-width: 0; white-space: nowrap; }
   .tabbar svg { width: 23px; height: 23px; }
   .tabbar a[aria-current] { border-top-color: var(--accent-bright); color: var(--accent-bright); }
@@ -570,13 +569,12 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
   html { scroll-behavior: auto; }
 }
 
-/* Very narrow phones: keep the top bar on one line with the feedback button in it. */
+/* Very narrow phones: keep the top bar on one line, with buttons still big enough to tap. */
 @media (max-width: 370px) {
-  .brand { font-size: 18px; }
-  .brand-logo { width: 22px; height: 22px; }
-  .top .icon-btn { width: 34px; height: 34px; }
-  #search-btn { margin-left: 6px; }
-  .dumb-btn { font-size: 15px; padding: 6px 7px; min-height: 34px; }
+  .brand-logo { width: 26px; height: 26px; }
+  .top .icon-btn { width: 44px; height: 44px; }
+  #search-btn { margin-left: auto; }
+  .dumb-btn { font-size: 15px; padding: 6px 7px; min-height: 44px; }
 }
 
 /* Six tabs on a narrow phone: smaller labels so Bookmarks fits. */
@@ -837,3 +835,157 @@ span.stat { display: block; }
 .body-detail { fill: none; stroke: var(--shape); stroke-width: 1; }
 .m-hit { fill: transparent; stroke: transparent; stroke-width: 7; pointer-events: all; cursor: pointer; }
 .map-panel .type-result { font-weight: 600; }
+
+/* ---------- Simpler layout: class name in the top bar, 3 big Home buttons, back links, 3 quiz options ---------- */
+.nav { gap: 22px; }
+.class-chip { flex: none; display: inline-flex; align-items: center; gap: 8px; max-width: 220px; min-height: 40px; margin-left: 16px; padding: 4px 10px; border: 2px solid var(--accent-bright); color: var(--chrome-text); text-decoration: none; font: 600 17px/1.1 var(--head); }
+.class-chip[hidden] { display: none; }
+.class-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.class-chip-change { flex: none; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent-bright); }
+.class-chip:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.class-chip:hover .class-chip-change { color: var(--on-accent); }
+@media (max-width: 1099px) {
+  .class-chip { margin-left: 10px; }
+}
+@media (max-width: 760px) {
+  .brand span { display: none; }
+  .class-chip { max-width: 46vw; margin-left: 8px; padding: 4px 8px; font-size: 16px; }
+  .class-chip-change { display: none; }
+  .tabbar a { font-size: 13px; }
+}
+
+.board { grid-template-columns: minmax(0, 1fr); }
+.board .sb-total { border-right: 0; }
+.main-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+.main-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 18px 16px; min-height: 130px; background: var(--surface); border: 3px solid var(--ink); text-decoration: none; }
+.main-btn svg { width: 34px; height: 34px; color: var(--accent); margin-bottom: 6px; }
+.main-btn strong { font: 700 34px/1 var(--head); }
+.main-btn span { color: var(--mute); font-size: 16px; }
+.main-btn:hover { border-color: var(--accent); }
+.main-btn:hover strong { color: var(--accent); }
+.home-class .study-link, #home-study-btn { margin-top: 12px; }
+.games-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 12px; padding: 14px; border: 2px solid var(--ink); text-decoration: none; }
+.games-bar svg { width: 26px; height: 26px; color: var(--accent); }
+.games-bar b { font: 700 24px/1 var(--head); }
+.games-bar span { color: var(--mute); font-size: 15px; }
+.games-bar:hover b { color: var(--accent); }
+@media (max-width: 560px) {
+  .main-three { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .main-btn { flex-direction: row; flex-wrap: wrap; align-items: center; min-height: 0; padding: 14px; gap: 2px 12px; }
+  .main-btn svg { margin: 0; width: 30px; height: 30px; }
+  .main-btn strong { font-size: 30px; }
+  .main-btn span { flex-basis: 100%; padding-left: 42px; }
+}
+
+.back-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; font: 600 18px/1 var(--head); text-decoration: none; color: var(--ink); }
+.back-link::before { content: ''; width: 9px; height: 9px; border-left: 3px solid currentColor; border-bottom: 3px solid currentColor; transform: rotate(45deg); }
+.back-link:hover { color: var(--accent); }
+.back-link + .unit-head { padding-top: 10px; }
+
+.quiz-pick { display: grid; gap: 16px; margin-top: 18px; }
+.quiz-option { padding: 18px 16px; border: 2px solid var(--ink); background: var(--surface); }
+.quiz-option h2 { display: flex; align-items: center; gap: 12px; font: 700 30px/1 var(--head); }
+.quiz-option h2 i { display: inline-grid; place-items: center; width: 36px; height: 36px; flex: none; background: var(--accent); color: var(--on-accent); font-style: normal; font-size: 22px; }
+.quiz-option > .note { margin: 8px 0 12px; }
+.quiz-option .scope-list { margin-bottom: 14px; }
+
+/* ---------- Every device: big, easy-to-tap buttons ----------
+   Anything you tap is at least 44px tall (48px for the main ones), on phones, iPads and computers. */
+
+/* Top bar */
+.top-in { min-height: 60px; }
+.brand { min-height: 44px; }
+.icon-btn { width: 44px; height: 44px; }
+.dumb-btn, .menu-btn, .class-chip { min-height: 44px; }
+.nav a { padding: 0 6px; line-height: 60px; height: 60px; }
+
+/* Text links that do something become real buttons */
+.link-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 16px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); font: 600 18px/1.15 var(--head); text-decoration: none; text-align: center; }
+.link-btn:hover { border-color: var(--accent); color: var(--accent); }
+.class-switch { margin: -10px 0 22px; }
+.pick-skip { margin-top: 22px; }
+
+/* Back links */
+.back-link { min-height: 48px; margin-top: 14px; padding: 8px 16px 8px 14px; border: 2px solid var(--ink); background: var(--paper); font-size: 20px; }
+.back-link::before { width: 10px; height: 10px; }
+
+/* Jump to a section inside a lesson */
+.jump { gap: 8px; padding: 14px 0; }
+.jump button { min-height: 44px; padding: 8px 14px; border: 2px solid var(--rule); background: var(--paper); color: var(--ink); text-decoration: none; font: 600 17px/1.15 var(--head); }
+.jump button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Bookmark buttons on each section */
+.mark-icon { width: 44px; height: 44px; vertical-align: middle; border-width: 2px; }
+.mark-icon svg { width: 22px; height: 22px; }
+
+/* Bottom of a lesson: Quiz, Print, Next */
+.pager { gap: 10px; }
+.pager a, .pager .link-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 10px 16px; border: 2px solid var(--ink); text-decoration: none; }
+.pager .quiz-link { background: var(--accent); border-color: var(--accent); color: var(--on-accent); text-decoration: none; }
+.pager .quiz-link:hover { filter: brightness(.9); color: var(--on-accent); }
+
+/* "Show the formulas" and other fold-outs */
+summary { display: flex; align-items: center; min-height: 48px; padding: 8px 0; }
+
+/* Footer links */
+.foot a { display: inline-block; padding: 12px 4px; }
+
+/* Answer choices and big buttons stay easy to hit */
+.btn { min-height: 48px; }
+.opt { min-height: 52px; }
+.scope-list label { min-height: 52px; }
+
+/* iPads and small laptops: use the bottom bar like phones (no Menu dropdown) */
+@media (max-width: 1099px) {
+  .nav, .nav.is-open, .menu-btn { display: none !important; }
+  body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); background: var(--chrome); color: var(--chrome-text); }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 64px; border-top: 3px solid transparent; text-decoration: none; font: 600 15px/1 var(--head); min-width: 0; white-space: nowrap; }
+  .tabbar svg { width: 25px; height: 25px; }
+  .tabbar a[aria-current] { border-top-color: var(--accent-bright); color: var(--accent-bright); }
+  .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
+  #search-btn { margin-left: auto; }
+}
+@media (min-width: 761px) and (max-width: 1099px) {
+  .tabbar a { flex-direction: row; gap: 8px; font-size: 18px; }
+}
+@media (max-width: 760px) {
+  .tabbar a { height: 64px; font-size: 13px; }
+  .back-link { font-size: 18px; }
+  .pager { flex-direction: column; align-items: stretch; }
+  .pager a, .pager .link-btn { justify-content: center; }
+}
+@media (max-width: 380px) {
+  .dumb-btn { font-size: 15px; padding: 6px 8px; }
+  .class-chip { max-width: 38vw; }
+}
+
+/* The logo is a Home button: make it a full-size target when only the icon shows */
+.brand { min-width: 44px; justify-content: center; }
+@media (max-width: 760px) {
+  .brand { padding-right: 6px; }
+  .brand-logo { width: 28px; height: 28px; }
+}
+
+/* ---------- Not finished notices ---------- */
+.wip-strip { background: #f5c400; color: #15171a; border-bottom: 3px solid #15171a; }
+.wip-strip-in { max-width: 1440px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 17px; line-height: 1.3; }
+.wip-strip strong { font: 700 20px/1.1 var(--head); text-transform: uppercase; letter-spacing: .02em; }
+.wip-more { margin-left: auto; min-height: 44px; padding: 6px 14px; background: #15171a; color: #fff; border: 0; font: 600 17px/1 var(--head); }
+.wip-more:hover { background: #3a3d40; }
+.wip-class { background: var(--tint, #fde8eb); border-bottom: 3px solid var(--accent); }
+.wip-class-in { max-width: 1440px; margin: 0 auto; padding: 12px 16px; font-size: 17px; line-height: 1.35; }
+.wip-class strong { display: block; font: 700 24px/1.1 var(--head); color: var(--accent); }
+.wip-tag { display: inline-block; margin-top: 6px; padding: 3px 8px; background: #f5c400; color: #15171a; font: 700 14px/1.2 var(--head); font-style: normal; text-transform: uppercase; letter-spacing: .03em; }
+.wip-pop { border-top-color: #f5c400; }
+.wip-badge { display: inline-block; margin: 0; padding: 4px 10px; background: #f5c400; color: #15171a; font: 700 16px/1.2 var(--head); text-transform: uppercase; letter-spacing: .04em; }
+.wip-list { margin: 12px 0; padding-left: 22px; }
+.wip-list li { margin: 8px 0; line-height: 1.4; }
+.wip-ok { width: 100%; min-height: 56px; font-size: 22px; }
+html[data-theme="dark"] .wip-class { background: #2a1a1d; }
+@media (max-width: 760px) {
+  .wip-strip-in { font-size: 15px; padding: 6px 12px; }
+  .wip-strip strong { font-size: 17px; }
+  .wip-more { margin-left: 0; }
+}
+.pick-subject .wip-tag { align-self: flex-start; }

@@ -1,5 +1,10 @@
 // Site settings. Change these values; no other file needs to change for them.
 window.FINALS_CONFIG = {
+  // NOT FINISHED NOTICE. While this is true, the site shows a "still being built" popup
+  // every time it opens, and a strip under the top bar on every page.
+  // When the site is finished, change true to false.
+  notFinished: true,
+
   // Name in the top bar and on Home.
   siteTitle: 'Finals',
 
