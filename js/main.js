@@ -117,15 +117,18 @@
 
   var DEFAULTS = {
     theme: 'light', accent: 'red', color: '#c4122f', font: 'barlow', size: 'normal', density: 'comfy', motion: 'on',
-    simple: 'off', cardFirst: 'term', name: '', teacher: '', gameLength: '30', startPage: 'home', board: 'show', goal: '20'
+    simple: 'off', cardFirst: 'term', name: '', teacher: '', gameLength: '30', startPage: 'home', board: 'show', goal: 'off'
   };
+  // The only settings someone can change. Everything else stays on its default.
+  var CHOICES = ['theme', 'size', 'simple'];
   var settings = {};
 
   function loadSettings() {
     var mine = saved.settings || {};
     Object.keys(DEFAULTS).forEach(function (k) {
-      settings[k] = mine[k] === undefined ? DEFAULTS[k] : mine[k];
+      settings[k] = CHOICES.indexOf(k) > -1 && mine[k] !== undefined ? mine[k] : DEFAULTS[k];
     });
+    if (settings.theme === 'auto') settings.theme = resolvedTheme();
   }
 
   function hexToRgb(hex) {
@@ -191,10 +194,6 @@
     root.dataset.board = settings.board;
     applyCustomColor(root, dark);
     paintAppIcon(root, dark);
-    $('#set-color').value = settings.color;
-    [['#set-name', 'name'], ['#welcome-name', 'name'], ['#set-teacher', 'teacher'], ['#welcome-teacher', 'teacher']].forEach(function (p) {
-      if (document.activeElement !== $(p[0])) $(p[0]).value = settings[p[1]] || '';
-    });
     if (settings.simple === 'on') root.setAttribute('data-simple', '');
     else root.removeAttribute('data-simple');
     $('#dumb-btn').setAttribute('aria-pressed', String(settings.simple === 'on'));
@@ -221,22 +220,8 @@
       if (b && b.parentNode.dataset.set) changeSetting(b.parentNode.dataset.set, b.dataset.val);
     }
     $('#view-settings').addEventListener('click', pickSetting);
-    $('#welcome').addEventListener('click', pickSetting);
     $('#dumb-btn').addEventListener('click', function () {
       changeSetting('simple', settings.simple === 'on' ? 'off' : 'on');
-    });
-    [['#set-name', 'name', 24], ['#welcome-name', 'name', 24], ['#set-teacher', 'teacher', 40], ['#welcome-teacher', 'teacher', 40]].forEach(function (p) {
-      $(p[0]).addEventListener('input', function (e) { changeSetting(p[1], e.target.value.trim().slice(0, p[2])); });
-      $(p[0]).addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
-    });
-    $('#set-color').addEventListener('input', function (e) {
-      settings.color = e.target.value;
-      changeSetting('accent', 'custom');
-    });
-    $('#settings-reset').addEventListener('click', function () {
-      Object.keys(DEFAULTS).forEach(function (k) { settings[k] = DEFAULTS[k]; });
-      changeSetting('cardFirst', DEFAULTS.cardFirst);
-      toast('Settings reset');
     });
     $('#backup-save').addEventListener('click', saveBackup);
     $('#backup-load').addEventListener('change', loadBackup);
@@ -263,25 +248,6 @@
   function closeDialog(box) {
     if (typeof box.close === 'function') box.close();
     else { box.removeAttribute('open'); box.dispatchEvent(new Event('close')); }
-  }
-
-  function buildWelcome() {
-    var box = $('#welcome');
-    box.addEventListener('close', function () {
-      saved.seenWelcome = true;
-      save();
-      if ($('#view-home').classList.contains('is-active')) renderHome();
-    });
-    box.addEventListener('click', function (e) { if (e.target === box) closeDialog(box); });
-    $('#welcome-start').addEventListener('click', function () { closeDialog(box); });
-    $('#welcome-settings').addEventListener('click', function () {
-      closeDialog(box);
-      location.hash = 'settings';
-    });
-    $('#welcome-again').addEventListener('click', function () { openDialog(box); });
-    if (firstVisit) {
-      setTimeout(function () { if (!saved.seenWelcome) openDialog(box); }, 350);
-    }
   }
 
   function toast(message) {
@@ -353,9 +319,13 @@
         items.push({ kind: s.name + ' question', title: q.q, text: q.c[q.a] + ' ' + (q.why || ''), go: function () { setClass(s.id); test.setup = false; startTest('q' + i); location.hash = 'test'; } });
       });
     });
-    [['Settings', 'theme dark mode light color font text size simple words goal backup', 'settings'],
+    [['Settings', 'theme dark mode light text size simple words backup clear progress', 'settings'],
+      ['Games', 'matching game math practice formulas drills', 'games'],
+      ['Quiz', 'test practice timed mistakes retry', 'test'],
+      ['Bookmarks', 'saved bookmarks', 'saved'],
+      ['Printable review sheet', 'print review sheet cheat sheet pdf', 'sheet'],
       ['Share a notebook', 'notebooklm share link', 'share'],
-      ['Classes', 'core encore switch class', 'classes']].forEach(function (p) {
+      ['Change class', 'core encore switch class', 'pick']].forEach(function (p) {
       items.push({ kind: 'Page', title: p[0], text: p[1], go: function () { location.hash = p[2]; } });
     });
     items.forEach(function (it) { it.hay = cleanText(it.title + ' ' + it.text); it.head = cleanText(it.title); });
@@ -492,7 +462,7 @@
   });
 
   // Pages that only make sense once a class is picked.
-  var CLASS_PAGES = ['units', 'flashcards', 'test', 'saved', 'weak', 'sheet', 'drills', 'match'];
+  var CLASS_PAGES = ['units', 'flashcards', 'test', 'saved', 'weak', 'sheet', 'drills', 'match', 'games'];
 
   function unitById(id) {
     return C.units.filter(function (u) { return u.id === id; })[0] || null;
@@ -518,13 +488,17 @@
     var view = document.getElementById('view-' + viewId);
     if (!view || (viewId === 'unit' && !unit)) { id = '404'; viewId = '404'; view = $('#view-404'); }
     $$('.view').forEach(function (v) { v.classList.toggle('is-active', v === view); });
+    // Which bottom tab lights up. Every page belongs to one of the 5.
+    var tabId = unit ? 'units' : id;
+    if (['settings', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'feedback', 'saved', 'games', 'drills', 'match'].indexOf(id) > -1) tabId = 'more';
+    if (id === 'weak') tabId = 'test';
+    // The top menu has Games too, so game pages light up Games there.
+    var navId = ['games', 'drills', 'match'].indexOf(id) > -1 ? 'games' : tabId;
     $$('.nav a').forEach(function (a) {
-      if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'page');
+      if (a.getAttribute('href') === '#' + navId) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
-    var tabId = unit ? 'units' : id;
-    if (['settings', 'weak', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'feedback'].indexOf(id) > -1) tabId = 'more';
-    if (id === 'drills' || id === 'match') tabId = 'test';
+    paintClassChip(pickGroup);
     if (id !== 'test') test.mockIntro = false;
     $$('.tabbar a').forEach(function (a) {
       if (a.dataset.tab === tabId) a.setAttribute('aria-current', 'page');
@@ -546,12 +520,34 @@
     if (id === 'sheet') renderSheet();
     if (id === 'drills') renderDrill(false);
     if (id === 'match') renderMatch();
+    if (id === 'games') renderGames();
     if (id === 'feedback') renderFeedback();
     window.scrollTo(0, 0);
     if (!first) {
       var h = $('h1', view);
       if (h && h.offsetParent) h.focus({ preventScroll: true });
     }
+  }
+
+  // The class you're studying, always in the top bar. Tap it to change class.
+  function paintClassChip(onPicker) {
+    var chip = $('#class-chip');
+    chip.hidden = !cur || !!onPicker;
+    $('#class-chip-name').textContent = className();
+    chip.setAttribute('aria-label', 'Studying ' + className() + '. Change class');
+  }
+
+  // Games: the matching game, and math practice for classes that have it.
+  function renderGames() {
+    var best = P().matchBest;
+    $('#games-root').innerHTML =
+      '<a href="#match"><b>Matching game</b><span>Match ' + MATCH_PAIRS + ' words to their meanings as fast as you can' + (best ? '. Your best: ' + clockText(best) : '') + '</span></a>' +
+      (C.drills.length
+        ? '<a href="#drills"><b>Math practice</b><span>Practice problems with new numbers every time</span></a>'
+        : '') +
+      (C.units.some(function (u) { return (u.sections || []).some(function (sec) { return sec.tool; }); })
+        ? '<p class="note" style="margin-top:14px">Some lessons have their own games and calculators too. Open a lesson to find them.</p>'
+        : '');
   }
 
   // Buttons and links that work from any page.
@@ -611,7 +607,7 @@
         var units = dataOf(s.id).units.length;
         var last = s.id === cur;
         return '<button type="button" class="pick-subject' + (last ? ' is-last' : '') + '" data-pick-class="' + s.id + '">' +
-          '<b>' + esc(s.name) + '</b><span>' + (last ? 'Studied last time' : units ? units + (units === 1 ? ' unit' : ' units') : 'No units yet') + '</span></button>';
+          '<b>' + esc(s.name) + '</b><span>' + (last ? 'Studied last time' : units ? units + (units === 1 ? ' lesson' : ' lessons') : 'No lessons yet') + '</span></button>';
       }).join('') + '</div>';
   }
 
@@ -672,8 +668,8 @@
     var known = cards.filter(isKnown).length;
     var last = (P().byUnit || {})[u.id] || (P().test || {})[u.id];
     return [
-      { value: last ? pct(last.score, last.total) : 0, attrs: 'href="#test" data-scope="' + u.id + '"', text: 'take the unit test' },
-      { value: pct(known, cards.length), attrs: 'href="#flashcards" data-flash="' + u.id + '"', text: 'work through the flashcards' }
+      { value: last ? pct(last.score, last.total) : 0, attrs: 'href="#test" data-scope="' + u.id + '"', text: 'take its quiz' },
+      { value: pct(known, cards.length), attrs: 'href="#flashcards" data-flash="' + u.id + '"', text: 'go through its flashcards' }
     ];
   }
 
@@ -717,46 +713,30 @@
     if (!cur) return;
 
     $('#home-class-name').textContent = className();
-    var last = P().test || {};
     var scores = C.units.map(function (u) {
       var parts = unitParts(u);
       return { unit: u, parts: parts, value: average(parts.map(function (p) { return p.value; })) };
     });
     var total = average(scores.map(function (s) { return s.value; }));
     var next;
-    if (!scores.length) next = '<a class="sb-next" href="#units">This class has no units yet</a>';
-    else if (total === 100) next = '<a class="sb-next" href="#test">Every unit is at 100. Run the full test one more time.</a>';
+    if (!scores.length) next = '';
+    else if (total === 100) next = '<a class="sb-next" href="#test">Everything is at 100%. Take one more quiz to stay sharp.</a>';
     else {
       var weakest = scores.reduce(function (low, s) { return s.value < low.value ? s : low; });
       var move = weakest.parts.reduce(function (low, p) { return p.value < low.value ? p : low; });
-      next = '<a class="sb-next" ' + move.attrs + '>Next up: ' + weakest.unit.num + ' ' + esc(weakest.unit.short) + ', ' + move.text + '</a>';
+      next = '<a class="sb-next" ' + move.attrs + '>Do this next: ' + weakest.unit.num + ' ' + esc(weakest.unit.short) + ', ' + move.text + '</a>';
     }
 
+    // Just how ready you are and one thing to do next. Each lesson's % is on the Lessons page.
     $('#board').innerHTML =
-      '<div class="sb-total"><span class="sb-label">Ready</span><div class="sb-tiles" role="img" aria-label="' + total + ' percent ready">' +
+      '<div class="sb-total"><span class="sb-label">Ready for the final</span><div class="sb-tiles" role="img" aria-label="' + total + ' percent ready">' +
       String(total).split('').map(function (d) { return '<span class="sb-tile">' + d + '</span>'; }).join('') +
-      '<span class="sb-tile unit">%</span></div><p class="sb-note">Your test scores and flashcards for ' + esc(className()) + ' added up.</p>' + examLine() +
-      (saved.streak && saved.streak.count ? '<p class="sb-extra">Daily 10 streak: ' + saved.streak.count + '</p>' : '') + goalLine() + '</div>' +
-      '<div class="sb-rows">' + scores.map(function (s) {
-        return '<a class="sb-row" href="#' + s.unit.id + '"><span class="sb-num">' + esc(s.unit.num) + '</span><span class="sb-name">' + esc(s.unit.title) + '</span>' +
-          '<span class="sb-pct">' + s.value + '%</span><span class="sb-bar"><i data-width="' + s.value + '"></i></span></a>';
-      }).join('') + '</div>' + next;
-
-    setTimeout(function () {
-      $$('#board .sb-bar i').forEach(function (bar) { bar.style.width = bar.dataset.width + '%'; });
-    }, 40);
+      '<span class="sb-tile unit">%</span></div><p class="sb-note">Goes up as you take quizzes and mark flashcards Got it.</p>' + examLine() + '</div>' + next;
 
     var knownCount = C.flashcards.filter(isKnown).length;
-    var misses = missedIds().length;
-    $('#home-flash').textContent = knownCount + ' of ' + C.flashcards.length + ' marked Got it';
-    $('#home-test').textContent = C.questions.length + ' questions. Last full test: ' + scoreText(last.all) +
-      (misses ? '. ' + misses + ' to retry' : '');
-    $('#home-daily').textContent = 'A quick mix of your misses and weakest unit';
-    $('#home-game').textContent = gameLength() + ' mixed questions, answers at the end. Last: ' + scoreText(last.game);
-    $('#home-mock').textContent = mockCount() + ' questions, ' + MOCK_MINUTES + ' minutes on the clock';
-    $('#home-drills').textContent = C.drills.length ? 'Practice the math with new numbers each time' : 'No formula drills for this class yet';
-    $('#home-match').textContent = P().matchBest ? 'Best time: ' + clockText(P().matchBest) : 'Match ' + MATCH_PAIRS + ' terms to their meanings on the clock';
-    renderPlan();
+    $('#home-lessons').textContent = C.units.length + (C.units.length === 1 ? ' lesson' : ' lessons');
+    $('#home-flash').textContent = knownCount + ' of ' + C.flashcards.length + ' learned';
+    $('#home-test').textContent = C.questions.length + ' questions';
     renderStudy();
   }
 
@@ -787,14 +767,14 @@
   /* ---------- Units and notes ---------- */
 
   function renderUnits() {
-    $('#units-title').textContent = className() + ' units';
+    $('#units-title').textContent = className() + ' lessons';
     $('#unit-list').innerHTML = C.units.length
       ? C.units.map(function (u) {
           var score = unitScore(u);
           return '<a class="unit-row" href="#' + u.id + '"><span class="sb-num">' + esc(u.num) + '</span><span class="sb-name">' + esc(u.title) + '</span>' +
             '<span class="sb-pct">' + score + '%</span><span class="pct"><i style="width:' + score + '%"></i></span></a>';
         }).join('')
-      : '<p class="note" style="margin-top:14px">This class has no units yet.</p>';
+      : '<p class="note" style="margin-top:14px">This class has no lessons yet.</p>';
     renderNotebooks();
   }
 
@@ -837,12 +817,12 @@
     $('#unit-num').textContent = u.num;
     $('#unit-title').textContent = u.title;
     $('#unit-body').innerHTML = (u.sections || []).map(function (sec) { return sectionHtml(u, sec); }).join('') ||
-      '<p class="note">This unit has no notes yet.</p>';
+      '<p class="note">This lesson has no notes yet.</p>';
     $('#unit-jump').innerHTML = (u.sections || []).map(function (sec) {
       return '<button type="button" data-jump="' + esc(sec.id) + '">' + esc(sec.title) + '</button>';
     }).join('');
     $('#unit-pager').innerHTML =
-      '<a class="quiz-link" href="#test" data-scope="' + u.id + '">Quiz yourself on this unit</a>' +
+      '<a class="quiz-link" href="#test" data-scope="' + u.id + '">Quiz yourself on this lesson</a>' +
       '<button type="button" class="link-btn" data-print>Print this page</button>' +
       (next ? '<a href="#' + next.id + '">Next: ' + esc(next.num + ' ' + next.title) + '</a>' : '<a href="#flashcards">Next: Flashcards</a>');
     // A class with its own tools file (data/classes/<id>-tools.js) sets up its interactive parts here.
@@ -906,7 +886,7 @@
       rows.some(function (r) { return r.learning.length; });
     if (!tried) {
       root.innerHTML = '<p class="weak-lead">Nothing here yet. Take a test or go through some flashcards, and this page shows you what to work on in ' + esc(className()) + '.</p>' +
-        '<div class="test-actions"><button type="button" class="btn solid" data-quick="daily">Daily 10</button><a class="btn" href="#test" data-scope="all">Full test</a></div>';
+        '<div class="test-actions"><a class="btn solid" href="#test" data-scope="all">Take a quiz</a></div>';
       return;
     }
     rows.sort(function (a, b) { return a.score - b.score; });
@@ -916,8 +896,8 @@
     root.innerHTML =
       '<div class="weak-top">' +
       (top
-        ? '<p>Start with <b>' + esc(top.unit.num + ' ' + top.unit.title) + '</b>. It\'s your lowest unit at ' + top.score + '%.</p>'
-        : '<p>No weak spots right now. Run the full test to be sure.</p>') +
+        ? '<p>Start with <b>' + esc(top.unit.num + ' ' + top.unit.title) + '</b>. It\'s your lowest lesson at ' + top.score + '%.</p>'
+        : '<p>Nothing to work on right now. Take a quiz on every lesson to be sure.</p>') +
       (allMisses ? '<button type="button" class="btn solid" data-quick="missed">Retry all ' + allMisses + ' misses</button>' : '') +
       '</div>' +
       weak.map(function (r) {
@@ -925,14 +905,14 @@
         var facts = [
           r.misses.length ? r.misses.length + (r.misses.length === 1 ? ' missed question' : ' missed questions') : 'No missed questions',
           r.learning.length ? r.learning.length + (r.learning.length === 1 ? ' flashcard' : ' flashcards') + ' still learning' : '',
-          r.last ? 'Last unit test ' + r.last.score + ' / ' + r.last.total : 'Unit test not taken'
+          r.last ? 'Last quiz ' + r.last.score + ' / ' + r.last.total : 'Quiz not taken yet'
         ].filter(Boolean).join('. ');
         return '<div class="weak-unit">' +
           '<div class="weak-head"><span class="sb-num">' + esc(u.num) + '</span><span class="sb-name">' + esc(u.title) + '</span><span class="sb-pct">' + r.score + '%</span></div>' +
           '<span class="pct"><i style="width:' + r.score + '%"></i></span>' +
           '<p class="note">' + facts + '.</p>' +
           '<div class="weak-links">' +
-          (r.misses.length ? '<button type="button" data-quick="m' + u.id + '">Retry misses</button>' : '<a href="#test" data-scope="' + u.id + '">Unit test</a>') +
+          (r.misses.length ? '<button type="button" data-quick="m' + u.id + '">Fix mistakes</button>' : '<a href="#test" data-scope="' + u.id + '">Take its quiz</a>') +
           (r.learning.length ? '<a href="#flashcards" data-flash="' + u.id + '">Flashcards</a>' : '') +
           '<a href="#' + u.id + '">Notes</a></div>' +
           (r.misses.length
@@ -986,7 +966,7 @@
   }
 
   function paintFlash() {
-    var scopes = [{ id: 'all', label: 'All units' }].concat(C.units.map(function (u) { return { id: u.id, label: u.num + ' ' + u.short }; }));
+    var scopes = [{ id: 'all', label: 'All lessons' }].concat(C.units.map(function (u) { return { id: u.id, label: u.num + ' ' + u.short }; }));
     $('#flash-units').innerHTML = scopes.map(function (s) {
       var on = s.id === flash.scope;
       return '<button type="button" data-unit="' + s.id + '" class="' + (on ? 'is-on' : '') + '" aria-pressed="' + on + '">' + esc(s.label) + '</button>';
@@ -999,7 +979,7 @@
       b.setAttribute('aria-pressed', String(on));
       b.textContent = b.dataset.pile === 'all' ? 'All cards (' + cards.length + ')' : 'Still learning (' + (cards.length - known) + ')';
     });
-    $('#flash-known').textContent = known + ' of ' + cards.length + ' Got it';
+    $('#flash-known').textContent = known + ' of ' + cards.length + ' learned';
     $('#flash-bar').style.width = pct(known, cards.length) + '%';
   }
 
@@ -1217,21 +1197,16 @@
   function renderStudy() {
     var plan = studyPlan();
     var n = studyCount(plan);
-    var parts = [];
-    if (plan.due.length) parts.push(plan.due.length + ' to review');
-    if (plan.fresh.length) parts.push(plan.fresh.length + ' new');
     var note;
     if (n) {
-      note = parts.join(', ') + '. ' + (n > STUDY_ROUND ? STUDY_ROUND + ' at a time. ' : '') +
-        (examDay() === thisDay() ? 'Misses stay on the list until you get them right.' : 'Misses come back tomorrow, right answers wait longer.') +
-        (plan.paced ? ' Paced for your final.' : '');
+      note = Math.min(n, STUDY_ROUND) + ' flashcards and questions picked for you. Things you miss come back tomorrow.';
     } else if (plan.next) {
-      note = 'Next review ' + waitText(plan.next.when - thisDay()) + ': ' + thingsText(plan.next.count);
+      note = 'Come back ' + waitText(plan.next.when - thisDay()) + ' for more';
     } else {
-      note = C.questions.length || C.flashcards.length ? 'You have reviewed everything' : 'This class has nothing to study yet';
+      note = C.questions.length || C.flashcards.length ? 'You have gone through everything' : 'This class has nothing to study yet';
     }
     $('#home-study-btn').disabled = !n;
-    $('#home-study').textContent = n ? 'Study ' + thingsText(n) + ' today' : 'Done for today';
+    $('#home-study').textContent = n ? 'Quick study' : 'Done for today';
     $('#home-study-note').textContent = note;
   }
 
@@ -1356,7 +1331,7 @@
               '<button type="button" class="link-btn" data-mark-open="' + esc(id) + '">Open in notes</button>' +
               '<button type="button" class="link-btn" data-mark-del="' + esc(id) + '">Remove</button></div></li>';
           }).join('') + '</ul>'
-        : '<p class="note">Nothing yet. In any unit, tap the bookmark next to a heading to keep that section here.</p>') +
+        : '<p class="note">Nothing yet. In any lesson, tap the bookmark next to a heading to keep that section here.</p>') +
       '<h2 class="t-section">' + esc(className()) + ': bookmarked questions (' + ids.length + ')</h2>' +
       (ids.length
         ? '<div class="test-actions"><button type="button" class="btn solid" data-quick="saved">Practice bookmarked questions</button></div>' +
@@ -1367,7 +1342,7 @@
               '<div class="ev-actions"><span class="note">' + esc(unitLabel(q.u)) + '</span>' +
               '<button type="button" class="link-btn" data-unsave-q="' + id + '">Remove</button></div></li>';
           }).join('') + '</ul>'
-        : '<p class="note">Nothing yet. During a practice test, tap the <b>Bookmark</b> button next to a question to keep it here.</p>') +
+        : '<p class="note">Nothing yet. During a quiz, tap the <b>Bookmark</b> button next to a question to keep it here.</p>') +
       (others.length
         ? '<h2 class="t-section">Bookmarks in other classes</h2><div class="weak-links">' + others.map(function (s) {
             return '<a href="#class/' + s.id + '" data-then="saved">' + esc(s.name) + '</a>';
@@ -1482,14 +1457,14 @@
   }
 
   function scopeName(scope) {
-    if (scope === 'all') return 'Full test';
-    if (scope === 'missed') return 'Retry my misses';
+    if (scope === 'all') return 'Every lesson';
+    if (scope === 'missed') return 'Fix my mistakes';
     if (scope === 'daily') return 'Daily 10';
     if (scope === 'game') return 'Game Day';
-    if (scope === 'mock') return 'Mock quiz';
-    if (scope === 'study') return 'Study today';
+    if (scope === 'mock') return 'Timed test';
+    if (scope === 'study') return 'Quick study';
     if (scope === 'saved') return 'Bookmarked questions';
-    if (isMissScope(scope)) { var mu = unitOf(scope.slice(1)); return 'Retry ' + mu.num + ' ' + mu.short + ' misses'; }
+    if (isMissScope(scope)) { var mu = unitOf(scope.slice(1)); return 'Fix my ' + mu.num + ' ' + mu.short + ' mistakes'; }
     if (isOneQuestion(scope)) return 'One question';
     var u = unitOf(scope);
     return u ? u.num + ' ' + u.title : 'Test';
@@ -1545,6 +1520,8 @@
     run.order = q.t === 'tf' ? idx : shuffle(idx);
   }
 
+  // Three ways to quiz yourself: practice (answers right away), a timed test like the
+  // real final, and your mistakes.
   function renderSetup(root) {
     var last = P().test || {};
     var scopes = ['all'].concat(C.units.map(function (u) { return u.id; }));
@@ -1552,47 +1529,40 @@
     if (test.scope === 'saved' && !savedIds().length) test.scope = 'all';
     var run = test.run;
     var misses = missedIds().length;
-    var toStudy = studyCount(studyPlan());
     if (!C.questions.length) {
-      root.innerHTML = '<p class="weak-lead">' + esc(className()) + ' has no test questions yet.</p><div class="test-actions"><a class="btn" href="#classes">Pick another class</a></div>';
+      root.innerHTML = '<p class="weak-lead">' + esc(className()) + ' has no quiz questions yet.</p><div class="test-actions"><a class="btn" href="#pick">Pick another class</a></div>';
       return;
     }
-    var study = toStudy
-      ? '<button type="button" class="mode-card" data-quick="study"><b>Study today</b><span>' + toStudy + ' picked for you</span></button>'
-      : '<a class="mode-card" href="#flashcards"><b>Flashcards</b><span>Flip through the terms</span></a>';
-    var retry = misses
-      ? '<button type="button" class="mode-card" data-retry><b>Retry misses</b><span>' + misses + (misses === 1 ? ' question' : ' questions') + ' you got wrong</span></button>'
-      : '<a class="mode-card" href="#weak"><b>Weak spots</b><span>See what to work on</span></a>';
-    var marks = markList().length;
-    var qs = savedIds().length;
     root.innerHTML =
       (run && !run.finished
-        ? '<button type="button" class="resume-bar" data-resume><b>Resume ' + esc(scopeName(run.scope)) + '</b><span>Question ' + (run.pos + 1) + ' of ' + run.ids.length +
+        ? '<button type="button" class="resume-bar" data-resume><b>Keep going: ' + esc(scopeName(run.scope)) + '</b><span>Question ' + (run.pos + 1) + ' of ' + run.ids.length +
           (run.endsAt ? ', ' + clockText(run.endsAt - Date.now()) + ' left' : '') + '</span></button>'
         : '') +
-      '<h2 class="t-section">Quick practice</h2>' +
-      '<button type="button" class="mock-card" data-mock><b>Mock quiz</b><span>' + mockCount() + ' questions, ' + MOCK_MINUTES + ' minutes on the clock, answers at the end' +
-        (last.mock ? '. Last: ' + last.mock.score + '/' + last.mock.total : '') + '</span></button>' +
-      '<div class="mode-grid">' + study + retry +
-      '<button type="button" class="mode-card" data-quick="daily"><b>Daily 10</b><span>Misses and weak units</span></button>' +
-      '<button type="button" class="mode-card" data-quick="game"><b>Game Day</b><span>' + gameLength() + ' questions, answers at the end</span></button>' +
-      '</div>' +
-      '<a class="bm-bar" href="#saved"><svg aria-hidden="true"><use href="#i-bookmark"></use></svg><b>Bookmarks</b><span>' +
-        marks + (marks === 1 ? ' section, ' : ' sections, ') + qs + (qs === 1 ? ' question' : ' questions') + '</span></a>' +
-      '<h2 class="t-section">More ways to practice</h2>' +
-      '<div class="mode-grid">' +
-      '<a class="mode-card" href="#sheet"><b>Review sheet</b><span>Every flashcard on a few printable pages</span></a>' +
-      '<a class="mode-card" href="#drills"><b>Formula drills</b><span>' + (C.drills.length ? 'New numbers every time' : 'None for this class yet') + '</span></a>' +
-      '<a class="mode-card" href="#match"><b>Matching game</b><span>' + (P().matchBest ? 'Best time: ' + clockText(P().matchBest) : 'Match terms to their meanings') + '</span></a>' +
-      '<a class="mode-card" href="#weak"><b>Weak spots</b><span>What to study next</span></a>' +
-      '</div>' +
-      '<h2 class="t-section">Pick a test</h2>' +
-      '<ul class="scope-list">' + scopes.map(function (s) {
-        return '<li><label><input type="radio" name="scope" value="' + s + '"' + (s === test.scope ? ' checked' : '') + '>' +
-          '<span class="scope-name">' + esc(scopeName(s)) + '</span>' +
-          '<span class="scope-meta">' + (s === 'saved' ? savedIds().length : pool(s).length) + ' questions' + (last[s] ? ', last ' + last[s].score + '/' + last[s].total : '') + '</span></label></li>';
-      }).join('') + '</ul>' +
-      '<button type="button" class="btn solid" data-start>Start test</button>';
+      '<div class="quiz-pick">' +
+      '<section class="quiz-option">' +
+        '<h2><i>1</i>Practice quiz</h2>' +
+        '<p class="note">Pick a lesson. You see if you got it right after every question.</p>' +
+        '<ul class="scope-list">' + scopes.map(function (s) {
+          return '<li><label><input type="radio" name="scope" value="' + s + '"' + (s === test.scope ? ' checked' : '') + '>' +
+            '<span class="scope-name">' + esc(scopeName(s)) + '</span>' +
+            '<span class="scope-meta">' + (s === 'saved' ? savedIds().length : pool(s).length) + ' questions' + (last[s] ? ', last time ' + last[s].score + '/' + last[s].total : '') + '</span></label></li>';
+        }).join('') + '</ul>' +
+        '<button type="button" class="btn solid" data-start>Start practice quiz</button>' +
+      '</section>' +
+      '<section class="quiz-option">' +
+        '<h2><i>2</i>Timed test</h2>' +
+        '<p class="note">Like the real final: ' + mockCount() + ' questions from every lesson, ' + MOCK_MINUTES + ' minutes on the clock, answers at the end.' +
+          (last.mock ? ' Last time: ' + last.mock.score + '/' + last.mock.total + '.' : '') + '</p>' +
+        '<button type="button" class="btn" data-mock>Start timed test</button>' +
+      '</section>' +
+      '<section class="quiz-option">' +
+        '<h2><i>3</i>Fix my mistakes</h2>' +
+        (misses
+          ? '<p class="note">Only the ' + misses + (misses === 1 ? ' question' : ' questions') + ' you got wrong. Get one right and it leaves the list.</p>' +
+            '<button type="button" class="btn" data-retry>Fix my mistakes</button>'
+          : '<p class="note">No mistakes to fix yet. Questions you get wrong will show up here.</p>') +
+      '</section>' +
+      '</div>';
   }
 
   function feedbackLink(id) {
@@ -1629,7 +1599,7 @@
           '<div class="test-actions"><button type="button" class="btn solid" data-next>' + (run.pos + 1 === run.ids.length ? 'See score' : 'Next question') + '</button></div>'
         : '') +
       '<div class="test-actions"><button type="button" class="link-btn" data-quit>' +
-        (run.endsAt ? 'Leave test (the clock keeps running)' : 'Leave test (your place is saved)') + '</button></div>';
+        (run.endsAt ? 'Leave test (the clock keeps running)' : 'Leave quiz (your place is saved)') + '</button></div>';
     paintTimer();
     var nextBtn = $('[data-next]', root);
     if (nextBtn) nextBtn.focus({ preventScroll: true });
@@ -1649,7 +1619,7 @@
           (c.simple ? '<p class="simple">' + esc(c.simple) + '</p>' : '') +
           '<div class="test-actions"><button type="button" class="btn" data-rate="0">Still learning</button><button type="button" class="btn solid" data-rate="1">Got it</button></div>'
         : '<div class="test-actions"><button type="button" class="btn solid" data-show>Show answer</button></div>') +
-      '<div class="test-actions"><button type="button" class="link-btn" data-quit>Leave test (your place is saved)</button></div>';
+      '<div class="test-actions"><button type="button" class="link-btn" data-quit>Leave quiz (your place is saved)</button></div>';
     var mainBtn = $('[data-show], [data-rate="1"]', root);
     if (mainBtn) mainBtn.focus({ preventScroll: true });
   }
@@ -1688,8 +1658,8 @@
         : '') +
       (run.scope === 'study'
         ? studyDoneActions()
-        : '<div class="test-actions"><button type="button" class="btn solid" data-again>Take it again</button><button type="button" class="btn" data-setup>Pick another test</button>' +
-          (run.missed.length ? '<a class="btn ghost" href="#weak">See weak spots</a>' : '') + '</div>');
+        : '<div class="test-actions"><button type="button" class="btn solid" data-again>Take it again</button><button type="button" class="btn" data-setup>Back to Quiz</button>' +
+          (run.missed.length && run.scope !== 'missed' ? '<button type="button" class="btn ghost" data-retry>Fix my mistakes</button>' : '') + '</div>');
   }
 
   function renderTest() {
@@ -1784,10 +1754,10 @@
     var last = (P().test || {}).mock;
     root.innerHTML =
       '<div class="mock-intro">' +
-      '<h2>Mock quiz</h2>' +
-      '<ul><li>' + mockCount() + ' questions from every unit, mixed up</li><li>' + MOCK_MINUTES + ' minutes on the clock</li>' +
+      '<h2>Timed test</h2>' +
+      '<ul><li>' + mockCount() + ' questions from every lesson, mixed up</li><li>' + MOCK_MINUTES + ' minutes on the clock</li>' +
       '<li>No skipping, just like the real thing</li>' +
-      '<li>Answers and your score by unit at the end</li><li>The clock keeps running if you leave the page</li></ul>' +
+      '<li>Answers and your score for each lesson at the end</li><li>The clock keeps running if you leave the page</li></ul>' +
       '<p class="note">This is practice made from the class notes. The real final may ask things differently.</p>' +
       (last ? '<p class="note">Last time: ' + last.score + ' / ' + last.total + '</p>' : '') +
       '<div class="test-actions"><button type="button" class="btn solid" data-mock-start>Start the clock</button>' +
@@ -1813,7 +1783,7 @@
     test.mockIntro = false;
     finishRun(run);
     renderTest();
-    toast('Time is up. Mock quiz handed in.');
+    toast('Time is up. Your timed test was handed in.');
   }
 
   function startClock() {
@@ -1930,7 +1900,7 @@
     var root = $('#drill-root');
     if (!cur) return;
     if (!C.drills.length) {
-      root.innerHTML = '<p class="weak-lead">' + esc(className()) + ' has no formula drills yet.</p><div class="test-actions"><a class="btn" href="#test">Back to Practice test</a></div>';
+      root.innerHTML = '<p class="weak-lead">' + esc(className()) + ' has no math practice.</p><div class="test-actions"><a class="btn" href="#games">Back to Games</a></div>';
       return;
     }
     if (!drill.q) drill.q = newDrill();
@@ -2252,7 +2222,6 @@
     buildSettings();
     applySettings();
     $$('[data-site-title]').forEach(function (el) { el.textContent = CFG.siteTitle || 'Finals'; });
-    buildWelcome();
     buildShortcuts();
     buildUnitPage();
     buildFlashcards();
