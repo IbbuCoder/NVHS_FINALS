@@ -9,19 +9,14 @@
 <link rel="icon" id="icon-svg" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c4122f'/%3E%3Cpath d='M9 6h15v5H14v4h8v5h-8v6H9z' fill='%23fff'/%3E%3C/svg%3E">
 <script>
 // Applies saved look settings before the page draws, so there is no flash.
+// Dark mode is the default; Settings can switch it off.
 try {
   var s = (JSON.parse(localStorage.getItem('finals-v1')) || {}).settings || {}, r = document.documentElement;
-  var t = s.theme === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : s.theme;
-  if (t) r.dataset.theme = t;
-  if (s.accent) r.dataset.accent = s.accent;
-  if (s.accent === 'custom' && s.color) r.style.setProperty('--accent', s.color);
+  var t = s.theme === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : (s.theme || 'dark');
+  r.dataset.theme = t;
   if (s.size) r.dataset.size = s.size;
-  if (s.font) r.dataset.font = s.font;
-  if (s.density) r.dataset.density = s.density;
-  if (s.motion) r.dataset.motion = s.motion;
-  if (s.board) r.dataset.board = s.board;
   if (s.simple === 'on') r.setAttribute('data-simple', '');
-} catch (e) {}
+} catch (e) { document.documentElement.dataset.theme = 'dark'; }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

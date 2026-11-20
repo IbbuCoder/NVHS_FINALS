@@ -116,7 +116,7 @@
   /* ---------- Settings ---------- */
 
   var DEFAULTS = {
-    theme: 'light', accent: 'red', color: '#c4122f', font: 'barlow', size: 'normal', density: 'comfy', motion: 'on',
+    theme: 'dark', accent: 'red', color: '#c4122f', font: 'barlow', size: 'normal', density: 'comfy', motion: 'on',
     simple: 'off', cardFirst: 'term', name: '', teacher: '', gameLength: '30', startPage: 'home', board: 'show', goal: 'off'
   };
   // The only settings someone can change. Everything else stays on its default.
