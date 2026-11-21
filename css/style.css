@@ -989,3 +989,7 @@ html[data-theme="dark"] .wip-class { background: #2a1a1d; }
   .wip-more { margin-left: 0; }
 }
 .pick-subject .wip-tag { align-self: flex-start; }
+
+/* "N studying now" on Home */
+.online-line { display: flex; align-items: center; gap: 8px; margin: -10px 0 14px; color: var(--mute); font-size: 16px; }
+.online-line::before { content: ""; width: 10px; height: 10px; background: var(--accent); flex: none; }

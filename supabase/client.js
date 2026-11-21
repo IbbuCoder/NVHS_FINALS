@@ -3,9 +3,11 @@
 //
 // The site has no accounts. It only:
 //   - reads approved notebooks (finals_notebooks, status = approved)
-//   - sends anonymous feedback (finals_feedback)
-//   - sends anonymous notebook submissions (finals_notebooks, always status = pending)
-//   - counts a visit once per browser session (finals_count_visit)
+//   - sends feedback (finals_feedback) and notebook submissions (finals_notebooks, always
+//     status = pending). Both need the student's name, which only the admin sees.
+//   - counts visits, class opens and missed questions (finals_track), shows who is studying
+//     now (finals_ping, finals_online_count). These send a random device id and the name if
+//     known, nothing else. The database itself skips the site owner's name and excluded devices.
 //
 // Every call returns a Promise of { data, error }. error is null or a plain sentence
 // that is safe to show on the page. Raw Supabase errors are never shown.
@@ -71,25 +73,37 @@
       });
     },
 
-    // Anonymous feedback. kind is bug, wrong-answer, idea or other.
-    sendFeedback: function (kind, classId, message) {
+    // Feedback. kind is bug, wrong-answer, idea or other. studentName is required (1-60 characters).
+    sendFeedback: function (kind, classId, message, studentName) {
       return run(function () {
-        return client.from('finals_feedback').insert({ kind: kind, class_id: classId || null, message: message });
+        return client.from('finals_feedback').insert({ kind: kind, class_id: classId || null, message: message, student_name: studentName });
       });
     },
 
     // Anonymous notebook submission. It always goes in as pending, so nothing shows on the
     // site until the admin approves it. The row isn't read back, because anonymous visitors
     // can add rows but not read them.
-    submitNotebook: function (classId, title, url) {
+    submitNotebook: function (classId, title, url, studentName) {
       return run(function () {
-        return client.from('finals_notebooks').insert({ class_id: classId, title: title, url: url, status: 'pending' });
+        return client.from('finals_notebooks').insert({ class_id: classId, title: title, url: url, status: 'pending', student_name: studentName });
       });
     },
 
-    // Once per browser session. Sends nothing about the person.
-    countVisit: function () {
-      return run(function () { return client.rpc('finals_count_visit'); });
+    // Usage counts. kind is 'visit', 'class_open' or 'miss'. ref is the missed question.
+    track: function (kind, classId, ref, device, student) {
+      return run(function () {
+        return client.rpc('finals_track', { kind: kind, class_id: classId || null, ref: ref || null, device: device || null, student: student || null });
+      });
+    },
+
+    // "I'm here", sent every minute while the tab is visible.
+    ping: function (device, student) {
+      return run(function () { return client.rpc('finals_ping', { device: device || null, student: student || null }); });
+    },
+
+    // How many students were active in the last 2 minutes.
+    onlineCount: function () {
+      return run(function () { return client.rpc('finals_online_count'); });
     }
   };
 })();

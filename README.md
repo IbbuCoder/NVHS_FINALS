@@ -100,16 +100,35 @@ A class that needs its own interactive parts sets `tools: true` in `data/subject
 
 ## Supabase
 
-The site has no accounts and no sign-in, and studying works fully offline. Every form goes to Supabase (no Google Forms). Supabase is used for:
+The site has no accounts and no sign-in, and studying works fully offline. Every form goes to Supabase (no Google Forms).
 
-- **Share a notebook.** The form (class, title, NotebookLM link) adds an anonymous row to `finals_notebooks` with `status` `pending`. The link must start with `https://notebooklm.google.com/` and the title must be 1 to 120 characters; the site checks both and the database enforces them. After sending, the student sees "Thanks, it shows up after it's checked."
-- **Approved notebooks.** Each class's Lessons page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class. Pending and rejected ones never show. With none, it shows "No notebooks yet. Be the first to share one!"
-- **Feedback.** The Feedback page sends an anonymous row to `finals_feedback`: a kind (bug, wrong answer, idea, other), an optional class and a message. "Think this answer is wrong?" in a test fills it in.
-- **Visits.** `finals_count_visit()` is called once per browser session, with no personal data.
+**The student's name and device.** Each browser gets a random device id once (saved in localStorage as `finals-device`). Students can type their name in Settings (optional); it's saved in localStorage as `finals-student-name`. Names are only ever seen by the admin on the hidden data page; the site never shows them anywhere public.
 
-Anonymous visitors can only add rows; they can't read submissions or feedback.
+**Forms**
+- **Share a notebook.** Your name (required, filled in from the saved name), class, title and NotebookLM link go into `finals_notebooks` as `pending` with `student_name`. The link must start with `https://notebooklm.google.com/` and the title must be 1 to 120 characters. After sending: "Thanks, it shows up after it's checked."
+- **Feedback.** Your name (required), a kind (bug, wrong answer, idea, other), an optional class and a message go into `finals_feedback` with `student_name`. New feedback starts as `new`. "Think this answer is wrong?" in a test fills it in.
+- Both forms save the name back so it's filled in next time. Errors are plain sentences.
 
-**Admin data page.** A hidden page at `hq-4067e220e3bc/index.html` shows the visit count, every notebook (with Approve, Reject, Back to pending and Delete) and all feedback (with Delete), newest first, with a Refresh button. It isn't linked from anywhere on the site, is marked `noindex,nofollow`, and is listed in `robots.txt`. It needs the admin key, which is never stored in this repo: open the page with the key after a `#` at the end of the address, or type it into the box the page shows. The page keeps the key only in that browser tab (sessionStorage), removes it from the address bar right away, and has a Lock button to forget it. Every action goes through the database functions `finals_admin_list`, `finals_admin_set_notebook` and `finals_admin_delete`, which refuse a wrong key ("That key didn't work").
+**Approved notebooks.** Each class's Lessons page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class. Pending and rejected ones never show, and neither do names.
+
+**Usage counts** (all through `finals_track(kind, class_id, ref, device, student)`, and they fail silently)
+- `visit` on every fresh load of the site.
+- `class_open` when a class is opened from the picker, a link or the class list.
+- `miss` when a quiz or practice question is answered wrong. `ref` is the question's text (questions have no other id).
+- The device id and the name (if known) are always sent. The database itself skips the site owner and excluded devices.
+
+**Studying now.** While a tab is on screen, the site calls `finals_ping(device, student)` every 60 seconds. Home shows "N studying now" from `finals_online_count()` (students active in the last 2 minutes), checked every 60 seconds and hidden when it's 0 or the call fails.
+
+Anonymous visitors can only add rows; they can't read submissions, feedback or names.
+
+**Admin data page.** A hidden page at `hq-4067e220e3bc/index.html`. It isn't linked from anywhere on the site, is marked `noindex,nofollow`, and is listed in `robots.txt`. It needs the admin key, which is never stored in this repo: open the page with the key after a `#` at the end of the address, or type it into the box the page shows. The page keeps the key only in that browser tab (sessionStorage), removes it from the address bar right away, and has a Lock button to forget it. A wrong key shows "That key didn't work". It shows:
+- Totals: visits, studying now, new feedback, notebooks waiting.
+- Stats: visits per day for the last 30 days, most opened classes, most missed questions.
+- Feedback inbox: kind, class, name, message and date; New / Done / All filter; sort by newest or by kind; Mark done / Mark new; Delete.
+- Notebooks: title, class, name, link, status and date, with Approve, Reject, Back to pending and Delete.
+- "Don't count this device": stops this browser's own visits from counting in the stats.
+
+Everything there goes through the database functions `finals_admin_list`, `finals_admin_stats`, `finals_admin_set_notebook`, `finals_admin_set_feedback`, `finals_admin_delete` and `finals_admin_exclude_device`, never the tables directly. Lists are newest first and there's a Refresh button.
 
 **Keys.** `supabase/config.js` has the project URL and the publishable key (`sb_publishable_...`), which is meant to be public. Row Level Security on the database decides what the site can read or write. Never put a secret key (`sb_secret_...`) or the legacy `service_role` key anywhere in this repo.
 
@@ -117,7 +136,7 @@ Anonymous visitors can only add rows; they can't read submissions or feedback.
 
 ## Progress
 
-Progress saves only in this browser's localStorage, under one key (`finals-v1`), with each class kept separately. Nothing about a student's progress is sent anywhere. Settings has Backup, to move progress to another device as a file.
+Progress saves only in this browser's localStorage, under one key (`finals-v1`), with each class kept separately. Scores, flashcard marks and bookmarks are never sent anywhere; only the usage counts above are. Settings has Backup, to move progress to another device as a file.
 
 ## Deploy to GitHub Pages
 

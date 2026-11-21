@@ -49,10 +49,30 @@ try {
         <div class="hq-tools"><button type="button" class="btn solid" id="hq-refresh">Refresh</button><button type="button" class="btn ghost" id="hq-lockbtn">Lock</button></div>
       </header>
       <div class="hq-stats" id="hq-stats"></div>
+
+      <h2 class="set-group">Stats</h2>
+      <div id="hq-charts"></div>
+
+      <h2 class="set-group">Feedback</h2>
+      <div class="hq-filters">
+        <div class="seg" id="hq-fb-filter" role="group" aria-label="Show feedback">
+          <button type="button" data-filter="new">New</button>
+          <button type="button" data-filter="done">Done</button>
+          <button type="button" data-filter="all">All</button>
+        </div>
+        <div class="seg" id="hq-fb-sort" role="group" aria-label="Sort feedback">
+          <button type="button" data-sort="date">Newest</button>
+          <button type="button" data-sort="kind">By kind</button>
+        </div>
+      </div>
+      <div id="hq-feedback"></div>
+
       <h2 class="set-group">Notebooks</h2>
       <div id="hq-notebooks"></div>
-      <h2 class="set-group">Feedback</h2>
-      <div id="hq-feedback"></div>
+
+      <h2 class="set-group">This device</h2>
+      <p class="note">Stop your own visits on this browser from showing up in the stats.</p>
+      <button type="button" class="btn" id="hq-exclude">Don't count this device</button>
     </section>
 
     <div class="form-result hq-msg" id="hq-msg" role="status" aria-live="polite"></div>
