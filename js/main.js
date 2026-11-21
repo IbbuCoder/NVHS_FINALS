@@ -628,7 +628,9 @@
           return '<a class="pick-btn' + (i === 0 ? ' solid' : '') + '" href="#pick/' + g + '"><strong>' + GROUPS[g].name + '</strong>' +
             '<span>' + GROUPS[g].blurb + ': ' + esc(classNames(g)) + '</span></a>';
         }).join('') + '</div>' +
+        '<div class="acct-strip" data-acct-strip></div>' +
         (cur ? '<a class="link-btn pick-skip" href="#home" data-pick-keep>Keep studying ' + esc(className()) + '</a>' : '');
+      paintStrips();
       return;
     }
     var list = SUBJECTS.filter(function (s) { return s.category === group; });
@@ -2163,7 +2165,22 @@
 
   var unread = { n: 0 };
 
+  // The small account line on the opening picker and at the top of Home.
+  // Logged out: Log in and Sign up. Logged in: Hi, name, Messages (with the unread dot), Log out.
+  function paintStrips() {
+    var on = loggedIn();
+    var html = on
+      ? '<span class="strip-hi">Hi, ' + esc(session.name) + '</span>' +
+        '<a class="strip-link" href="#messages">Messages' + (unread.n > 0 ? '<i class="unread-dot"><span class="vh">New message</span></i>' : '') + '</a>' +
+        '<button type="button" class="strip-link" data-strip-logout>Log out</button>'
+      : '<a class="btn solid strip-login" href="#account" data-acct-go="login">Log in</a>' +
+        '<a class="strip-link" href="#account" data-acct-go="signup">Sign up</a>' +
+        '<span class="strip-note">Optional. You can study without an account.</span>';
+    $$('[data-acct-strip]').forEach(function (el) { el.innerHTML = html; });
+  }
+
   function paintAccountUI() {
+    paintStrips();
     var on = loggedIn();
     $$('[data-account-title]').forEach(function (el) { el.textContent = on ? 'Account' : 'Log in'; });
     $$('[data-account-note]').forEach(function (el) {
@@ -2250,7 +2267,25 @@
       '</form>' + msg;
   }
 
+  function logOut() {
+    var token = session && session.token;
+    saveSession(null);
+    if (token && DB.ready()) DB.logout(token);
+    acct.msg = '';
+    acct.mode = 'login';
+    toast('Logged out');
+  }
+
   function buildAccount() {
+    // The strip's links open the Account page on the right tab; its Log out works anywhere.
+    document.addEventListener('click', function (e) {
+      var go = e.target.closest('[data-acct-go]');
+      if (go) { acct.mode = go.dataset.acctGo === 'signup' ? 'signup' : 'login'; acct.msg = ''; }
+      if (e.target.closest('[data-strip-logout]')) {
+        logOut();
+        refreshAccountViews();
+      }
+    });
     var root = $('#account-root');
     root.addEventListener('click', function (e) {
       var m = e.target.closest('[data-acct-mode]');
@@ -2271,12 +2306,7 @@
         tog.setAttribute('aria-pressed', String(acct.showPin));
       }
       if (e.target.closest('[data-logout]')) {
-        var token = session && session.token;
-        saveSession(null);
-        if (token && DB.ready()) DB.logout(token);
-        acct.msg = '';
-        acct.mode = 'login';
-        toast('Logged out');
+        logOut();
         renderAccount();
       }
     });
