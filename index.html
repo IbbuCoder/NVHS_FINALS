@@ -119,6 +119,7 @@ try {
     <!-- Shown once a class is picked -->
     <div id="home-class" hidden>
       <h1 class="home-title" tabindex="-1"><span id="home-class-name"></span></h1>
+      <p class="online-line" id="home-online" hidden></p>
       <a class="link-btn class-switch" href="#pick">Change class</a>
       <div class="board" id="board"></div>
       <section class="plan" id="home-plan" aria-label="Study plan" hidden></section>
@@ -284,6 +285,12 @@ try {
     <h2 class="set-group">Notebook</h2>
     <form class="share-form" id="share-form" novalidate>
       <div class="set-row">
+        <label class="set-label" for="sh-name">Your name</label>
+        <p class="note">Only the site's admin sees this.</p>
+        <input class="text-input" id="sh-name" type="text" maxlength="60" autocomplete="name" aria-describedby="sh-name-error">
+        <p class="field-error" id="sh-name-error" hidden></p>
+      </div>
+      <div class="set-row">
         <label class="set-label" for="sh-class">Class</label>
         <select class="text-input" id="sh-class" aria-describedby="sh-class-error"></select>
         <p class="field-error" id="sh-class-error" hidden></p>
@@ -312,6 +319,11 @@ try {
     <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Settings</h1></header>
 
+    <div class="set-row">
+      <label class="set-label" for="set-student">Your name</label>
+      <p class="note">Optional. Fills in the Feedback and Share a notebook forms for you. Only the site's admin ever sees it.</p>
+      <input class="text-input" id="set-student" type="text" maxlength="60" autocomplete="name" placeholder="First and last name">
+    </div>
     <div class="set-row">
       <span class="set-label">Dark mode</span>
       <div class="seg" data-set="theme">
@@ -375,8 +387,14 @@ try {
   <div class="wrap narrow">
     <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Feedback</h1></header>
-    <p class="note" style="margin-top:14px">Report a bug, a wrong answer or an idea. Your name is not sent.</p>
+    <p class="note" style="margin-top:14px">Report a bug, a wrong answer or an idea. Only the site's admin sees your name.</p>
     <form class="share-form" id="feedback-form" novalidate>
+      <div class="set-row">
+        <label class="set-label" for="fb-name">Your name</label>
+        <p class="note">Only the site's admin sees this.</p>
+        <input class="text-input" id="fb-name" type="text" maxlength="60" autocomplete="name" aria-describedby="fb-name-error">
+        <p class="field-error" id="fb-name-error" hidden></p>
+      </div>
       <div class="set-row">
         <span class="set-label" id="fb-kind-label">What is it about?</span>
         <div class="seg wrap-seg" id="fb-kind" role="group" aria-labelledby="fb-kind-label">

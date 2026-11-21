@@ -473,7 +473,7 @@
     // #class/science picks a class, then shows its Home.
     var pick = /^class\/([a-z0-9-]+)$/.exec(id);
     if (pick) {
-      if (setClass(pick[1])) { history.replaceState(null, '', '#home'); id = 'home'; }
+      if (setClass(pick[1])) { openedClass(pick[1]); history.replaceState(null, '', '#home'); id = 'home'; }
       else id = '404';
     }
     var unit = cur ? unitById(id) : null;
@@ -522,8 +522,10 @@
     if (id === 'drills') renderDrill(false);
     if (id === 'match') renderMatch();
     if (id === 'games') renderGames();
-    if (id === 'feedback') renderFeedback();
-    if (id === 'share') renderShare();
+    if (id === 'feedback') { if (!$('#fb-name').value) $('#fb-name').value = studentName(); renderFeedback(); }
+    if (id === 'share') { if (!$('#sh-name').value) $('#sh-name').value = studentName(); renderShare(); }
+    if (id === 'settings') $('#set-student').value = studentName();
+    if (id === 'home') paintOnline();
     window.scrollTo(0, 0);
     if (!first) {
       var h = $('h1', view);
@@ -644,11 +646,12 @@
       var b = e.target.closest('[data-pick-class]');
       if (b) {
         setClass(b.dataset.pickClass);
+        openedClass(b.dataset.pickClass);
         var go = pickReturn || 'home';
         pickReturn = '';
         location.hash = go;
       }
-      if (e.target.closest('[data-pick-keep]')) pickReturn = '';
+      if (e.target.closest('[data-pick-keep]')) { pickReturn = ''; openedClass(cur); }
     });
   }
 
@@ -1851,7 +1854,11 @@
         var q = C.questions[run.ids[run.pos]];
         run.picked = Number(t.closest('[data-pick]').dataset.pick);
         if (run.picked === q.a) run.right++;
-        else run.missed.push(run.ids[run.pos]);
+        else {
+          run.missed.push(run.ids[run.pos]);
+          // The question's own text is its id (questions have no other id).
+          track('miss', cur, String(q.q).slice(0, 200));
+        }
         setMissed(q, run.picked !== q.a);
         reviewRecord(itemKey(run.ids[run.pos]), run.picked === q.a);
         bumpGoal();
@@ -2178,18 +2185,24 @@
       e.preventDefault();
       if (feedback.busy) return;
       var message = $('#fb-message').value.trim();
+      var name = $('#fb-name').value.trim();
       var result = $('#fb-result');
+      $('#fb-name-error').hidden = !!name;
+      $('#fb-name-error').textContent = name ? '' : 'Type your name.';
+      if (name) $('#fb-name').removeAttribute('aria-invalid'); else $('#fb-name').setAttribute('aria-invalid', 'true');
       $('#fb-kind-error').hidden = !!feedback.kind;
       $('#fb-kind-error').textContent = feedback.kind ? '' : 'Pick what it is about.';
       $('#fb-message-error').hidden = !!message;
       $('#fb-message-error').textContent = message ? '' : 'Write a short message.';
+      if (!name) { $('#fb-name').focus(); return; }
       if (!feedback.kind) { $('#fb-kind button').focus(); return; }
       if (!message) { $('#fb-message').focus(); return; }
       if (!DB.ready()) { result.innerHTML = '<b>Your feedback was not sent.</b> ' + esc(DB.offlineMessage); return; }
       feedback.busy = true;
-      DB.sendFeedback(feedback.kind, $('#fb-class').value, message.slice(0, 1000)).then(function (res) {
+      DB.sendFeedback(feedback.kind, $('#fb-class').value, message.slice(0, 1000), name.slice(0, 60)).then(function (res) {
         feedback.busy = false;
         if (res.error) { result.innerHTML = '<b>Your feedback was not sent.</b> ' + esc(res.error); return; }
+        setStudentName(name);
         result.innerHTML = '<b>Feedback sent.</b> Thanks for helping fix the site.';
         $('#fb-message').value = '';
         feedback.kind = '';
@@ -2230,9 +2243,11 @@
       var result = $('#sh-result');
       var classId = $('#sh-class').value;
       var title = $('#sh-title').value.trim();
+      var name = $('#sh-name').value.trim();
       var url = $('#sh-url').value.trim();
       result.innerHTML = '';
       var bad = [
+        setError('sh-name', name ? '' : 'Type your name.'),
         setError('sh-class', classId ? '' : 'Pick the class.'),
         setError('sh-title', !title ? 'Give it a short title.' : title.length > 120 ? 'Keep the title under 120 characters.' : ''),
         setError('sh-url', !url ? 'Paste the share link from NotebookLM.'
@@ -2242,10 +2257,11 @@
       if (!DB.ready()) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(DB.offlineMessage); return; }
       shareForm.busy = true;
       $('#sh-send').disabled = true;
-      DB.submitNotebook(classId, title, url).then(function (res) {
+      DB.submitNotebook(classId, title, url, name.slice(0, 60)).then(function (res) {
         shareForm.busy = false;
         $('#sh-send').disabled = false;
         if (res.error) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(res.error); return; }
+        setStudentName(name);
         result.innerHTML = '<b>Thanks, it shows up after it\'s checked.</b>';
         $('#sh-title').value = '';
         $('#sh-url').value = '';
@@ -2253,15 +2269,88 @@
     });
   }
 
-  /* ---------- Supabase: visit count ---------- */
+  /* ---------- Who is studying: device id and name ---------- */
 
-  // Once per browser session. Sends nothing about the person.
-  function countVisit() {
+  // A random id made once per browser, and the name the student typed (optional).
+  // Both stay in this browser. They are only sent with usage counts and forms, and
+  // only the site's admin ever sees them.
+  var DEVICE_KEY = 'finals-device';
+  var NAME_KEY = 'finals-student-name';
+  var memDevice = '';
+  var memName = '';
+
+  function randomId() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+    });
+  }
+
+  function deviceId() {
     try {
-      if (sessionStorage.getItem('finals-visit')) return;
-      sessionStorage.setItem('finals-visit', '1');
-    } catch (e) { return; }
-    if (DB.ready()) DB.countVisit();
+      var d = localStorage.getItem(DEVICE_KEY);
+      if (!d) { d = randomId(); localStorage.setItem(DEVICE_KEY, d); }
+      return d;
+    } catch (e) {
+      return memDevice || (memDevice = randomId());
+    }
+  }
+
+  function studentName() {
+    try { return (localStorage.getItem(NAME_KEY) || '').trim(); } catch (e) { return memName; }
+  }
+
+  function setStudentName(name) {
+    name = String(name || '').trim().slice(0, 60);
+    memName = name;
+    try {
+      if (name) localStorage.setItem(NAME_KEY, name);
+      else localStorage.removeItem(NAME_KEY);
+    } catch (e) { /* storage blocked: kept for this visit only */ }
+  }
+
+  /* ---------- Supabase: usage counts and who is studying now ---------- */
+
+  // kind: 'visit', 'class_open' or 'miss'. Never shows an error: counting is optional.
+  function track(kind, classId, ref) {
+    if (!DB.ready()) return;
+    DB.track(kind, classId, ref, deviceId(), studentName() || null);
+  }
+
+  // A class was opened from the picker, a link or the class list.
+  function openedClass(id) {
+    track('class_open', id, null);
+  }
+
+  var online = { n: 0 };
+
+  function paintOnline() {
+    var el = $('#home-online');
+    if (!el) return;
+    el.hidden = !online.n;
+    el.textContent = online.n ? online.n + ' studying now' : '';
+  }
+
+  function refreshOnline() {
+    if (!DB.ready()) { online.n = 0; paintOnline(); return; }
+    DB.onlineCount().then(function (res) {
+      var n = res.error ? 0 : Number(res.data);
+      online.n = isFinite(n) && n > 0 ? Math.round(n) : 0;
+      paintOnline();
+    });
+  }
+
+  // Every minute while this tab is on screen: say "I'm here" and update the count.
+  function startPresence() {
+    function beat() {
+      if (document.visibilityState !== 'visible' || !DB.ready()) return;
+      DB.ping(deviceId(), studentName() || null);
+      refreshOnline();
+    }
+    beat();
+    setInterval(beat, 60000);
+    document.addEventListener('visibilitychange', beat);
   }
 
   /* ---------- Clear progress ---------- */
@@ -2340,7 +2429,10 @@
     history.replaceState(null, '', '#' + (/^pick\/(core|encore)$/.test(location.hash.slice(1)) ? location.hash.slice(1) : 'pick'));
     window.addEventListener('hashchange', function () { route(false); });
     route(true);
-    countVisit();
+    // Count this visit, then keep "studying now" up to date.
+    track('visit', null, null);
+    startPresence();
+    $('#set-student').addEventListener('input', function (e) { setStudentName(e.target.value); });
   }
 
   loadClasses(start);
