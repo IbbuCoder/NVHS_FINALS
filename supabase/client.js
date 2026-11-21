@@ -68,7 +68,7 @@
     // Approved NotebookLM notebooks for one class.
     approvedNotebooks: function (classId) {
       return run(function () {
-        return client.from('finals_notebooks').select('id, class_id, title, url, created_at')
+        return client.from('finals_notebooks').select('id, class_id, url, created_at')
           .eq('status', 'approved').eq('class_id', classId).order('created_at', { ascending: false });
       });
     },
@@ -83,9 +83,9 @@
     // Anonymous notebook submission. It always goes in as pending, so nothing shows on the
     // site until the admin approves it. The row isn't read back, because anonymous visitors
     // can add rows but not read them.
-    submitNotebook: function (classId, title, url, studentName) {
+    submitNotebook: function (classId, url, studentName) {
       return run(function () {
-        return client.from('finals_notebooks').insert({ class_id: classId, title: title, url: url, status: 'pending', student_name: studentName });
+        return client.from('finals_notebooks').insert({ class_id: classId, url: url, status: 'pending', student_name: studentName });
       });
     },
 

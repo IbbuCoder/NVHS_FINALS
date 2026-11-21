@@ -105,11 +105,11 @@ The site has no accounts and no sign-in, and studying works fully offline. Every
 **The student's name and device.** Each browser gets a random device id once (saved in localStorage as `finals-device`). Students can type their name in Settings (optional); it's saved in localStorage as `finals-student-name`. Names are only ever seen by the admin on the hidden data page; the site never shows them anywhere public.
 
 **Forms**
-- **Share a notebook.** Your name (required, filled in from the saved name), class, title and NotebookLM link go into `finals_notebooks` as `pending` with `student_name`. The link must start with `https://notebooklm.google.com/` and the title must be 1 to 120 characters. After sending: "Thanks, it shows up after it's checked."
+- **Share a notebook.** The form is just three things: Your name (required, filled in from the saved name), Class (a dropdown of the classes on the site) and Link. They go into `finals_notebooks` as `pending` with `student_name`; no title is sent. The link must start with `https://notebook.google.com/` or `https://notebooklm.google.com/` and be at most 500 characters. A real share link looks like `https://notebook.google.com/notebook/23faf934-5205-425c-bc49-4f46ff00d44d?authuser=1`. After sending: "Thanks, it shows up after it's checked."
 - **Feedback.** Your name (required), a kind (bug, wrong answer, idea, other), an optional class and a message go into `finals_feedback` with `student_name`. New feedback starts as `new`. "Think this answer is wrong?" in a test fills it in.
 - Both forms save the name back so it's filled in next time. Errors are plain sentences.
 
-**Approved notebooks.** Each class's Lessons page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class. Pending and rejected ones never show, and neither do names.
+**Approved notebooks.** Each class's Lessons page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class, and lists them as "Student notebook 1", "Student notebook 2" and so on. Pending and rejected ones never show, and neither do names.
 
 **Usage counts** (all through `finals_track(kind, class_id, ref, device, student)`, and they fail silently)
 - `visit` on every fresh load of the site.
@@ -125,7 +125,7 @@ Anonymous visitors can only add rows; they can't read submissions, feedback or n
 - Totals: visits, studying now, new feedback, notebooks waiting.
 - Stats: visits per day for the last 30 days, most opened classes, most missed questions.
 - Feedback inbox: kind, class, name, message and date; New / Done / All filter; sort by newest or by kind; Mark done / Mark new; Delete.
-- Notebooks: title, class, name, link, status and date, with Approve, Reject, Back to pending and Delete.
+- Notebooks: class, link, name, status and date, with Approve, Reject, Back to pending and Delete.
 - "Don't count this device": stops this browser's own visits from counting in the stats.
 
 Everything there goes through the database functions `finals_admin_list`, `finals_admin_stats`, `finals_admin_set_notebook`, `finals_admin_set_feedback`, `finals_admin_delete` and `finals_admin_exclude_device`, never the tables directly. Lists are newest first and there's a Refresh button.

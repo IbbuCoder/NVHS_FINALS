@@ -2113,12 +2113,14 @@
   // Approved notebooks per class, kept for this visit so going back and forth is quick.
   var notebookCache = {};
 
+  // Shown by number, never by who shared it: "Student notebook 1", "Student notebook 2"...
   function notebookList(list) {
-    return '<ul class="nb-list">' + list.map(function (n) {
+    return '<ul class="nb-list">' + list.map(function (n, i) {
       var url = safeUrl(n.url);
+      var label = 'Student notebook ' + (i + 1);
       return '<li>' + (url
-        ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(n.title || 'NotebookLM notebook') + '<span>Opens in NotebookLM</span></a>'
-        : esc(n.title || 'NotebookLM notebook')) + '</li>';
+        ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + label + '<span>' + esc(className()) + '. Opens in NotebookLM</span></a>'
+        : label) + '</li>';
     }).join('') + '</ul>';
   }
 
@@ -2213,17 +2215,23 @@
 
   /* ---------- Supabase: share a notebook ---------- */
 
-  // The database only accepts links that start with exactly this.
-  var NOTEBOOK_PREFIX = 'https://notebooklm.google.com/';
+  // The database only accepts links that start with one of these, up to 500 characters.
+  // The usual share link looks like https://notebook.google.com/notebook/<id>?authuser=1
+  var NOTEBOOK_PREFIXES = ['https://notebook.google.com/', 'https://notebooklm.google.com/'];
+
+  function linkProblem(url) {
+    if (!url) return 'Paste the share link from NotebookLM.';
+    if (url.length > 500) return 'That link is too long. Copy the share link again from NotebookLM.';
+    var okStart = NOTEBOOK_PREFIXES.some(function (p) { return url.indexOf(p) === 0 && url.length > p.length; });
+    return okStart ? '' : 'That isn\'t a NotebookLM share link. It has to start with https://notebook.google.com/';
+  }
   var shareForm = { busy: false };
 
   function renderShare() {
     var sel = $('#sh-class');
     var keep = sel.value || cur || '';
-    sel.innerHTML = '<option value="">Pick a class</option>' + ['core', 'encore'].map(function (cat) {
-      return '<optgroup label="' + (cat === 'core' ? 'Core' : 'Encore') + '">' + SUBJECTS.filter(function (s) { return s.category === cat; }).map(function (s) {
-        return '<option value="' + s.id + '"' + (s.id === keep ? ' selected' : '') + '>' + esc(s.name) + '</option>';
-      }).join('') + '</optgroup>';
+    sel.innerHTML = '<option value="">Pick a class</option>' + SUBJECTS.map(function (s) {
+      return '<option value="' + s.id + '"' + (s.id === keep ? ' selected' : '') + '>' + esc(s.name) + '</option>';
     }).join('');
   }
 
@@ -2242,28 +2250,24 @@
       if (shareForm.busy) return;
       var result = $('#sh-result');
       var classId = $('#sh-class').value;
-      var title = $('#sh-title').value.trim();
       var name = $('#sh-name').value.trim();
       var url = $('#sh-url').value.trim();
       result.innerHTML = '';
       var bad = [
         setError('sh-name', name ? '' : 'Type your name.'),
         setError('sh-class', classId ? '' : 'Pick the class.'),
-        setError('sh-title', !title ? 'Give it a short title.' : title.length > 120 ? 'Keep the title under 120 characters.' : ''),
-        setError('sh-url', !url ? 'Paste the share link from NotebookLM.'
-          : url.indexOf(NOTEBOOK_PREFIX) !== 0 || url.length <= NOTEBOOK_PREFIX.length ? 'That isn\'t a NotebookLM link. It has to start with ' + NOTEBOOK_PREFIX : '')
+        setError('sh-url', linkProblem(url))
       ].filter(Boolean);
       if (bad.length) { bad[0].focus(); return; }
       if (!DB.ready()) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(DB.offlineMessage); return; }
       shareForm.busy = true;
       $('#sh-send').disabled = true;
-      DB.submitNotebook(classId, title, url, name.slice(0, 60)).then(function (res) {
+      DB.submitNotebook(classId, url, name.slice(0, 60)).then(function (res) {
         shareForm.busy = false;
         $('#sh-send').disabled = false;
         if (res.error) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(res.error); return; }
         setStudentName(name);
         result.innerHTML = '<b>Thanks, it shows up after it\'s checked.</b>';
-        $('#sh-title').value = '';
         $('#sh-url').value = '';
       });
     });
