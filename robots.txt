@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /hq-4067e220e3bc/
+Disallow: /NVHS_FINALS/hq-4067e220e3bc/
