@@ -1,0 +1,20 @@
+/* The data page. Uses the site's colors and fonts from ../css/style.css. */
+body { padding-bottom: 48px; }
+.hq-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.hq-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 18px; }
+.hq-stat { padding: 14px 16px; border: 2px solid var(--ink); background: var(--surface); }
+.hq-stat b { display: block; font: 700 44px/1 var(--head); color: var(--accent); }
+.hq-stat span { color: var(--mute); font-size: 15px; }
+.hq-list { list-style: none; margin: 0; padding: 0; }
+.hq-item { padding: 14px 0 16px; border-bottom: 1px solid var(--rule); }
+.hq-item h3 { margin: 0; font: 600 24px/1.15 var(--head); overflow-wrap: anywhere; }
+.hq-meta { margin: 4px 0 0; color: var(--mute); font-size: 15px; }
+.hq-link { display: block; margin-top: 6px; font-size: 16px; overflow-wrap: anywhere; }
+.hq-message { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.hq-status { display: inline-block; padding: 1px 8px; border: 2px solid var(--ink); font: 600 15px/1.4 var(--head); text-transform: uppercase; }
+.hq-status.pending { border-color: var(--accent); color: var(--accent); }
+.hq-status.rejected { border-color: var(--rule); color: var(--mute); }
+.hq-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.hq-actions .btn { min-height: 44px; }
+.hq-empty { color: var(--mute); margin: 12px 0 0; }
+.hq-msg { margin-top: 18px; }

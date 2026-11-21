@@ -523,6 +523,7 @@
     if (id === 'match') renderMatch();
     if (id === 'games') renderGames();
     if (id === 'feedback') renderFeedback();
+    if (id === 'share') renderShare();
     window.scrollTo(0, 0);
     if (!first) {
       var h = $('h1', view);
@@ -2120,7 +2121,8 @@
       '<h2 id="nb-title">Student notebooks</h2>' +
       '<p class="note">NotebookLM notebooks other students made from their own notes. They open in a new tab.</p>' +
       (list && list.length ? notebookList(list) : '<p>No notebooks yet. Be the first to share one!</p>') +
-      (note ? '<p class="note">' + esc(note) + '</p>' : '');
+      (note ? '<p class="note">' + esc(note) + '</p>' : '') +
+      '<a class="btn solid" href="#share">Share a notebook</a>';
   }
 
   function renderNotebooks() {
@@ -2196,6 +2198,61 @@
     });
   }
 
+  /* ---------- Supabase: share a notebook ---------- */
+
+  // The database only accepts links that start with exactly this.
+  var NOTEBOOK_PREFIX = 'https://notebooklm.google.com/';
+  var shareForm = { busy: false };
+
+  function renderShare() {
+    var sel = $('#sh-class');
+    var keep = sel.value || cur || '';
+    sel.innerHTML = '<option value="">Pick a class</option>' + ['core', 'encore'].map(function (cat) {
+      return '<optgroup label="' + (cat === 'core' ? 'Core' : 'Encore') + '">' + SUBJECTS.filter(function (s) { return s.category === cat; }).map(function (s) {
+        return '<option value="' + s.id + '"' + (s.id === keep ? ' selected' : '') + '>' + esc(s.name) + '</option>';
+      }).join('') + '</optgroup>';
+    }).join('');
+  }
+
+  function buildShareForm() {
+    var form = $('#share-form');
+    function setError(id, msg) {
+      var el = $('#' + id + '-error');
+      el.textContent = msg;
+      el.hidden = !msg;
+      if (msg) $('#' + id).setAttribute('aria-invalid', 'true');
+      else $('#' + id).removeAttribute('aria-invalid');
+      return msg ? $('#' + id) : null;
+    }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (shareForm.busy) return;
+      var result = $('#sh-result');
+      var classId = $('#sh-class').value;
+      var title = $('#sh-title').value.trim();
+      var url = $('#sh-url').value.trim();
+      result.innerHTML = '';
+      var bad = [
+        setError('sh-class', classId ? '' : 'Pick the class.'),
+        setError('sh-title', !title ? 'Give it a short title.' : title.length > 120 ? 'Keep the title under 120 characters.' : ''),
+        setError('sh-url', !url ? 'Paste the share link from NotebookLM.'
+          : url.indexOf(NOTEBOOK_PREFIX) !== 0 || url.length <= NOTEBOOK_PREFIX.length ? 'That isn\'t a NotebookLM link. It has to start with ' + NOTEBOOK_PREFIX : '')
+      ].filter(Boolean);
+      if (bad.length) { bad[0].focus(); return; }
+      if (!DB.ready()) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(DB.offlineMessage); return; }
+      shareForm.busy = true;
+      $('#sh-send').disabled = true;
+      DB.submitNotebook(classId, title, url).then(function (res) {
+        shareForm.busy = false;
+        $('#sh-send').disabled = false;
+        if (res.error) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(res.error); return; }
+        result.innerHTML = '<b>Thanks, it shows up after it\'s checked.</b>';
+        $('#sh-title').value = '';
+        $('#sh-url').value = '';
+      });
+    });
+  }
+
   /* ---------- Supabase: visit count ---------- */
 
   // Once per browser session. Sends nothing about the person.
@@ -2258,6 +2315,7 @@
     buildDrill();
     buildMatch();
     buildFeedbackForm();
+    buildShareForm();
     buildPick();
     startClock();
     if (saved.current && subjectOf(saved.current)) setClass(saved.current);

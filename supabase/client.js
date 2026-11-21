@@ -4,6 +4,7 @@
 // The site has no accounts. It only:
 //   - reads approved notebooks (finals_notebooks, status = approved)
 //   - sends anonymous feedback (finals_feedback)
+//   - sends anonymous notebook submissions (finals_notebooks, always status = pending)
 //   - counts a visit once per browser session (finals_count_visit)
 //
 // Every call returns a Promise of { data, error }. error is null or a plain sentence
@@ -38,7 +39,9 @@
     var text = String(err.message || '').toLowerCase();
     if (err.name === 'TypeError' || /failed to fetch|networkerror|network request failed|load failed/.test(text)) return MSG.network;
     if (code === 'over_request_rate_limit' || err.status === 429 || /rate limit|too many/.test(text)) return 'Too many tries. Wait a few minutes and try again.';
-    if (code === '23514' || code === '22P02' || code === '23502') return 'Some of that information isn\'t accepted. Check it and try again.';
+    if (code === '23505') return 'That notebook link has already been shared.';
+    // A row the database's rules refuse (for example a link that isn't from NotebookLM).
+    if (code === '42501' || code === '23514' || code === '22P02' || code === '23502') return 'Some of that information isn\'t accepted. Check it and try again.';
     return MSG.general;
   }
 
@@ -72,6 +75,15 @@
     sendFeedback: function (kind, classId, message) {
       return run(function () {
         return client.from('finals_feedback').insert({ kind: kind, class_id: classId || null, message: message });
+      });
+    },
+
+    // Anonymous notebook submission. It always goes in as pending, so nothing shows on the
+    // site until the admin approves it. The row isn't read back, because anonymous visitors
+    // can add rows but not read them.
+    submitNotebook: function (classId, title, url) {
+      return run(function () {
+        return client.from('finals_notebooks').insert({ class_id: classId, title: title, url: url, status: 'pending' });
       });
     },
 

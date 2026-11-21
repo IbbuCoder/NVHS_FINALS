@@ -273,12 +273,36 @@ try {
   <div class="wrap narrow">
     <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Share a notebook</h1></header>
-    <div class="nb-box">
-      <h2>Not open yet</h2>
-      <p>Sharing NotebookLM notebooks isn't open yet. When it opens, you'll be able to add a notebook made from your own class notes here.</p>
-      <p class="note">Notebooks that are already approved show under Lessons for each class.</p>
-      <a class="btn solid" href="#units">Go to Lessons</a>
-    </div>
+    <p class="note" style="margin-top:14px">Made a NotebookLM notebook from your own class notes? Share it here. It shows up under Lessons for that class after it's checked.</p>
+    <h2 class="set-group">How to share</h2>
+    <ol class="numbered">
+      <li>Open your class notebook in NotebookLM.</li>
+      <li>Tap Share (top right) and set general access to "Anyone with the link".</li>
+      <li>Copy the link and paste it below.</li>
+      <li>Only share notebooks made from your own notes. No teacher tests or answer keys, and keep names and personal info out.</li>
+    </ol>
+    <h2 class="set-group">Notebook</h2>
+    <form class="share-form" id="share-form" novalidate>
+      <div class="set-row">
+        <label class="set-label" for="sh-class">Class</label>
+        <select class="text-input" id="sh-class" aria-describedby="sh-class-error"></select>
+        <p class="field-error" id="sh-class-error" hidden></p>
+      </div>
+      <div class="set-row">
+        <label class="set-label" for="sh-title">Title</label>
+        <p class="note">What it covers. For example: Unit 2 review.</p>
+        <input class="text-input" id="sh-title" type="text" maxlength="120" autocomplete="off" aria-describedby="sh-title-error">
+        <p class="field-error" id="sh-title-error" hidden></p>
+      </div>
+      <div class="set-row">
+        <label class="set-label" for="sh-url">NotebookLM link</label>
+        <p class="note">It starts with https://notebooklm.google.com/</p>
+        <input class="text-input" id="sh-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://notebooklm.google.com/notebook/..." aria-describedby="sh-url-error">
+        <p class="field-error" id="sh-url-error" hidden></p>
+      </div>
+      <div class="test-actions"><button type="submit" class="btn solid" id="sh-send">Send notebook</button></div>
+      <div class="form-result" id="sh-result" role="status" aria-live="polite"></div>
+    </form>
   </div>
 </section>
 

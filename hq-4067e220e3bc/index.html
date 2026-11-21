@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Data | Finals</title>
+<meta name="theme-color" content="#15171a">
+<script>
+// Same look settings as the main site. Dark mode is the default.
+try {
+  var s = (JSON.parse(localStorage.getItem('finals-v1')) || {}).settings || {}, r = document.documentElement;
+  r.dataset.theme = s.theme === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : (s.theme || 'dark');
+} catch (e) { document.documentElement.dataset.theme = 'dark'; }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="./hq.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <span class="brand">Finals data</span>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap narrow">
+
+    <!-- Shown until a key is given -->
+    <section id="hq-lock" hidden>
+      <header class="unit-head"><h1 tabindex="-1">Data</h1></header>
+      <form id="hq-key-form" class="share-form" novalidate>
+        <div class="set-row">
+          <label class="set-label" for="hq-key">Admin key</label>
+          <input class="text-input" id="hq-key" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off">
+        </div>
+        <div class="test-actions"><button type="submit" class="btn solid">Open</button></div>
+      </form>
+    </section>
+
+    <!-- Shown once the key works -->
+    <section id="hq-panel" hidden>
+      <header class="unit-head sheet-head"><h1 tabindex="-1">Data</h1>
+        <div class="hq-tools"><button type="button" class="btn solid" id="hq-refresh">Refresh</button><button type="button" class="btn ghost" id="hq-lockbtn">Lock</button></div>
+      </header>
+      <div class="hq-stats" id="hq-stats"></div>
+      <h2 class="set-group">Notebooks</h2>
+      <div id="hq-notebooks"></div>
+      <h2 class="set-group">Feedback</h2>
+      <div id="hq-feedback"></div>
+    </section>
+
+    <div class="form-result hq-msg" id="hq-msg" role="status" aria-live="polite"></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="../supabase/config.js"></script>
+<script src="../js/registry.js"></script>
+<script src="../data/subjects.js"></script>
+<script src="./hq.js"></script>
+</body>
+</html>
