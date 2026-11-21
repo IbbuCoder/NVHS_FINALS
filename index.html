@@ -296,15 +296,9 @@ try {
         <p class="field-error" id="sh-class-error" hidden></p>
       </div>
       <div class="set-row">
-        <label class="set-label" for="sh-title">Title</label>
-        <p class="note">What it covers. For example: Unit 2 review.</p>
-        <input class="text-input" id="sh-title" type="text" maxlength="120" autocomplete="off" aria-describedby="sh-title-error">
-        <p class="field-error" id="sh-title-error" hidden></p>
-      </div>
-      <div class="set-row">
-        <label class="set-label" for="sh-url">NotebookLM link</label>
-        <p class="note">It starts with https://notebooklm.google.com/</p>
-        <input class="text-input" id="sh-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://notebooklm.google.com/notebook/..." aria-describedby="sh-url-error">
+        <label class="set-label" for="sh-url">Link</label>
+        <p class="note">The share link from NotebookLM. It starts with https://notebook.google.com/ (or https://notebooklm.google.com/).</p>
+        <input class="text-input" id="sh-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://notebook.google.com/notebook/23faf934-5205-425c-bc49-4f46ff00d44d?authuser=1" aria-describedby="sh-url-error">
         <p class="field-error" id="sh-url-error" hidden></p>
       </div>
       <div class="test-actions"><button type="submit" class="btn solid" id="sh-send">Send notebook</button></div>

@@ -222,9 +222,8 @@
             n.status !== 'pending' ? '<button type="button" class="btn" data-set="pending" data-id="' + esc(n.id) + '">Back to pending</button>' : '',
             '<button type="button" class="btn ghost" data-del="notebook" data-id="' + esc(n.id) + '">Delete</button>'
           ].join('');
-          return '<li class="hq-item"><h3>' + esc(n.title || 'Untitled') + '</h3>' +
-            '<p class="hq-meta"><span class="hq-status ' + esc(n.status) + '">' + esc(STATUS[n.status] || n.status) + '</span> ' +
-              esc(className(n.class_id)) + '. From ' + esc(n.student_name || 'no name') + '. ' + esc(when(n.created_at)) + '</p>' +
+          return '<li class="hq-item"><h3>' + esc(className(n.class_id)) + '</h3>' +
+            '<p class="hq-meta"><span class="hq-status ' + esc(n.status) + '">' + esc(STATUS[n.status] || n.status) + '</span> From ' + esc(n.student_name || 'no name') + '. ' + esc(when(n.created_at)) + '</p>' +
             (url ? '<a class="hq-link" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(url) + '</a>' : '<p class="hq-meta">' + esc(n.url) + '</p>') +
             '<div class="hq-actions">' + buttons + '</div></li>';
         }).join('') + '</ul>'
