@@ -1,10 +1,15 @@
 // Everything the site does with Supabase goes through window.FinalsDB.
 // It uses supabase-js (loaded from the CDN in index.html) and the settings in supabase/config.js.
 //
-// The site has no accounts. It only:
-//   - reads approved notebooks (finals_notebooks, status = approved)
-//   - sends feedback (finals_feedback) and notebook submissions (finals_notebooks, always
-//     status = pending). Both need the student's name, which only the admin sees.
+// What it does:
+//   - optional student accounts: a custom username and PIN login built in the database
+//     (finals_signup, finals_login, finals_me, finals_logout). This is NOT Supabase Auth.
+//     The session token the database returns is kept in localStorage by js/main.js.
+//   - sends feedback and notebook submissions. Logged in: finals_submit_feedback and
+//     finals_submit_notebook with the token. Logged out: a direct insert with a typed name.
+//     Notebooks are admin-only; the site never reads them back.
+//   - My submissions (finals_my_items) and messages with the site's owner
+//     (finals_send_message, finals_my_messages, finals_my_unread).
 //   - counts visits, class opens and missed questions (finals_track), shows who is studying
 //     now (finals_ping, finals_online_count). These send a random device id and the name if
 //     known, nothing else. The database itself skips the site owner's name and excluded devices.
@@ -19,7 +24,7 @@
   var client = null;
   try {
     if (window.supabase && cfg.url && cfg.key) {
-      // No sign-in, so nothing about a session is saved or read.
+      // Supabase Auth isn't used at all: accounts are the database's own username + PIN.
       client = window.supabase.createClient(cfg.url, cfg.key, {
         auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
       });
@@ -50,6 +55,26 @@
   function ok(data) { return { data: data === undefined ? null : data, error: null }; }
   function fail(err) { return { data: null, error: typeof err === 'string' ? err : plain(err) }; }
 
+  // The account and message functions raise errors whose message is already a plain
+  // sentence written for students (for example "That notebook was already shared. Thanks!").
+  // Show those as they are; anything else (network trouble) becomes one of ours.
+  function sentence(err) {
+    var msg = String((err && err.message) || '').trim();
+    var dbSentence = err && (err.code === 'P0001' || err.code === 'P0002') && msg && msg.length <= 300;
+    return dbSentence ? msg : plain(err);
+  }
+
+  // Runs a database function by name and resolves to { data, error } with a plain sentence.
+  function rpc(name, args) {
+    if (!client) return Promise.resolve(fail(MSG.offline));
+    var p;
+    try { p = client.rpc(name, args || {}); } catch (e) { return Promise.resolve(fail(e)); }
+    return Promise.resolve(p).then(function (res) {
+      if (res && res.error) return { data: null, error: sentence(res.error) };
+      return ok(res ? res.data : null);
+    }, fail);
+  }
+
   // Runs a supabase-js call and always resolves to { data, error }.
   function run(fn) {
     if (!client) return Promise.resolve(fail(MSG.offline));
@@ -65,15 +90,53 @@
     ready: function () { return !!client; },
     offlineMessage: MSG.offline,
 
-    // Approved NotebookLM notebooks for one class.
-    // Every approved notebook. class_id is the class name the student typed, so the site
-    // matches it to a class itself (see notebooksFor in js/main.js).
-    approvedNotebooks: function () {
-      return run(function () {
-        return client.from('finals_notebooks').select('id, class_id, url, created_at')
-          .eq('status', 'approved').order('created_at', { ascending: false });
+    /* ----- Accounts (the database's own username + PIN, not Supabase Auth) ----- */
+
+    // { ok, token, username, name, owner }, or error is the database's plain sentence.
+    signup: function (username, name, pin) {
+      return rpc('finals_signup', { p_username: username, p_name: name, p_pin: pin });
+    },
+    // A wrong username or PIN comes back as { ok: false, error }, turned into error here.
+    login: function (username, pin) {
+      return rpc('finals_login', { p_username: username, p_pin: pin }).then(function (res) {
+        if (res.error) return res;
+        var d = res.data || {};
+        if (d.ok === false || !d.token) return { data: null, error: d.error || 'That username and PIN don\'t match.' };
+        return res;
       });
     },
+    logout: function (token) {
+      return rpc('finals_logout', { p_token: token });
+    },
+    // { username, name, owner } for a working session, or null when it has ended.
+    me: function (token) {
+      return rpc('finals_me', { p_token: token });
+    },
+
+    /* ----- Things a logged-in student does ----- */
+
+    submitNotebookAs: function (token, className, url) {
+      return rpc('finals_submit_notebook', { p_token: token, p_class: className, p_url: url });
+    },
+    submitFeedbackAs: function (token, kind, classId, message) {
+      return rpc('finals_submit_feedback', { p_token: token, p_kind: kind, p_class: classId || null, p_message: message });
+    },
+    // { notebooks: [...], feedback: [...] } with status and owner_note.
+    myItems: function (token) {
+      return rpc('finals_my_items', { p_token: token });
+    },
+    sendMessage: function (token, body) {
+      return rpc('finals_send_message', { p_token: token, p_body: body });
+    },
+    // [{ from_owner, body, created_at }], oldest first.
+    myMessages: function (token) {
+      return rpc('finals_my_messages', { p_token: token });
+    },
+    myUnread: function (token) {
+      return rpc('finals_my_unread', { p_token: token });
+    },
+
+    /* ----- Logged out: the anonymous forms (unchanged) ----- */
 
     // Feedback. kind is bug, wrong-answer, idea or other. studentName is required (1-60 characters).
     sendFeedback: function (kind, classId, message, studentName) {
