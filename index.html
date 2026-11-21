@@ -80,7 +80,7 @@ try {
       <a href="#flashcards">Flashcards</a>
       <a href="#test">Quiz</a>
       <a href="#games">Games</a>
-      <a href="#more">More</a>
+      <a href="#more">More<i class="unread-dot" data-unread hidden><span class="vh">New message</span></i></a>
     </nav>
     <a class="class-chip" id="class-chip" href="#pick" hidden><span class="class-chip-name" id="class-chip-name"></span><span class="class-chip-change">Change</span></a>
     <button type="button" class="icon-btn" id="search-btn" aria-label="Search the notes"><svg aria-hidden="true"><use href="#i-search"></use></svg></button>
@@ -156,7 +156,6 @@ try {
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1" id="units-title">Lessons</h1></header>
     <div class="unit-list" id="unit-list"></div>
-    <section class="nb-box" id="notebooks" aria-labelledby="nb-title"></section>
   </div>
 </section>
 
@@ -284,7 +283,9 @@ try {
     </ol>
     <h2 class="set-group">Notebook</h2>
     <form class="share-form" id="share-form" novalidate>
-      <div class="set-row">
+      <p class="as-line" id="sh-as" hidden></p>
+      <p class="note login-hint" id="sh-login-hint"><a href="#account">Log in</a> to see whether your notebook was used and to message the site's owner. You can also share without an account.</p>
+      <div class="set-row" id="sh-name-row">
         <label class="set-label" for="sh-name">Your name</label>
         <p class="note">Only the site's admin sees this.</p>
         <input class="text-input" id="sh-name" type="text" maxlength="60" autocomplete="name" aria-describedby="sh-name-error">
@@ -301,6 +302,10 @@ try {
         <input class="text-input" id="sh-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://notebook.google.com/notebook/23faf934-5205-425c-bc49-4f46ff00d44d?authuser=1" aria-describedby="sh-url-error">
         <p class="field-error" id="sh-url-error" hidden></p>
       </div>
+      <ul class="form-notes">
+        <li>Share it so anyone with the link can view.</li>
+        <li>Don't include other students' work or grades.</li>
+      </ul>
       <div class="test-actions"><button type="submit" class="btn solid" id="sh-send">Send notebook</button></div>
       <div class="form-result" id="sh-result" role="status" aria-live="polite"></div>
     </form>
@@ -365,6 +370,9 @@ try {
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">More</h1></header>
     <nav class="more-list" aria-label="More pages">
+      <a href="#account"><b data-account-title>Log in</b><span data-account-note>Optional. See what happened to things you shared and message the site's owner</span></a>
+      <a href="#messages" data-needs-login hidden><b>Messages<i class="unread-dot" data-unread hidden><span class="vh">New message</span></i></b><span>Chat with the site's owner</span></a>
+      <a href="#mine" data-needs-login hidden><b>My submissions</b><span>Notebooks and feedback you sent, and what happened to them</span></a>
       <a href="#games"><b>Games</b><span>Matching game and math practice</span></a>
       <a href="#saved"><b>Bookmarks</b><span>Lessons and questions you saved</span></a>
       <a href="#sheet"><b>Printable review sheet</b><span>Every flashcard on a few pages</span></a>
@@ -383,7 +391,8 @@ try {
     <header class="unit-head"><h1 tabindex="-1">Feedback</h1></header>
     <p class="note" style="margin-top:14px">Report a bug, a wrong answer or an idea. Only the site's admin sees your name.</p>
     <form class="share-form" id="feedback-form" novalidate>
-      <div class="set-row">
+      <p class="as-line" id="fb-as" hidden></p>
+      <div class="set-row" id="fb-name-row">
         <label class="set-label" for="fb-name">Your name</label>
         <p class="note">Only the site's admin sees this.</p>
         <input class="text-input" id="fb-name" type="text" maxlength="60" autocomplete="name" aria-describedby="fb-name-error">
@@ -416,6 +425,33 @@ try {
   </div>
 </section>
 
+<!-- ACCOUNT (optional: the database's own username + PIN login) -->
+<section class="view" id="view-account" data-title="Account">
+  <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
+    <header class="unit-head"><h1 tabindex="-1" id="account-title">Log in</h1></header>
+    <div id="account-root"></div>
+  </div>
+</section>
+
+<!-- MESSAGES (needs an account) -->
+<section class="view" id="view-messages" data-title="Messages">
+  <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
+    <header class="unit-head"><h1 tabindex="-1">Messages</h1></header>
+    <div id="messages-root"></div>
+  </div>
+</section>
+
+<!-- MY SUBMISSIONS (needs an account) -->
+<section class="view" id="view-mine" data-title="My submissions">
+  <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
+    <header class="unit-head"><h1 tabindex="-1">My submissions</h1></header>
+    <div id="mine-root"></div>
+  </div>
+</section>
+
 <!-- NOT FOUND -->
 <section class="view" id="view-404" data-title="Page not found">
   <div class="wrap narrow">
@@ -434,7 +470,7 @@ try {
   <a href="#units" data-tab="units"><svg aria-hidden="true"><use href="#t-units"></use></svg>Lessons</a>
   <a href="#flashcards" data-tab="flashcards"><svg aria-hidden="true"><use href="#t-cards"></use></svg>Flashcards</a>
   <a href="#test" data-tab="test"><svg aria-hidden="true"><use href="#t-test"></use></svg>Quiz</a>
-  <a href="#more" data-tab="more"><svg aria-hidden="true"><use href="#t-more"></use></svg>More</a>
+  <a href="#more" data-tab="more"><svg aria-hidden="true"><use href="#t-more"></use></svg>More<i class="unread-dot" data-unread hidden><span class="vh">New message</span></i></a>
 </nav>
 
 <dialog class="search" id="search" aria-label="Search">
