@@ -1,4 +1,4 @@
-// ELA: PLACEHOLDER CONTENT ONLY.
+// English (id: ela): PLACEHOLDER CONTENT ONLY.
 // Every unit, note, flashcard, question and drill below is a stand-in so the
 // site's features can be tested. Replace them with real class content.
 // The format is explained in data/classes/_template.js.
@@ -14,7 +14,7 @@ FINALS.addClass("ela", Object.assign({
           "id": "u1-s1",
           "title": "Placeholder section A",
           "body": [
-            "PLACEHOLDER. Notes for ELA unit 1 go here. Replace this paragraph with the real notes from class."
+            "PLACEHOLDER. Notes for English unit 1 go here. Replace this paragraph with the real notes from class."
           ],
           "list": [
             "Placeholder point 1",
@@ -58,7 +58,7 @@ FINALS.addClass("ela", Object.assign({
           "id": "u2-s1",
           "title": "Placeholder section A",
           "body": [
-            "PLACEHOLDER. Notes for ELA unit 2 go here. Replace this paragraph with the real notes from class."
+            "PLACEHOLDER. Notes for English unit 2 go here. Replace this paragraph with the real notes from class."
           ],
           "list": [
             "Placeholder point 1",

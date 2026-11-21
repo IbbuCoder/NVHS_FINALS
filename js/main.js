@@ -2147,12 +2147,16 @@
 
   // Students type the class name, so match loosely: case, spaces and punctuation don't
   // matter. "PE / Health", "pe health" and "pe-health" all match PE / Health.
+  // Accents don't matter either, so "Español" matches "Espanol".
   function squash(s) {
-    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+    s = String(s || '');
+    if (s.normalize) s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return s.toLowerCase().replace(/[^a-z0-9]+/g, '');
   }
+  // Matches the class id, its name, or any of its aliases from data/subjects.js.
   function notebooksFor(classId, list) {
     var s = subjectOf(classId);
-    var names = [squash(classId), s ? squash(s.name) : ''].filter(Boolean);
+    var names = [classId].concat(s ? [s.name].concat(s.aliases || []) : []).map(squash).filter(Boolean);
     return list.filter(function (n) { return names.indexOf(squash(n.class_id)) > -1; });
   }
 

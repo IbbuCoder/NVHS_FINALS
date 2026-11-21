@@ -71,7 +71,7 @@ robots.txt            Asks search engines to skip the admin page
 
 1. Add a line to `data/subjects.js`:
    ```js
-   { id: 'french', name: 'French', category: 'encore', exam: '' },
+   { id: 'french', name: 'French', category: 'encore', exam: '', aliases: ['Francais'] },
    ```
 2. Copy `data/classes/_template.js` to `data/classes/french.js` and change `'your-id'` to `'french'`.
 
@@ -109,7 +109,18 @@ The site has no accounts and no sign-in, and studying works fully offline. Every
 - **Feedback.** Your name (required), a kind (bug, wrong answer, idea, other), an optional class and a message go into `finals_feedback` with `student_name`. New feedback starts as `new`. "Think this answer is wrong?" in a test fills it in.
 - Both forms save the name back so it's filled in next time. Errors are plain sentences.
 
-**Approved notebooks.** Each class's Lessons page reads the rows from `finals_notebooks` where `status` is `approved`, keeps the ones whose typed class matches that class, and lists them as "Student notebook 1", "Student notebook 2" and so on. Pending and rejected ones never show, and neither do names. The match ignores case, spaces and punctuation, and works with either the class name or its id: "Science", "science", "PE Health" and "pe-health" all match. A typed class that matches no class (for example "English" for ELA) still reaches the admin page, but doesn't show on any Lessons page.
+**Approved notebooks.** Each class's Lessons page reads the rows from `finals_notebooks` where `status` is `approved`, keeps the ones whose typed class matches that class, and lists them as "Student notebook 1", "Student notebook 2" and so on. Pending and rejected ones never show, and neither do names. The match ignores case, spaces, punctuation and accents, and works with the class name, its id or any of its **aliases**. Each class's aliases are listed in `data/subjects.js`, the one place to edit them:
+
+| Class | Also matches |
+| --- | --- |
+| English | ELA, Language Arts, English Language Arts, Reading |
+| Math | Mathematics, Algebra, Geometry |
+| Science | Sci |
+| Social Studies | History, SS, Social |
+| PE / Health | PE, Health, Gym, Physical Education |
+| Spanish | Espanol (and Español) |
+
+So "Language arts", "pe health", "GYM" and "Español" all land on the right page. A typed class that matches none of these (for example "PE health (3rd period)", with extra words) still reaches the admin page, but doesn't show on any Lessons page until an alias for it is added.
 
 **Usage counts** (all through `finals_track(kind, class_id, ref, device, student)`, and they fail silently)
 - `visit` on every fresh load of the site.
