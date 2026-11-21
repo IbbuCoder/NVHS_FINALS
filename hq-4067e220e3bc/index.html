@@ -41,6 +41,18 @@ try {
         </div>
         <div class="test-actions"><button type="submit" class="btn solid">Open</button></div>
       </form>
+      <h2 class="set-group">Or log in as the owner</h2>
+      <form id="hq-login-form" class="share-form" novalidate>
+        <div class="set-row">
+          <label class="set-label" for="hq-user">Username</label>
+          <input class="text-input" id="hq-user" type="text" autocomplete="username" spellcheck="false" autocapitalize="off" maxlength="40">
+        </div>
+        <div class="set-row">
+          <label class="set-label" for="hq-pin">PIN</label>
+          <div class="pin-row"><input class="text-input" id="hq-pin" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off" maxlength="64"><button type="button" class="btn" id="hq-pin-toggle" aria-controls="hq-pin" aria-pressed="false">Show</button></div>
+        </div>
+        <div class="test-actions"><button type="submit" class="btn solid" id="hq-login-go">Log in</button></div>
+      </form>
     </section>
 
     <!-- Shown once the key works -->
@@ -52,6 +64,9 @@ try {
 
       <h2 class="set-group">Stats</h2>
       <div id="hq-charts"></div>
+
+      <h2 class="set-group">Messages</h2>
+      <div id="hq-msgs"></div>
 
       <h2 class="set-group">Feedback</h2>
       <div class="hq-filters">
@@ -69,6 +84,9 @@ try {
 
       <h2 class="set-group">Notebooks</h2>
       <div id="hq-notebooks"></div>
+
+      <h2 class="set-group">Accounts</h2>
+      <div id="hq-accounts"></div>
 
       <h2 class="set-group">This device</h2>
       <p class="note">Stop your own visits on this browser from showing up in the stats.</p>

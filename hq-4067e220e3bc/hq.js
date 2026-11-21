@@ -1,17 +1,19 @@
-// The hidden data page. It shows usage stats, the feedback inbox and notebook submissions,
-// and lets the admin approve, reject, mark done or delete them.
+// The hidden data page. It shows usage stats, messages, the feedback inbox, notebook
+// submissions and accounts, and lets the owner act on them.
 //
-// Everything goes through the admin functions in the database (finals_admin_list,
-// finals_admin_stats, finals_admin_set_notebook, finals_admin_set_feedback,
-// finals_admin_delete, finals_admin_exclude_device). Each one needs the admin key.
-// The key is never stored in this repo: open the page with the key after # in the address.
-// It is kept in this tab's sessionStorage only and removed from the address bar right away.
+// Everything goes through the admin functions in the database. Their first argument, t,
+// is EITHER the long admin key OR the owner account's session token:
+//   - the key: open the page with it after # in the address, or type it into the box;
+//   - the owner account: log in with its username and PIN (finals_login, owner must be true).
+// Neither is stored in this repo. Whichever is used is kept in this tab's sessionStorage
+// only, and Lock forgets it (and ends the owner session).
 (function () {
   'use strict';
 
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
   var KEY_STORE = 'finals-hq-key';
+  var KIND_STORE = 'finals-hq-kind'; // 'key' or 'token'
   var DEVICE_KEY = 'finals-device'; // same random id the main site uses for this browser
   var cfg = window.FINALS_SUPABASE || {};
   var client = null;
@@ -51,6 +53,12 @@
     n = Number(n);
     return isFinite(n) ? n : 0;
   }
+  // Who sent something: the account's name and username, or the name typed on the form.
+  function sender(row) {
+    var name = row.student_name || row.name || '';
+    var user = row.username ? '@' + row.username : '';
+    return name && user ? name + ' (' + user + ')' : name || user || 'no name';
+  }
 
   function deviceId() {
     try {
@@ -63,18 +71,20 @@
     } catch (e) { return ''; }
   }
 
-  /* ----- The key ----- */
+  /* ----- The key or owner token ----- */
 
   var memKey = '';
-  function getKey() {
-    try { return sessionStorage.getItem(KEY_STORE) || ''; } catch (e) { return ''; }
+  var memKind = 'key';
+  function getStored(name) {
+    try { return sessionStorage.getItem(name) || ''; } catch (e) { return ''; }
   }
-  function setKey(k) {
-    try {
-      if (k) sessionStorage.setItem(KEY_STORE, k);
-      else sessionStorage.removeItem(KEY_STORE);
-    } catch (e) { /* storage blocked: the key lasts until the page closes */ }
+  function setKey(k, kind) {
     memKey = k;
+    memKind = k ? (kind || 'key') : 'key';
+    try {
+      if (k) { sessionStorage.setItem(KEY_STORE, k); sessionStorage.setItem(KIND_STORE, memKind); }
+      else { sessionStorage.removeItem(KEY_STORE); sessionStorage.removeItem(KIND_STORE); }
+    } catch (e) { /* storage blocked: lasts until the page closes */ }
   }
 
   // #key in the address: keep it for this tab, then take it out of the address bar.
@@ -83,22 +93,24 @@
     var h = location.hash.slice(1);
     if (!h) return false;
     try { h = decodeURIComponent(h); } catch (e) { /* use as is */ }
-    setKey(h);
+    setKey(h, 'key');
     history.replaceState(null, '', location.pathname + location.search);
     return true;
   }
-  if (!takeKeyFromAddress()) memKey = getKey();
+  if (!takeKeyFromAddress()) { memKey = getStored(KEY_STORE); memKind = getStored(KIND_STORE) || 'key'; }
 
   /* ----- Messages and calls ----- */
 
   function say(html) { $('#hq-msg').innerHTML = html || ''; }
 
   function isWrongKey(err) {
-    return err && (String(err.message || '').toLowerCase().indexOf('not allowed') > -1 || err.code === 'P0001');
+    return err && (String(err.message || '').toLowerCase().indexOf('not allowed') > -1);
   }
   function plain(err) {
-    var text = String((err && err.message) || '').toLowerCase();
-    if ((err && err.name === 'TypeError') || /failed to fetch|networkerror|load failed/.test(text)) return 'Could not reach the server. Check your connection and try again.';
+    var text = String((err && err.message) || '');
+    if ((err && err.name === 'TypeError') || /failed to fetch|networkerror|load failed/i.test(text)) return 'Could not reach the server. Check your connection and try again.';
+    // The database's own errors are already plain sentences.
+    if (err && err.code === 'P0001' && text && text.length <= 300) return text;
     return 'Something went wrong. Try again in a minute.';
   }
 
@@ -106,11 +118,11 @@
     $('#hq-panel').hidden = true;
     $('#hq-lock').hidden = false;
     $('#hq-key').value = '';
+    $('#hq-pin').value = '';
     say(message || '');
-    $('#hq-key').focus();
   }
 
-  // Calls one admin function with the key. Resolves to { data } or { error, wrongKey }.
+  // Calls one admin function with t. Resolves to { data } or { error, wrongKey }.
   function call(name, args) {
     if (!client) return Promise.resolve({ error: 'This page needs an internet connection.' });
     var params = Object.assign({ t: memKey }, args || {});
@@ -124,16 +136,20 @@
 
   function handleWrongKey(res) {
     if (!res.wrongKey) return false;
+    var wasToken = memKind === 'token';
     setKey('');
-    showLock('<b>That key didn\'t work.</b> Check it and try again.');
+    showLock(wasToken ? '<b>Your owner session ended.</b> Log in again.' : '<b>That key didn\'t work.</b> Check it and try again.');
     return true;
   }
 
   /* ----- Drawing ----- */
 
-  var data = { notebooks: [], feedback: [], visits: 0, online: 0 };
+  var data = { notebooks: [], feedback: [], visits: 0, online: 0, unread: 0 };
   var stats = null;
   var statsError = '';
+  var threads = null;
+  var accounts = null;
+  var openThread = null; // { account_id, username, name, messages }
   var view = { filter: 'new', sort: 'date' };
   var busy = false;
 
@@ -176,6 +192,42 @@
       '<section class="hq-chart"><h3>Most missed questions</h3>' + (missed.length ? bars(missed) : '<p class="hq-empty">No missed questions yet.</p>') + '</section>';
   }
 
+  // A note the owner writes on a notebook or feedback item. Students see it in My submissions.
+  function noteBox(kind, row) {
+    var id = 'note-' + kind + '-' + esc(row.id);
+    return '<div class="hq-note"><label for="' + id + '">Note to the student</label>' +
+      '<textarea class="text-input" id="' + id + '" maxlength="300" rows="2">' + esc(row.owner_note || '') + '</textarea>' +
+      '<div class="test-actions"><button type="button" class="btn" data-note="' + kind + '" data-id="' + esc(row.id) + '" data-for="' + id + '">Save note</button></div></div>';
+  }
+
+  function renderMessages() {
+    var box = $('#hq-msgs');
+    if (openThread) {
+      var msgs = openThread.messages || [];
+      box.innerHTML =
+        '<div class="test-actions"><button type="button" class="btn ghost" data-thread-close>Back to all messages</button></div>' +
+        '<h3 style="margin:14px 0 0;font:600 24px/1.15 var(--head)">' + esc(openThread.name || openThread.username || 'Student') + (openThread.username ? ' <span class="hq-meta">@' + esc(openThread.username) + '</span>' : '') + '</h3>' +
+        (msgs.length ? '<ul class="chat">' + msgs.map(function (m) {
+          var mine = !!m.from_owner; // on this page "mine" is the owner
+          return '<li class="' + (mine ? 'mine' : 'owner') + '"><span class="chat-who">' + (mine ? 'You' : esc(openThread.name || 'Student')) + '</span>' + esc(m.body) + '<time>' + esc(when(m.created_at)) + '</time></li>';
+        }).join('') + '</ul>' : '<p class="hq-empty">No messages in this thread.</p>') +
+        '<form class="share-form chat-form" id="hq-reply-form" novalidate><label class="set-label" for="hq-reply">Reply</label>' +
+        '<textarea class="text-input" id="hq-reply" maxlength="1000" rows="3"></textarea>' +
+        '<div class="test-actions"><button type="submit" class="btn solid" id="hq-reply-go">Send reply</button></div></form>';
+      return;
+    }
+    if (threads === null) { box.innerHTML = '<p class="hq-empty">Loading...</p>'; return; }
+    var list = (threads || []).slice().sort(function (a, b) { return String(b.last_at || '').localeCompare(String(a.last_at || '')); });
+    box.innerHTML = list.length
+      ? list.map(function (th) {
+          return '<button type="button" class="hq-thread" data-thread="' + esc(th.account_id) + '">' +
+            '<b>' + esc(th.name || th.username || 'Student') + (th.username ? ' <span class="hq-meta">@' + esc(th.username) + '</span>' : '') + '</b>' +
+            (num(th.unread) ? '<span class="hq-badge" aria-label="' + num(th.unread) + ' unread">' + num(th.unread) + '</span>' : '<span></span>') +
+            '<span class="hq-meta">' + esc(String(th.last_body || '').slice(0, 120)) + ' ' + esc(when(th.last_at)) + '</span></button>';
+        }).join('')
+      : '<p class="hq-empty">No messages yet.</p>';
+  }
+
   function renderFeedback() {
     $$('#hq-fb-filter button').forEach(function (b) {
       var on = b.dataset.filter === view.filter;
@@ -202,11 +254,12 @@
           var done = f.status === 'done';
           return '<li class="hq-item' + (done ? ' is-done' : '') + '"><h3>' + esc(KINDS[f.kind] || f.kind || 'Feedback') + '</h3>' +
             '<p class="hq-meta"><span class="hq-status ' + (done ? 'rejected' : 'pending') + '">' + (done ? 'Done' : 'New') + '</span> ' +
-              esc(className(f.class_id)) + '. From ' + esc(f.student_name || 'no name') + '. ' + esc(when(f.created_at)) + '</p>' +
+              esc(className(f.class_id)) + '. From ' + esc(sender(f)) + '. ' + esc(when(f.created_at)) + '</p>' +
             '<p class="hq-message">' + esc(f.message) + '</p>' +
             '<div class="hq-actions">' +
               '<button type="button" class="btn' + (done ? '' : ' solid') + '" data-fb-status="' + (done ? 'new' : 'done') + '" data-id="' + esc(f.id) + '">' + (done ? 'Mark new' : 'Mark done') + '</button>' +
-              '<button type="button" class="btn ghost" data-del="feedback" data-id="' + esc(f.id) + '">Delete</button></div></li>';
+              '<button type="button" class="btn ghost" data-del="feedback" data-id="' + esc(f.id) + '">Delete</button></div>' +
+            noteBox('feedback', f) + '</li>';
         }).join('') + '</ul>'
       : '<p class="hq-empty">' + (view.filter === 'new' ? 'No new feedback.' : view.filter === 'done' ? 'Nothing marked done yet.' : 'No feedback yet.') + '</p>';
   }
@@ -224,11 +277,24 @@
           ].join('');
           // The class the student typed, shown as typed.
           return '<li class="hq-item"><h3>' + esc(n.class_id || 'No class given') + '</h3>' +
-            '<p class="hq-meta"><span class="hq-status ' + esc(n.status) + '">' + esc(STATUS[n.status] || n.status) + '</span> From ' + esc(n.student_name || 'no name') + '. ' + esc(when(n.created_at)) + '</p>' +
+            '<p class="hq-meta"><span class="hq-status ' + esc(n.status) + '">' + esc(STATUS[n.status] || n.status) + '</span> From ' + esc(sender(n)) + '. ' + esc(when(n.created_at)) + '</p>' +
             (url ? '<a class="hq-link" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(url) + '</a>' : '<p class="hq-meta">' + esc(n.url) + '</p>') +
-            '<div class="hq-actions">' + buttons + '</div></li>';
+            '<div class="hq-actions">' + buttons + '</div>' + noteBox('notebook', n) + '</li>';
         }).join('') + '</ul>'
       : '<p class="hq-empty">No notebooks yet.</p>';
+  }
+
+  function renderAccounts() {
+    var box = $('#hq-accounts');
+    if (accounts === null) { box.innerHTML = '<p class="hq-empty">Loading...</p>'; return; }
+    box.innerHTML = accounts.length
+      ? '<ul class="hq-list">' + newestFirst(accounts).map(function (a) {
+          return '<li class="hq-item"><h3>' + esc(a.name || a.username) + '</h3>' +
+            '<p class="hq-meta">@' + esc(a.username) + (a.is_owner ? '<span class="hq-flag">Owner</span>' : '') + (a.locked ? '<span class="hq-flag warn">Locked</span>' : '') +
+              ' Joined ' + esc(when(a.created_at)) + '</p>' +
+            '<div class="hq-actions"><button type="button" class="btn" data-reset-pin="' + esc(a.id) + '" data-user="' + esc(a.username) + '">Reset PIN</button></div></li>';
+        }).join('') + '</ul>'
+      : '<p class="hq-empty">No accounts yet.</p>';
   }
 
   function render() {
@@ -238,11 +304,14 @@
     $('#hq-stats').innerHTML =
       '<div class="hq-stat"><b>' + esc(num(data.visits)) + '</b><span>Visits</span></div>' +
       '<div class="hq-stat"><b>' + esc(nowOnline) + '</b><span>Studying now</span></div>' +
+      '<div class="hq-stat"><b>' + esc(num(data.unread)) + '</b><span>Unread messages</span></div>' +
       '<div class="hq-stat"><b>' + fresh + '</b><span>New feedback</span></div>' +
       '<div class="hq-stat"><b>' + waiting + '</b><span>Notebooks waiting</span></div>';
     renderCharts();
+    renderMessages();
     renderFeedback();
     renderNotebooks();
+    renderAccounts();
   }
 
   function load(note) {
@@ -250,24 +319,43 @@
     busy = true;
     $('#hq-refresh').disabled = true;
     say(note || 'Loading...');
-    Promise.all([call('finals_admin_list'), call('finals_admin_stats')]).then(function (both) {
-      var res = both[0], st = both[1];
+    Promise.all([call('finals_admin_list'), call('finals_admin_stats'), call('finals_admin_threads'), call('finals_admin_accounts')]).then(function (all) {
+      var res = all[0], st = all[1], th = all[2], ac = all[3];
       busy = false;
       $('#hq-refresh').disabled = false;
-      if (handleWrongKey(res) || handleWrongKey(st)) return;
+      if (all.some(handleWrongKey)) return;
       if (res.error) {
         if ($('#hq-panel').hidden) showLock('<b>' + esc(res.error) + '</b>');
         else say('<b>' + esc(res.error) + '</b>');
         return;
       }
       var d = res.data || {};
-      data = { notebooks: d.notebooks || [], feedback: d.feedback || [], visits: d.visits || 0, online: d.online || 0 };
+      data = { notebooks: d.notebooks || [], feedback: d.feedback || [], visits: d.visits || 0, online: d.online || 0, unread: d.unread_messages || 0 };
       stats = st.error ? null : (st.data || {});
       statsError = st.error ? 'The stats could not load. ' + st.error : '';
+      threads = th.error ? [] : (th.data || []);
+      accounts = ac.error ? [] : (ac.data || []);
       $('#hq-lock').hidden = true;
       $('#hq-panel').hidden = false;
       render();
-      say(note && note !== 'Loading...' ? note : '');
+      var problems = [th.error && 'Messages could not load.', ac.error && 'Accounts could not load.'].filter(Boolean).join(' ');
+      say((note && note !== 'Loading...' ? note + ' ' : '') + esc(problems));
+    });
+  }
+
+  function openThreadFor(accountId, note) {
+    var th = (threads || []).filter(function (x) { return String(x.account_id) === String(accountId); })[0] || { account_id: accountId };
+    call('finals_admin_thread', { p_account: accountId }).then(function (res) {
+      if (handleWrongKey(res)) return;
+      if (res.error) { say('<b>That thread could not load.</b> ' + esc(res.error)); return; }
+      openThread = { account_id: accountId, username: th.username, name: th.name, messages: res.data || [] };
+      // Opening a thread marks it read, so the unread counts change.
+      th.unread = 0;
+      data.unread = (threads || []).reduce(function (s, x) { return s + num(x.unread); }, 0);
+      render();
+      say(note || '');
+      var reply = $('#hq-reply');
+      if (reply) reply.focus({ preventScroll: true });
     });
   }
 
@@ -278,17 +366,58 @@
     var k = $('#hq-key').value.trim();
     if (!k) { say('<b>Type the admin key.</b>'); return; }
     $('#hq-key').value = '';
-    setKey(k);
+    setKey(k, 'key');
     load();
   });
 
-  $('#hq-refresh').addEventListener('click', function () { if (!busy) load(); });
+  $('#hq-pin-toggle').addEventListener('click', function () {
+    var input = $('#hq-pin');
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    this.textContent = show ? 'Hide' : 'Show';
+    this.setAttribute('aria-pressed', String(show));
+  });
+
+  // Owner login: the returned session token is used as t, for this tab only.
+  $('#hq-login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var user = $('#hq-user').value.trim();
+    var pin = $('#hq-pin').value;
+    if (!user || !pin) { say('<b>Type the owner username and PIN.</b>'); return; }
+    if (!client) { say('<b>This page needs an internet connection.</b>'); return; }
+    $('#hq-login-go').disabled = true;
+    say('Logging in...');
+    client.rpc('finals_login', { p_username: user, p_pin: pin }).then(function (res) {
+      $('#hq-login-go').disabled = false;
+      $('#hq-pin').value = '';
+      if (res.error) { say('<b>' + esc(plain(res.error)) + '</b>'); return; }
+      var d = res.data || {};
+      if (d.ok === false || !d.token) { say('<b>' + esc(d.error || 'That username and PIN don\'t match.') + '</b>'); return; }
+      if (!d.owner) {
+        client.rpc('finals_logout', { p_token: d.token });
+        say('<b>That account isn\'t the site owner\'s.</b>');
+        return;
+      }
+      setKey(d.token, 'token');
+      load();
+    }, function (err) {
+      $('#hq-login-go').disabled = false;
+      say('<b>' + esc(plain(err)) + '</b>');
+    });
+  });
+
+  $('#hq-refresh').addEventListener('click', function () {
+    if (busy) return;
+    if (openThread) openThreadFor(openThread.account_id);
+    load();
+  });
 
   $('#hq-lockbtn').addEventListener('click', function () {
+    if (memKind === 'token' && client && memKey) client.rpc('finals_logout', { p_token: memKey });
     setKey('');
-    data = { notebooks: [], feedback: [], visits: 0, online: 0 };
-    stats = null;
-    showLock('Locked. The key was removed from this tab.');
+    data = { notebooks: [], feedback: [], visits: 0, online: 0, unread: 0 };
+    stats = null; threads = null; accounts = null; openThread = null;
+    showLock('Locked. The key or owner login was removed from this tab.');
   });
 
   $('#hq-fb-filter').addEventListener('click', function (e) {
@@ -313,7 +442,57 @@
     });
   });
 
+  $('#hq-msgs').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!openThread) return;
+    var body = $('#hq-reply').value.trim();
+    if (!body) { say('<b>Write a reply first.</b>'); return; }
+    $('#hq-reply-go').disabled = true;
+    call('finals_admin_reply', { p_account: openThread.account_id, p_body: body.slice(0, 1000) }).then(function (res) {
+      if (handleWrongKey(res)) return;
+      if (res.error) { $('#hq-reply-go').disabled = false; say('<b>Your reply was not sent.</b> ' + esc(res.error)); return; }
+      openThreadFor(openThread.account_id, 'Reply sent.');
+      call('finals_admin_threads').then(function (th) { if (!th.error) { threads = th.data || []; } });
+    });
+  });
+
   document.addEventListener('click', function (e) {
+    var th = e.target.closest('[data-thread]');
+    if (th) { openThreadFor(th.dataset.thread); return; }
+    if (e.target.closest('[data-thread-close]')) { openThread = null; load(); return; }
+
+    var noteBtn = e.target.closest('[data-note]');
+    if (noteBtn) {
+      var text = ($('#' + noteBtn.dataset.for) || {}).value || '';
+      noteBtn.disabled = true;
+      call('finals_admin_note', { p_kind: noteBtn.dataset.note, p_id: noteBtn.dataset.id, p_note: text.trim().slice(0, 300) }).then(function (res) {
+        noteBtn.disabled = false;
+        if (handleWrongKey(res)) return;
+        say(res.error ? '<b>The note was not saved.</b> ' + esc(res.error) : 'Note saved.');
+        if (!res.error) {
+          var list = noteBtn.dataset.note === 'feedback' ? data.feedback : data.notebooks;
+          list.forEach(function (r) { if (String(r.id) === noteBtn.dataset.id) r.owner_note = text.trim().slice(0, 300); });
+        }
+      });
+      return;
+    }
+
+    var reset = e.target.closest('[data-reset-pin]');
+    if (reset) {
+      var who = '@' + reset.dataset.user;
+      var pin = window.prompt('New PIN for ' + who + ' (4 or more characters):');
+      if (pin === null) return;
+      if (pin.length < 4) { say('<b>The new PIN needs at least 4 characters.</b>'); return; }
+      if (!window.confirm('Set the new PIN for ' + who + '? Tell them the new PIN yourself.')) return;
+      reset.disabled = true;
+      call('finals_admin_reset_pin', { p_account: reset.dataset.resetPin, p_new_pin: pin }).then(function (res) {
+        reset.disabled = false;
+        if (handleWrongKey(res)) return;
+        say(res.error ? '<b>The PIN was not changed.</b> ' + esc(res.error) : 'New PIN set for ' + esc(who) + '.');
+      });
+      return;
+    }
+
     var set = e.target.closest('[data-set]');
     var fbs = e.target.closest('[data-fb-status]');
     var del = e.target.closest('[data-del]');

@@ -490,7 +490,7 @@
     $$('.view').forEach(function (v) { v.classList.toggle('is-active', v === view); });
     // Which bottom tab lights up. Every page belongs to one of the 5.
     var tabId = unit ? 'units' : id;
-    if (['settings', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'feedback', 'saved', 'games', 'drills', 'match'].indexOf(id) > -1) tabId = 'more';
+    if (['settings', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'feedback', 'saved', 'games', 'drills', 'match', 'account', 'messages', 'mine'].indexOf(id) > -1) tabId = 'more';
     if (id === 'weak') tabId = 'test';
     // The top menu has Games too, so game pages light up Games there.
     var navId = ['games', 'drills', 'match'].indexOf(id) > -1 ? 'games' : tabId;
@@ -525,6 +525,9 @@
     if (id === 'feedback') { if (!$('#fb-name').value) $('#fb-name').value = studentName(); renderFeedback(); }
     if (id === 'share') { if (!$('#sh-name').value) $('#sh-name').value = studentName(); renderShare(); }
     if (id === 'settings') $('#set-student').value = studentName();
+    if (id === 'account') { acct.msg = ''; renderAccount(); }
+    if (id === 'messages') { renderMessages(); loadMessages(); }
+    if (id === 'mine') renderMine();
     if (id === 'home') paintOnline();
     window.scrollTo(0, 0);
     if (!first) {
@@ -806,7 +809,6 @@
             '<span class="sb-pct">' + score + '%</span><span class="pct"><i style="width:' + score + '%"></i></span></a>';
         }).join('')
       : '<p class="note" style="margin-top:14px">This class has no lessons yet.</p>';
-    renderNotebooks();
   }
 
   function sectionHtml(u, sec) {
@@ -2102,7 +2104,7 @@
     });
   }
 
-  /* ---------- Supabase: shared notebooks ---------- */
+  /* ---------- Supabase ---------- */
 
   var DB = window.FinalsDB;
 
@@ -2110,54 +2112,325 @@
     try { return new URL(u).protocol === 'https:' ? u : ''; } catch (e) { return ''; }
   }
 
-  // Approved notebooks per class, kept for this visit so going back and forth is quick.
-  var notebookCache = {};
+  /* ---------- Student accounts (optional) ---------- */
 
-  // Shown by number, never by who shared it: "Student notebook 1", "Student notebook 2"...
-  function notebookList(list) {
-    return '<ul class="nb-list">' + list.map(function (n, i) {
-      var url = safeUrl(n.url);
-      var label = 'Student notebook ' + (i + 1);
-      return '<li>' + (url
-        ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + label + '<span>' + esc(className()) + '. Opens in NotebookLM</span></a>'
-        : label) + '</li>';
-    }).join('') + '</ul>';
+  // The database's own username + PIN login (not Supabase Auth). The session token it
+  // returns is kept in localStorage and checked again with finals_me on every load.
+  // Studying never needs an account; it only adds My submissions and Messages.
+  var SESSION_KEY = 'finals-session';
+  var session = null;
+  try {
+    var savedSession = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (savedSession && savedSession.token) session = savedSession;
+  } catch (e) { session = null; }
+
+  function loggedIn() { return !!(session && session.token); }
+
+  function saveSession(s) {
+    session = s && s.token ? { token: s.token, username: s.username || '', name: s.name || '', owner: !!s.owner } : null;
+    try {
+      if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch (e) { /* storage blocked: logged in for this visit only */ }
+    unread.n = 0;
+    paintAccountUI();
   }
 
-  function paintNotebooks(classId, list, note) {
-    if (classId !== cur) return;
-    $('#notebooks').innerHTML =
-      '<h2 id="nb-title">Student notebooks</h2>' +
-      '<p class="note">NotebookLM notebooks other students made from their own notes. They open in a new tab.</p>' +
-      (list && list.length ? notebookList(list) : '<p>No notebooks yet. Be the first to share one!</p>') +
-      (note ? '<p class="note">' + esc(note) + '</p>' : '') +
-      '<a class="btn solid" href="#share">Share a notebook</a>';
+  // The name sent with usage counts: the account's name when logged in, else the Settings name.
+  function trackName() {
+    return loggedIn() ? (session.name || null) : (studentName() || null);
   }
 
-  function renderNotebooks() {
-    var id = cur;
-    paintNotebooks(id, notebookCache[id] || []);
-    if (!DB.ready()) { paintNotebooks(id, [], 'Shared notebooks need an internet connection.'); return; }
-    DB.approvedNotebooks().then(function (res) {
-      if (res.error) { paintNotebooks(id, notebookCache[id] || [], 'Shared notebooks could not load right now. ' + res.error); return; }
-      notebookCache[id] = notebooksFor(id, res.data || []);
-      paintNotebooks(id, notebookCache[id]);
+  // On load: is the saved session still good? If the database says no, log out here too.
+  // If the check can't run (offline), keep the session for now.
+  function checkSession() {
+    if (!loggedIn() || !DB.ready()) return;
+    DB.me(session.token).then(function (res) {
+      if (res.error) return;
+      if (!res.data) {
+        saveSession(null);
+        toast('You were logged out. Log in again to see your messages.');
+        refreshAccountViews();
+        return;
+      }
+      session.username = res.data.username || session.username;
+      session.name = res.data.name || session.name;
+      session.owner = !!res.data.owner;
+      saveSession(session);
+      pollUnread();
     });
   }
 
-  // Students type the class name, so match loosely: case, spaces and punctuation don't
-  // matter. "PE / Health", "pe health" and "pe-health" all match PE / Health.
-  // Accents don't matter either, so "Español" matches "Espanol".
-  function squash(s) {
-    s = String(s || '');
-    if (s.normalize) s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    return s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  var unread = { n: 0 };
+
+  function paintAccountUI() {
+    var on = loggedIn();
+    $$('[data-account-title]').forEach(function (el) { el.textContent = on ? 'Account' : 'Log in'; });
+    $$('[data-account-note]').forEach(function (el) {
+      el.textContent = on ? 'Logged in as ' + session.name : 'Optional. See what happened to things you shared and message the site\'s owner';
+    });
+    $$('[data-needs-login]').forEach(function (el) { el.hidden = !on; });
+    $$('[data-unread]').forEach(function (el) { el.hidden = !(on && unread.n > 0); });
+    // Forms: logged in, the name comes from the account.
+    $('#sh-name-row').hidden = on;
+    $('#fb-name-row').hidden = on;
+    $('#sh-login-hint').hidden = on;
+    $('#sh-as').hidden = !on;
+    $('#fb-as').hidden = !on;
+    if (on) {
+      $('#sh-as').textContent = 'Sharing as ' + session.name;
+      $('#fb-as').textContent = 'Sending as ' + session.name;
+    }
   }
-  // Matches the class id, its name, or any of its aliases from data/subjects.js.
-  function notebooksFor(classId, list) {
-    var s = subjectOf(classId);
-    var names = [classId].concat(s ? [s.name].concat(s.aliases || []) : []).map(squash).filter(Boolean);
-    return list.filter(function (n) { return names.indexOf(squash(n.class_id)) > -1; });
+
+  function pollUnread() {
+    if (!loggedIn() || !DB.ready() || document.visibilityState !== 'visible') return;
+    DB.myUnread(session.token).then(function (res) {
+      if (res.error || !loggedIn()) return;
+      var n = Number(res.data);
+      unread.n = isFinite(n) && n > 0 ? n : 0;
+      paintAccountUI();
+    });
+  }
+
+  function refreshAccountViews() {
+    var active = $('.view.is-active');
+    if (!active) return;
+    if (active.id === 'view-account') renderAccount();
+    if (active.id === 'view-messages') renderMessages();
+    if (active.id === 'view-mine') renderMine();
+  }
+
+  /* ----- Account page: log in, sign up, log out ----- */
+
+  var acct = { mode: 'login', busy: false, msg: '', showPin: false };
+
+  function pinField(id, label, note, auto) {
+    return '<div class="set-row"><label class="set-label" for="' + id + '">' + label + '</label>' + (note ? '<p class="note">' + note + '</p>' : '') +
+      '<div class="pin-row"><input class="text-input" id="' + id + '" type="' + (acct.showPin ? 'text' : 'password') + '" autocomplete="' + auto + '" autocapitalize="off" spellcheck="false" maxlength="64">' +
+      '<button type="button" class="btn" data-pin-toggle aria-controls="' + id + '" aria-pressed="' + acct.showPin + '">' + (acct.showPin ? 'Hide' : 'Show') + '</button></div></div>';
+  }
+
+  function textField(id, label, note, auto, max) {
+    return '<div class="set-row"><label class="set-label" for="' + id + '">' + label + '</label>' + (note ? '<p class="note">' + note + '</p>' : '') +
+      '<input class="text-input" id="' + id + '" type="text" autocomplete="' + auto + '" autocapitalize="off" spellcheck="false" maxlength="' + max + '"></div>';
+  }
+
+  function renderAccount() {
+    var root = $('#account-root');
+    var msg = '<div class="form-result" id="acct-result" role="status" aria-live="polite">' + acct.msg + '</div>';
+    if (loggedIn()) {
+      $('#account-title').textContent = 'Account';
+      root.innerHTML =
+        '<div class="acct-card"><b>' + esc(session.name) + '</b><span>Username: ' + esc(session.username) + '</span></div>' +
+        '<div class="home-links" style="margin-top:16px">' +
+          '<a class="big-link" href="#messages"><strong>Messages</strong><span>Chat with the site\'s owner</span></a>' +
+          '<a class="big-link" href="#mine"><strong>My submissions</strong><span>Notebooks and feedback you sent</span></a>' +
+        '</div>' +
+        '<div class="test-actions"><button type="button" class="btn" data-logout>Log out</button></div>' + msg;
+      return;
+    }
+    if (!DB.ready()) {
+      $('#account-title').textContent = 'Log in';
+      root.innerHTML = '<p class="weak-lead">' + esc(DB.offlineMessage) + '</p>';
+      return;
+    }
+    var signup = acct.mode === 'signup';
+    $('#account-title').textContent = signup ? 'Sign up' : 'Log in';
+    root.innerHTML =
+      '<p class="note" style="margin-top:14px">You don\'t need an account to study. An account lets you see what happened to notebooks and feedback you sent, and message the site\'s owner.</p>' +
+      '<div class="seg" role="group" aria-label="Log in or sign up" style="margin-top:16px">' +
+        '<button type="button" data-acct-mode="login" class="' + (signup ? '' : 'is-on') + '" aria-pressed="' + !signup + '">Log in</button>' +
+        '<button type="button" data-acct-mode="signup" class="' + (signup ? 'is-on' : '') + '" aria-pressed="' + signup + '">Sign up</button></div>' +
+      '<form class="share-form" id="acct-form" novalidate>' +
+        textField('acct-user', 'Username', signup ? 'Pick one to log in with. Not your real name.' : '', 'username', 40) +
+        (signup ? textField('acct-name', 'Your name', 'Only the site\'s owner sees this.', 'name', 60) : '') +
+        pinField('acct-pin', 'PIN', signup ? '4 or more characters. Letters, numbers or symbols all work.' : '', signup ? 'new-password' : 'current-password') +
+        '<div class="test-actions"><button type="submit" class="btn solid" id="acct-go"' + (acct.busy ? ' disabled' : '') + '>' + (signup ? 'Sign up' : 'Log in') + '</button></div>' +
+      '</form>' + msg;
+  }
+
+  function buildAccount() {
+    var root = $('#account-root');
+    root.addEventListener('click', function (e) {
+      var m = e.target.closest('[data-acct-mode]');
+      if (m) {
+        acct.mode = m.dataset.acctMode;
+        acct.msg = '';
+        var user = $('#acct-user') ? $('#acct-user').value : '';
+        renderAccount();
+        $('#acct-user').value = user;
+        $('#acct-user').focus();
+      }
+      var tog = e.target.closest('[data-pin-toggle]');
+      if (tog) {
+        acct.showPin = !acct.showPin;
+        var input = $('#' + tog.getAttribute('aria-controls'));
+        input.type = acct.showPin ? 'text' : 'password';
+        tog.textContent = acct.showPin ? 'Hide' : 'Show';
+        tog.setAttribute('aria-pressed', String(acct.showPin));
+      }
+      if (e.target.closest('[data-logout]')) {
+        var token = session && session.token;
+        saveSession(null);
+        if (token && DB.ready()) DB.logout(token);
+        acct.msg = '';
+        acct.mode = 'login';
+        toast('Logged out');
+        renderAccount();
+      }
+    });
+    root.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (acct.busy) return;
+      var signup = acct.mode === 'signup';
+      var username = $('#acct-user').value.trim();
+      var pin = $('#acct-pin').value;
+      var name = signup ? $('#acct-name').value.trim() : '';
+      function show(text, bad) {
+        acct.busy = false;
+        $('#acct-go').disabled = false;
+        $('#acct-result').innerHTML = text ? (bad ? '<b>' + esc(text) + '</b>' : esc(text)) : '';
+      }
+      if (!username) { show('Type your username.', true); $('#acct-user').focus(); return; }
+      if (signup && !name) { show('Type your name.', true); $('#acct-name').focus(); return; }
+      if (!pin) { show('Type your PIN.', true); $('#acct-pin').focus(); return; }
+      if (signup && pin.length < 4) { show('Use a PIN with at least 4 characters.', true); $('#acct-pin').focus(); return; }
+      acct.busy = true;
+      $('#acct-go').disabled = true;
+      var p = signup ? DB.signup(username, name, pin) : DB.login(username, pin);
+      p.then(function (res) {
+        if (res.error) { show(res.error, true); return; }
+        var d = res.data || {};
+        if (!d.token) { show('That didn\'t work. Try again in a minute.', true); return; }
+        acct.busy = false;
+        acct.msg = '';
+        saveSession(d);
+        toast(signup ? 'Account made. You\'re logged in.' : 'Logged in');
+        renderAccount();
+        pollUnread();
+      });
+    });
+  }
+
+  /* ----- Messages with the site's owner ----- */
+
+  var chat = { list: null, busy: false, error: '' };
+
+  function needLogin(what) {
+    return '<p class="weak-lead">Log in to ' + what + '.</p><div class="test-actions"><a class="btn solid" href="#account">Log in or sign up</a></div>';
+  }
+
+  function fmtWhen(iso) {
+    var d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
+
+  function renderMessages() {
+    var root = $('#messages-root');
+    if (!loggedIn()) { root.innerHTML = needLogin('message the site\'s owner'); return; }
+    var list = chat.list;
+    var keep = $('#msg-body') ? $('#msg-body').value : '';
+    root.innerHTML =
+      '<p class="note" style="margin-top:14px">Messages go to the site\'s owner. Don\'t share private info.</p>' +
+      (chat.error ? '<p class="note"><b>' + esc(chat.error) + '</b></p>' : '') +
+      (list === null ? '<p class="chat-empty">Loading...</p>'
+        : list.length ? '<ul class="chat">' + list.map(function (m) {
+            var mine = !m.from_owner;
+            return '<li class="' + (mine ? 'mine' : 'owner') + '"><span class="chat-who">' + (mine ? 'You' : 'Site owner') + '</span>' + esc(m.body) + '<time>' + esc(fmtWhen(m.created_at)) + '</time></li>';
+          }).join('') + '</ul>'
+        : '<p class="chat-empty">No messages yet. Say hi, ask a question or report a problem.</p>') +
+      '<form class="share-form chat-form" id="msg-form" novalidate>' +
+        '<label class="set-label" for="msg-body">Message</label>' +
+        '<textarea class="text-input" id="msg-body" maxlength="1000" rows="3"></textarea>' +
+        '<div class="test-actions"><button type="submit" class="btn solid" id="msg-send"' + (chat.busy ? ' disabled' : '') + '>Send</button></div>' +
+        '<div class="form-result" id="msg-result" role="status" aria-live="polite"></div>' +
+      '</form>';
+    $('#msg-body').value = keep;
+  }
+
+  function loadMessages() {
+    if (!loggedIn()) return;
+    DB.myMessages(session.token).then(function (res) {
+      chat.error = res.error ? 'Messages could not load. ' + res.error : '';
+      if (!res.error) chat.list = res.data || [];
+      if ($('#view-messages').classList.contains('is-active')) renderMessages();
+      pollUnread();
+    });
+  }
+
+  function buildMessages() {
+    $('#messages-root').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (chat.busy || !loggedIn()) return;
+      var body = $('#msg-body').value.trim();
+      if (!body) { $('#msg-result').innerHTML = '<b>Write a message first.</b>'; $('#msg-body').focus(); return; }
+      if (body.length > 1000) { $('#msg-result').innerHTML = '<b>Keep it under 1000 characters.</b>'; return; }
+      chat.busy = true;
+      $('#msg-send').disabled = true;
+      DB.sendMessage(session.token, body).then(function (res) {
+        chat.busy = false;
+        $('#msg-send').disabled = false;
+        if (res.error) { $('#msg-result').innerHTML = '<b>Your message was not sent.</b> ' + esc(res.error); return; }
+        $('#msg-body').value = '';
+        loadMessages();
+      });
+    });
+  }
+
+  /* ----- My submissions ----- */
+
+  var NB_STATUS = { pending: ['Waiting', 'wait'], approved: ['Accepted', 'good'], rejected: ['Not used', 'no'] };
+  var FB_STATUS = { 'new': ['Waiting', 'wait'], done: ['Done', 'good'] };
+  var FB_KINDS = { bug: 'Bug', 'wrong-answer': 'Wrong answer', idea: 'Idea', other: 'Other' };
+
+  function statusChip(map, status) {
+    var s = map[status] || [status || 'Waiting', 'wait'];
+    return '<span class="status-chip ' + s[1] + '">' + esc(s[0]) + '</span>';
+  }
+
+  function ownerNote(note) {
+    return note ? '<p class="owner-note"><b>Note from the site\'s owner</b>' + esc(note) + '</p>' : '';
+  }
+
+  function renderMine() {
+    var root = $('#mine-root');
+    if (!loggedIn()) { root.innerHTML = needLogin('see what you sent'); return; }
+    root.innerHTML = '<p class="chat-empty">Loading...</p>';
+    DB.myItems(session.token).then(function (res) {
+      if (!$('#view-mine').classList.contains('is-active')) return;
+      if (res.error) { root.innerHTML = '<p class="weak-lead">' + esc(res.error) + '</p>'; return; }
+      var d = res.data || {};
+      var nbs = d.notebooks || [];
+      var fbs = d.feedback || [];
+      root.innerHTML =
+        '<h2 class="set-group">Notebooks</h2>' +
+        (nbs.length ? nbs.map(function (n) {
+          var url = safeUrl(n.url);
+          return '<div class="mine-item"><h3>' + esc(n.class_id || 'Notebook') + '</h3>' +
+            '<p>' + statusChip(NB_STATUS, n.status) + ' <span class="note">Sent ' + esc(fmtWhen(n.created_at)) + '</span></p>' +
+            (url ? '<p><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(url) + '</a></p>' : '') +
+            ownerNote(n.owner_note) + '</div>';
+        }).join('') : '<p class="chat-empty">You haven\'t shared a notebook yet. <a href="#share">Share one</a>.</p>') +
+        '<h2 class="set-group">Feedback</h2>' +
+        (fbs.length ? fbs.map(function (f) {
+          var s = subjectOf(f.class_id);
+          return '<div class="mine-item"><h3>' + esc(FB_KINDS[f.kind] || f.kind || 'Feedback') + (f.class_id ? ', ' + esc(s ? s.name : f.class_id) : '') + '</h3>' +
+            '<p>' + statusChip(FB_STATUS, f.status) + ' <span class="note">Sent ' + esc(fmtWhen(f.created_at)) + '</span></p>' +
+            '<p>' + esc(f.message) + '</p>' + ownerNote(f.owner_note) + '</div>';
+        }).join('') : '<p class="chat-empty">You haven\'t sent feedback yet. <a href="#feedback">Send some</a>.</p>');
+    });
+  }
+
+  // Every minute while the tab is on screen and someone is logged in: check for new
+  // messages, and refresh the chat if it's open.
+  function startAccountPolling() {
+    setInterval(function () {
+      if (document.visibilityState !== 'visible' || !loggedIn()) return;
+      pollUnread();
+      if ($('#view-messages').classList.contains('is-active')) loadMessages();
+    }, 60000);
+    document.addEventListener('visibilitychange', pollUnread);
   }
 
   /* ---------- Supabase: feedback ---------- */
@@ -2202,7 +2475,8 @@
       e.preventDefault();
       if (feedback.busy) return;
       var message = $('#fb-message').value.trim();
-      var name = $('#fb-name').value.trim();
+      var asAccount = loggedIn();
+      var name = asAccount ? session.name : $('#fb-name').value.trim();
       var result = $('#fb-result');
       $('#fb-name-error').hidden = !!name;
       $('#fb-name-error').textContent = name ? '' : 'Type your name.';
@@ -2216,11 +2490,15 @@
       if (!message) { $('#fb-message').focus(); return; }
       if (!DB.ready()) { result.innerHTML = '<b>Your feedback was not sent.</b> ' + esc(DB.offlineMessage); return; }
       feedback.busy = true;
-      DB.sendFeedback(feedback.kind, $('#fb-class').value, message.slice(0, 1000), name.slice(0, 60)).then(function (res) {
+      var sending = asAccount
+        ? DB.submitFeedbackAs(session.token, feedback.kind, $('#fb-class').value, message.slice(0, 1000))
+        : DB.sendFeedback(feedback.kind, $('#fb-class').value, message.slice(0, 1000), name.slice(0, 60));
+      sending.then(function (res) {
         feedback.busy = false;
         if (res.error) { result.innerHTML = '<b>Your feedback was not sent.</b> ' + esc(res.error); return; }
-        setStudentName(name);
-        result.innerHTML = '<b>Feedback sent.</b> Thanks for helping fix the site.';
+        if (!asAccount) setStudentName(name);
+        result.innerHTML = '<b>Feedback sent.</b> Thanks for helping fix the site.' +
+          (asAccount ? ' <a href="#mine">See it in My submissions</a>.' : '');
         $('#fb-message').value = '';
         feedback.kind = '';
         renderFeedback();
@@ -2260,11 +2538,12 @@
       if (shareForm.busy) return;
       var result = $('#sh-result');
       var classText = $('#sh-class').value.trim();
-      var name = $('#sh-name').value.trim();
+      var asAccount = loggedIn();
+      var name = asAccount ? session.name : $('#sh-name').value.trim();
       var url = $('#sh-url').value.trim();
       result.innerHTML = '';
       var bad = [
-        setError('sh-name', name ? '' : 'Type your name.'),
+        asAccount ? null : setError('sh-name', name ? '' : 'Type your name.'),
         setError('sh-class', !classText ? 'Type the class name.' : classText.length > 40 ? 'Keep the class name under 40 characters.' : ''),
         setError('sh-url', linkProblem(url))
       ].filter(Boolean);
@@ -2272,12 +2551,16 @@
       if (!DB.ready()) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(DB.offlineMessage); return; }
       shareForm.busy = true;
       $('#sh-send').disabled = true;
-      DB.submitNotebook(classText, url, name.slice(0, 60)).then(function (res) {
+      var sending = asAccount
+        ? DB.submitNotebookAs(session.token, classText, url)
+        : DB.submitNotebook(classText, url, name.slice(0, 60));
+      sending.then(function (res) {
         shareForm.busy = false;
         $('#sh-send').disabled = false;
         if (res.error) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(res.error); return; }
-        setStudentName(name);
-        result.innerHTML = '<b>Thanks, it shows up after it\'s checked.</b>';
+        if (!asAccount) setStudentName(name);
+        result.innerHTML = '<b>Thanks! The site\'s owner will check it.</b>' +
+          (asAccount ? ' <a href="#mine">See it in My submissions</a>.' : '');
         $('#sh-url').value = '';
       });
     });
@@ -2329,7 +2612,7 @@
   // kind: 'visit', 'class_open' or 'miss'. Never shows an error: counting is optional.
   function track(kind, classId, ref) {
     if (!DB.ready()) return;
-    DB.track(kind, classId, ref, deviceId(), studentName() || null);
+    DB.track(kind, classId, ref, deviceId(), trackName());
   }
 
   // A class was opened from the picker, a link or the class list.
@@ -2359,7 +2642,7 @@
   function startPresence() {
     function beat() {
       if (document.visibilityState !== 'visible' || !DB.ready()) return;
-      DB.ping(deviceId(), studentName() || null);
+      DB.ping(deviceId(), trackName());
       refreshOnline();
     }
     beat();
@@ -2444,6 +2727,11 @@
     window.addEventListener('hashchange', function () { route(false); });
     route(true);
     // Count this visit, then keep "studying now" up to date.
+    paintAccountUI();
+    buildAccount();
+    buildMessages();
+    checkSession();
+    startAccountPolling();
     track('visit', null, null);
     startPresence();
     $('#set-student').addEventListener('input', function (e) { setStudentName(e.target.value); });
