@@ -63,6 +63,8 @@ data/classes/_template.js   Copy this to start a class
 data/classes/pe-health-tools.js  PE / Health's interactive parts (muscle map, calculators, games)
 supabase/config.js    Supabase project URL and publishable key
 supabase/client.js    Every Supabase call the site makes (window.FinalsDB)
+hq-4067e220e3bc/      The hidden admin data page (needs the admin key)
+robots.txt            Asks search engines to skip the admin page
 ```
 
 ## Add a class
@@ -98,13 +100,16 @@ A class that needs its own interactive parts sets `tools: true` in `data/subject
 
 ## Supabase
 
-The site has no accounts and no sign-in. It works fully offline. Supabase is used for three things only:
+The site has no accounts and no sign-in, and studying works fully offline. Every form goes to Supabase (no Google Forms). Supabase is used for:
 
-- **Approved notebooks.** Each class's Lessons page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class. With none, it shows "No notebooks yet. Be the first to share one!" Add or approve notebooks in the Supabase dashboard; the site can't submit or change them.
+- **Share a notebook.** The form (class, title, NotebookLM link) adds an anonymous row to `finals_notebooks` with `status` `pending`. The link must start with `https://notebooklm.google.com/` and the title must be 1 to 120 characters; the site checks both and the database enforces them. After sending, the student sees "Thanks, it shows up after it's checked."
+- **Approved notebooks.** Each class's Lessons page reads rows from `finals_notebooks` where `status` is `approved` and `class_id` is that class. Pending and rejected ones never show. With none, it shows "No notebooks yet. Be the first to share one!"
 - **Feedback.** The Feedback page sends an anonymous row to `finals_feedback`: a kind (bug, wrong answer, idea, other), an optional class and a message. "Think this answer is wrong?" in a test fills it in.
 - **Visits.** `finals_count_visit()` is called once per browser session, with no personal data.
 
-The Share a notebook page says sharing isn't open yet. There is no public submission form, so nothing unmoderated can be posted.
+Anonymous visitors can only add rows; they can't read submissions or feedback.
+
+**Admin data page.** A hidden page at `hq-4067e220e3bc/index.html` shows the visit count, every notebook (with Approve, Reject, Back to pending and Delete) and all feedback (with Delete), newest first, with a Refresh button. It isn't linked from anywhere on the site, is marked `noindex,nofollow`, and is listed in `robots.txt`. It needs the admin key, which is never stored in this repo: open the page with the key after a `#` at the end of the address, or type it into the box the page shows. The page keeps the key only in that browser tab (sessionStorage), removes it from the address bar right away, and has a Lock button to forget it. Every action goes through the database functions `finals_admin_list`, `finals_admin_set_notebook` and `finals_admin_delete`, which refuse a wrong key ("That key didn't work").
 
 **Keys.** `supabase/config.js` has the project URL and the publishable key (`sb_publishable_...`), which is meant to be public. Row Level Security on the database decides what the site can read or write. Never put a secret key (`sb_secret_...`) or the legacy `service_role` key anywhere in this repo.
 
