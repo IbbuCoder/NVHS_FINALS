@@ -18,3 +18,18 @@ body { padding-bottom: 48px; }
 .hq-actions .btn { min-height: 44px; }
 .hq-empty { color: var(--mute); margin: 12px 0 0; }
 .hq-msg { margin-top: 18px; }
+
+/* Stats */
+.hq-chart { margin-top: 18px; }
+.hq-chart h3 { margin: 0 0 6px; font: 600 22px/1.15 var(--head); }
+.hq-bars { list-style: none; margin: 0; padding: 0; }
+.hq-bars li { display: grid; grid-template-columns: minmax(0, 7.5em) minmax(0, 1fr) 3em; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.hq-bars li.wide { grid-template-columns: minmax(0, 1fr) 3em; }
+.hq-bars .bar { display: block; height: 12px; background: var(--fill); }
+.hq-bars .bar i { display: block; height: 100%; background: var(--accent); }
+.hq-bars b { text-align: right; font: 700 18px/1 var(--head); }
+.hq-bars .label { overflow-wrap: anywhere; }
+.hq-bars .sub { display: block; color: var(--mute); font-size: 14px; }
+.hq-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.hq-filters .seg { flex: 1 1 220px; }
+.hq-item.is-done h3 { color: var(--mute); }
