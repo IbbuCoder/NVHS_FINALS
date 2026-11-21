@@ -2138,11 +2138,22 @@
     var id = cur;
     paintNotebooks(id, notebookCache[id] || []);
     if (!DB.ready()) { paintNotebooks(id, [], 'Shared notebooks need an internet connection.'); return; }
-    DB.approvedNotebooks(id).then(function (res) {
+    DB.approvedNotebooks().then(function (res) {
       if (res.error) { paintNotebooks(id, notebookCache[id] || [], 'Shared notebooks could not load right now. ' + res.error); return; }
-      notebookCache[id] = res.data || [];
+      notebookCache[id] = notebooksFor(id, res.data || []);
       paintNotebooks(id, notebookCache[id]);
     });
+  }
+
+  // Students type the class name, so match loosely: case, spaces and punctuation don't
+  // matter. "PE / Health", "pe health" and "pe-health" all match PE / Health.
+  function squash(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  }
+  function notebooksFor(classId, list) {
+    var s = subjectOf(classId);
+    var names = [squash(classId), s ? squash(s.name) : ''].filter(Boolean);
+    return list.filter(function (n) { return names.indexOf(squash(n.class_id)) > -1; });
   }
 
   /* ---------- Supabase: feedback ---------- */
@@ -2227,13 +2238,8 @@
   }
   var shareForm = { busy: false };
 
-  function renderShare() {
-    var sel = $('#sh-class');
-    var keep = sel.value || cur || '';
-    sel.innerHTML = '<option value="">Pick a class</option>' + SUBJECTS.map(function (s) {
-      return '<option value="' + s.id + '"' + (s.id === keep ? ' selected' : '') + '>' + esc(s.name) + '</option>';
-    }).join('');
-  }
+  // The class is a plain text box now, so there's nothing to fill in.
+  function renderShare() {}
 
   function buildShareForm() {
     var form = $('#share-form');
@@ -2249,20 +2255,20 @@
       e.preventDefault();
       if (shareForm.busy) return;
       var result = $('#sh-result');
-      var classId = $('#sh-class').value;
+      var classText = $('#sh-class').value.trim();
       var name = $('#sh-name').value.trim();
       var url = $('#sh-url').value.trim();
       result.innerHTML = '';
       var bad = [
         setError('sh-name', name ? '' : 'Type your name.'),
-        setError('sh-class', classId ? '' : 'Pick the class.'),
+        setError('sh-class', !classText ? 'Type the class name.' : classText.length > 40 ? 'Keep the class name under 40 characters.' : ''),
         setError('sh-url', linkProblem(url))
       ].filter(Boolean);
       if (bad.length) { bad[0].focus(); return; }
       if (!DB.ready()) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(DB.offlineMessage); return; }
       shareForm.busy = true;
       $('#sh-send').disabled = true;
-      DB.submitNotebook(classId, url, name.slice(0, 60)).then(function (res) {
+      DB.submitNotebook(classText, url, name.slice(0, 60)).then(function (res) {
         shareForm.busy = false;
         $('#sh-send').disabled = false;
         if (res.error) { result.innerHTML = '<b>Your notebook was not sent.</b> ' + esc(res.error); return; }

@@ -66,10 +66,12 @@
     offlineMessage: MSG.offline,
 
     // Approved NotebookLM notebooks for one class.
-    approvedNotebooks: function (classId) {
+    // Every approved notebook. class_id is the class name the student typed, so the site
+    // matches it to a class itself (see notebooksFor in js/main.js).
+    approvedNotebooks: function () {
       return run(function () {
         return client.from('finals_notebooks').select('id, class_id, url, created_at')
-          .eq('status', 'approved').eq('class_id', classId).order('created_at', { ascending: false });
+          .eq('status', 'approved').order('created_at', { ascending: false });
       });
     },
 
@@ -83,9 +85,10 @@
     // Anonymous notebook submission. It always goes in as pending, so nothing shows on the
     // site until the admin approves it. The row isn't read back, because anonymous visitors
     // can add rows but not read them.
-    submitNotebook: function (classId, url, studentName) {
+    // className is what the student typed (up to 40 characters); it goes in class_id.
+    submitNotebook: function (className, url, studentName) {
       return run(function () {
-        return client.from('finals_notebooks').insert({ class_id: classId, url: url, status: 'pending', student_name: studentName });
+        return client.from('finals_notebooks').insert({ class_id: className, url: url, status: 'pending', student_name: studentName });
       });
     },
 
