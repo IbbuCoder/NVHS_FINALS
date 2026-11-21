@@ -100,46 +100,50 @@ A class that needs its own interactive parts sets `tools: true` in `data/subject
 
 ## Supabase
 
-The site has no accounts and no sign-in, and studying works fully offline. Every form goes to Supabase (no Google Forms).
+Studying works fully offline and never needs an account. Every form goes to Supabase (no Google Forms).
 
-**The student's name and device.** Each browser gets a random device id once (saved in localStorage as `finals-device`). Students can type their name in Settings (optional); it's saved in localStorage as `finals-student-name`. Names are only ever seen by the admin on the hidden data page; the site never shows them anywhere public.
+**Student accounts (optional).** The More tab has **Log in** (or **Account** when logged in). Accounts are the database's own username + PIN login, built in Postgres; Supabase Auth is not used anywhere.
+- Sign up: username, name and PIN (any characters, at least 4, with a Show/Hide button). Log in: username and PIN. Five wrong PINs lock the account for 10 minutes.
+- Functions: `finals_signup`, `finals_login`, `finals_logout`, `finals_me`. Their errors are plain sentences from the database and are shown as they are.
+- The session token is kept in localStorage (`finals-session`) and checked with `finals_me` on every load. If the database says the session has ended, the site logs out on this device too.
+- Logged in, the student gets **Messages** and **My submissions**, and their account name is used instead of the Settings name.
+
+**The student's name and device.** Each browser gets a random device id once (localStorage `finals-device`). Logged out, students can type their name in Settings (optional, localStorage `finals-student-name`). Logged in, the account's name is used. Names are only ever seen by the owner on the hidden data page.
 
 **Forms**
-- **Share a notebook.** The form is just three things: Your name (required, filled in from the saved name), Class (required, typed by the student, up to 40 characters) and Link. They go into `finals_notebooks` as `pending`: the typed class goes in `class_id` and the name in `student_name`; no title is sent. The link must start with `https://notebook.google.com/` or `https://notebooklm.google.com/` and be at most 500 characters. A real share link looks like `https://notebook.google.com/notebook/23faf934-5205-425c-bc49-4f46ff00d44d?authuser=1`. After sending: "Thanks, it shows up after it's checked."
-- **Feedback.** Your name (required), a kind (bug, wrong answer, idea, other), an optional class and a message go into `finals_feedback` with `student_name`. New feedback starts as `new`. "Think this answer is wrong?" in a test fills it in.
-- Both forms save the name back so it's filled in next time. Errors are plain sentences.
+- **Share a notebook.** Class (typed, up to 40 characters) and Link. Logged in, it goes through `finals_submit_notebook` with the session token and the name comes from the account. Logged out, it's the anonymous insert into `finals_notebooks` as before, with a required Your name box, plus a line suggesting logging in to see the status and message the owner. The link must start with `https://notebook.google.com/` or `https://notebooklm.google.com/` (at most 500 characters). The form says: "Share it so anyone with the link can view" and "Don't include other students' work or grades". A link that was already shared gets the database's message ("That notebook was already shared. Thanks!").
+- **Feedback.** A kind (bug, wrong answer, idea, other), an optional class and a message. Logged in: `finals_submit_feedback`, no name box. Logged out: the anonymous insert into `finals_feedback` with a required name, as before.
 
-**Approved notebooks.** Each class's Lessons page reads the rows from `finals_notebooks` where `status` is `approved`, keeps the ones whose typed class matches that class, and lists them as "Student notebook 1", "Student notebook 2" and so on. Pending and rejected ones never show, and neither do names. The match ignores case, spaces, punctuation and accents, and works with the class name, its id or any of its **aliases**. Each class's aliases are listed in `data/subjects.js`, the one place to edit them:
+**Notebooks are admin-only.** Students never see shared notebooks on the site; the owner reviews them on the data page. (The class `aliases` in `data/subjects.js` were for showing notebooks on Lessons pages; they're kept in case that comes back.)
 
-| Class | Also matches |
-| --- | --- |
-| English | ELA, Language Arts, English Language Arts, Reading |
-| Math | Mathematics, Algebra, Geometry |
-| Science | Sci |
-| Social Studies | History, SS, Social |
-| PE / Health | PE, Health, Gym, Physical Education |
-| Spanish | Espanol (and Español) |
+**My submissions** (`finals_my_items`): the student's notebooks (Waiting, Accepted or Not used) and feedback (Waiting or Done), each with the owner's note.
 
-So "Language arts", "pe health", "GYM" and "Español" all land on the right page. A typed class that matches none of these (for example "PE health (3rd period)", with extra words) still reaches the admin page, but doesn't show on any Lessons page until an alias for it is added.
+**Messages** with the site's owner (`finals_send_message`, `finals_my_messages`, `finals_my_unread`): a chat with the student's messages on the right and the owner's on the left, a "Don't share private info" note, and a Send box (up to 1000 characters). It refreshes when opened and every 60 seconds while open. A dot on More and on Messages shows unread replies, checked every 60 seconds while logged in and the tab is on screen.
 
 **Usage counts** (all through `finals_track(kind, class_id, ref, device, student)`, and they fail silently)
 - `visit` on every fresh load of the site.
 - `class_open` when a class is opened from the picker, a link or the class list.
 - `miss` when a quiz or practice question is answered wrong. `ref` is the question's text (questions have no other id).
-- The device id and the name (if known) are always sent. The database itself skips the site owner and excluded devices.
+- The device id and the name (account name, or the Settings name, if known) are always sent. The database itself skips the site owner and excluded devices.
 
 **Studying now.** While a tab is on screen, the site calls `finals_ping(device, student)` every 60 seconds. Home shows "N studying now" from `finals_online_count()` (students active in the last 2 minutes), checked every 60 seconds and hidden when it's 0 or the call fails.
 
-Anonymous visitors can only add rows; they can't read submissions, feedback or names.
+Anonymous visitors can only add rows; they can't read submissions, feedback, messages or names.
 
-**Admin data page.** A hidden page at `hq-4067e220e3bc/index.html`. It isn't linked from anywhere on the site, is marked `noindex,nofollow`, and is listed in `robots.txt`. It needs the admin key, which is never stored in this repo: open the page with the key after a `#` at the end of the address, or type it into the box the page shows. The page keeps the key only in that browser tab (sessionStorage), removes it from the address bar right away, and has a Lock button to forget it. A wrong key shows "That key didn't work". It shows:
-- Totals: visits, studying now, new feedback, notebooks waiting.
+**Admin data page.** A hidden page at `hq-4067e220e3bc/index.html`. It isn't linked from anywhere on the site, is marked `noindex,nofollow`, and is listed in `robots.txt`. To open it, either:
+- use the long admin key (after a `#` at the end of the address, or typed into the Admin key box), or
+- log in with the owner account's username and PIN (the account must be the owner; its session token is then used).
+
+Neither is stored in this repo. Whichever is used is kept only in that browser tab (sessionStorage), and **Lock** forgets it (and ends the owner session). A wrong key shows "That key didn't work". The page shows:
+- Totals: visits, studying now, unread messages, new feedback, notebooks waiting.
 - Stats: visits per day for the last 30 days, most opened classes, most missed questions.
-- Feedback inbox: kind, class, name, message and date; New / Done / All filter; sort by newest or by kind; Mark done / Mark new; Delete.
-- Notebooks: the class exactly as the student typed it, link, name, status and date, with Approve, Reject, Back to pending and Delete.
+- Messages: one thread per student, newest first, with an unread badge. Opening a thread marks it read; there's a reply box.
+- Feedback inbox: kind, class, name, message and date; New / Done / All filter; sort by newest or by kind; Mark done / Mark new; a note to the student with Save; Delete.
+- Notebooks: the class as typed, link, name, status and date; Approve, Reject, Back to pending, Delete; a note to the student with Save.
+- Accounts: every account with Reset PIN (asks for the new PIN, then confirms). Tell the student the new PIN yourself.
 - "Don't count this device": stops this browser's own visits from counting in the stats.
 
-Everything there goes through the database functions `finals_admin_list`, `finals_admin_stats`, `finals_admin_set_notebook`, `finals_admin_set_feedback`, `finals_admin_delete` and `finals_admin_exclude_device`, never the tables directly. Lists are newest first and there's a Refresh button.
+Everything there goes through the admin database functions (`finals_admin_list`, `finals_admin_stats`, `finals_admin_threads`, `finals_admin_thread`, `finals_admin_reply`, `finals_admin_note`, `finals_admin_accounts`, `finals_admin_reset_pin`, `finals_admin_set_notebook`, `finals_admin_set_feedback`, `finals_admin_delete`, `finals_admin_exclude_device`), whose first argument `t` is the key or the owner's session token. Lists are newest first and there's a Refresh button.
 
 **Keys.** `supabase/config.js` has the project URL and the publishable key (`sb_publishable_...`), which is meant to be public. Row Level Security on the database decides what the site can read or write. Never put a secret key (`sb_secret_...`) or the legacy `service_role` key anywhere in this repo.
 
