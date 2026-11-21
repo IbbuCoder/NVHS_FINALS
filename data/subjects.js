@@ -7,9 +7,9 @@
 // unfinished: true shows a "not filled in yet" warning on that class. Delete it when the class is done.
 // tools: true also loads data/classes/<id>-tools.js, for a class with its own interactive parts.
 // aliases: other names students might type for the class on the Share a notebook form.
-//   A shared notebook shows on this class's Lessons page if the typed class matches the
-//   name, the id or any alias. Case, spaces, punctuation and accents don't matter.
-//   Add or remove names here; nothing else needs to change.
+//   Not used right now: shared notebooks are admin-only and never show to students.
+//   They were for matching a typed class to its Lessons page, and are kept in case that
+//   comes back. Case, spaces, punctuation and accents would not matter.
 // The id ("ela" for English) is used for saved progress, so leave ids as they are.
 FINALS.subjects = [
   { id: "ela", name: "English", category: "core", exam: "", unfinished: true,

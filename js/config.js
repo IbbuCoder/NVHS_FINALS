@@ -16,6 +16,6 @@ window.FINALS_CONFIG = {
   // With no date, the countdown and the day-by-day plan stay hidden.
   finalsDate: ''
 
-  // Approved notebooks, feedback and the visit count use Supabase.
+  // Accounts, messages, the notebook and feedback forms, and usage counts use Supabase.
   // Its settings are in supabase/config.js.
 };
