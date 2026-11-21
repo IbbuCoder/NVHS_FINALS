@@ -102,7 +102,7 @@ A class that needs its own interactive parts sets `tools: true` in `data/subject
 
 Studying works fully offline and never needs an account. Every form goes to Supabase (no Google Forms).
 
-**Student accounts (optional).** The More tab has **Log in** (or **Account** when logged in). Accounts are the database's own username + PIN login, built in Postgres; Supabase Auth is not used anywhere.
+**Student accounts (optional).** The More tab has **Log in** (or **Account** when logged in). There's also a small account line under Core and Encore on the opening "What do you want to study?" screen, and at the top of Home: logged out it shows **Log in** and **Sign up** (they open the Account page on that tab); logged in it shows "Hi, {name}", **Messages** (with the unread dot) and **Log out**. It's never a popup, and studying never needs an account. Accounts are the database's own username + PIN login, built in Postgres; Supabase Auth is not used anywhere.
 - Sign up: username, name and PIN (any characters, at least 4, with a Show/Hide button). Log in: username and PIN. Five wrong PINs lock the account for 10 minutes.
 - Functions: `finals_signup`, `finals_login`, `finals_logout`, `finals_me`. Their errors are plain sentences from the database and are shown as they are.
 - The session token is kept in localStorage (`finals-session`) and checked with `finals_me` on every load. If the database says the session has ended, the site logs out on this device too.
