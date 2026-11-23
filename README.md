@@ -1,10 +1,10 @@
 # Finals Study Guide
 
-A study site for finals. Pick a Core or Encore class, then study it with notes, flashcards, practice tests and games. It looks and works like the PE Midterm app, with one page that works for every class.
+A study site for Neuqua Valley 9th grade finals. Pick Core or Encore, then a subject, then your class, then study it with notes, flashcards, practice tests and games. It looks and works like the PE Midterm app, with one page that works for every class.
 
 Plain HTML, CSS and JavaScript. No build step. The only outside files are the Google Fonts (Barlow Condensed, Oswald, Source Sans 3) and supabase-js from the jsDelivr CDN.
 
-**PE / Health has real content** (all of the PE Midterm app, plus Flexibility and Nutrition for the final). Every other class still has placeholder content only. Look for `PLACEHOLDER` and `Placeholder` in `data/classes/`.
+**PE / Health has real content** (all of the PE Midterm app, plus Flexibility and Nutrition for the final). Every other class is an empty placeholder: it has its Lessons, Flashcards and Quiz pages, but nothing in them yet, and nothing made up.
 
 ## Run it locally
 
@@ -21,18 +21,22 @@ Then open http://localhost:8000.
 Every time the site opens (each fresh load, not just the first visit), it starts on **What do you want to study?**
 
 1. Tap **Core** or **Encore**.
-2. Tap a class. Its list comes from `data/subjects.js` (`category: 'core'` or `'encore'`), and Back returns to step 1.
+2. Tap a subject (for example **English**).
+3. Tap your class (for example **English 1 Honors**). A subject with only one class, like PE / Health, skips this step.
 
-Picking a class opens that class's Home. If the site was opened with a link to a particular page (for example `.../#flashcards` or `.../#u2`), that page opens after the pick instead.
+Every step has a **Back** button. The lists come from `data/subjects.js`.
 
-It never locks you in: the menu works from the picker, "Keep studying" goes straight back to the last class, and the class name in the top bar (or **Change class** on Home and in More) opens the picker again. The picker's addresses are `#pick`, `#pick/core` and `#pick/encore`.
+Picking a class opens that class's Home, with Lessons, Flashcards and Quiz. If the site was opened with a link to a particular page (for example `.../#flashcards` or `.../#u2`), that page opens after the pick instead.
+
+The top bar always shows the class you're in, as subject and class (for example "English · 1 Honors"). Tap it from anywhere, even inside a lesson, to pick again. The menu works from the picker too, and "Keep studying" goes straight back to the last class. The picker's addresses are `#pick`, `#pick/core`, and `#pick/core/english` (a subject).
 
 ## "Not finished" notices (turn these off by hand)
 
 While the site is being built it warns everyone, very clearly:
 
 - **Popup every time the site opens, and a red strip on every page.** To turn both off, open `js/config.js` and change `notFinished: true` to `notFinished: false`.
-- **"Not filled in yet" warning on a class, and a tag on it in the class picker.** To turn it off for one class, open `data/subjects.js` and delete `, unfinished: true` from that class's line.
+- **"Not filled in yet" on a class.** Every class without `filled: true` in `data/subjects.js` shows a notice at the top of its pages and "Not filled in yet" in the picker. To turn it off for a class, add its content and set `filled: true` on it.
+- **The NotebookLM pop-up.** The first time someone opens a class that isn't filled in, a pop-up explains what a NotebookLM is and asks them to share one for that class. It shows once per class per device: **Maybe later** closes it, and **Share a notebook** opens the Share form with that class already typed in. After that, the class's notice keeps a small "Got a NotebookLM for this class? Help fill it in." link. It never blocks studying, and classes with `filled: true` (like PE / Health) never show it. The Share form has the same short explanation at the top.
 
 Nothing turns these off on its own.
 
@@ -57,8 +61,8 @@ css/style.css         Design system copied from the PE Midterm app
 js/config.js          Site name and finals date
 js/registry.js        Where data files put their content
 js/main.js            Everything the app does
-data/subjects.js      The list of classes (Core and Encore)
-data/classes/<id>.js  One file per class: units, notes, flashcards, questions, drills
+data/subjects.js      Every class: Core or Encore, then subject, then class (the one file to edit)
+data/classes/<id>.js  A class's units, notes, flashcards, questions, drills (only for classes with file: true)
 data/classes/_template.js   Copy this to start a class
 data/classes/pe-health-tools.js  PE / Health's interactive parts (muscle map, calculators, games)
 supabase/config.js    Supabase project URL and publishable key
@@ -67,19 +71,29 @@ hq-4067e220e3bc/      The hidden admin data page (needs the admin key)
 robots.txt            Asks search engines to skip the admin page
 ```
 
-## Add a class
+## The class list, and adding a class
 
-1. Add a line to `data/subjects.js`:
-   ```js
-   { id: 'french', name: 'French', category: 'encore', exam: '', aliases: ['Francais'] },
-   ```
-2. Copy `data/classes/_template.js` to `data/classes/french.js` and change `'your-id'` to `'french'`.
+Every class is in `data/subjects.js`, grouped by Core or Encore and then by subject:
 
-That's all. The class shows up under Classes, and every feature works for it.
+```js
+{ category: "core", subject: "English", classes: [
+  { name: "English 1" },
+  { name: "English 1 Honors" },
+  { name: "English 2 American Society" }
+] },
+```
+
+- To add a class, add `{ name: "..." }` to its subject. To add a subject, add a new group. To fix a name, just change it.
+- Each class gets an id made from its name ("English 1 Honors" becomes `english-1-honors`; "&" becomes "and"). Saved progress and data file names use it. Once a class has a data file, keep its id the same: if you rename the class, add `id: "old-id"` to it.
+- A new class starts empty, with "not filled in yet" and the NotebookLM pop-up.
+
+To fill a class in: copy `data/classes/_template.js` to `data/classes/<id>.js`, change `'your-id'` to the class's id, write the content, then add `file: true` to the class in `data/subjects.js` (that loads the file). When it's done, add `filled: true` too, and its notices and pop-up go away. Classes without `file: true` load no file at all.
+
+Other options on a class: `tools: true` also loads `data/classes/<id>-tools.js` (like PE / Health), and `exam: "YYYY-MM-DD"` sets its final date.
 
 ## Add real content
 
-Open the class's file in `data/classes/` and replace the placeholders. `_template.js` explains every field:
+Open the class's file in `data/classes/`. `_template.js` explains every field:
 
 - **units**: each has sections with `body` paragraphs, an optional `list`, an optional `table`, and an optional `simple` note for Simple words.
 - **flashcards**: `{ u, front, back }`. `u` is the unit number. Keep some short (term under 40 characters, meaning under 70) so they fit the matching game.
@@ -114,7 +128,7 @@ Studying works fully offline and never needs an account. Every form goes to Supa
 - **Share a notebook.** Class (typed, up to 40 characters) and Link. Logged in, it goes through `finals_submit_notebook` with the session token and the name comes from the account. Logged out, it's the anonymous insert into `finals_notebooks` as before, with a required Your name box, plus a line suggesting logging in to see the status and message the owner. The link must start with `https://notebook.google.com/` or `https://notebooklm.google.com/` (at most 500 characters). The form says: "Share it so anyone with the link can view" and "Don't include other students' work or grades". A link that was already shared gets the database's message ("That notebook was already shared. Thanks!").
 - **Feedback.** A kind (bug, wrong answer, idea, other), an optional class and a message. Logged in: `finals_submit_feedback`, no name box. Logged out: the anonymous insert into `finals_feedback` with a required name, as before.
 
-**Notebooks are admin-only.** Students never see shared notebooks on the site; the owner reviews them on the data page. (The class `aliases` in `data/subjects.js` were for showing notebooks on Lessons pages; they're kept in case that comes back.)
+**Notebooks are admin-only.** Students never see shared notebooks on the site; the owner reviews them on the data page. (Shared notebooks are what the owner uses as source material to fill classes in.)
 
 **My submissions** (`finals_my_items`): the student's notebooks (Waiting, Accepted or Not used) and feedback (Waiting or Done), each with the owner's note.
 
