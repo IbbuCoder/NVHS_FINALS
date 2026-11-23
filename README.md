@@ -52,10 +52,28 @@ Every class has the same 5 places, in the bottom bar on phones and the top menu 
 
 Settings only has Dark mode, Text size, Simple words, Backup and Clear progress.
 
+## On phones: roomy, and Add to Home Screen
+
+**Roomy by default.** On phones every button is at least 48px tall with gaps between them, text is about 17px with more line spacing, cards and sections have more padding, quiz answers and flashcard buttons are full width and tall, and the bottom bar is taller with bigger icons (with space for the iPhone home bar). Settings has **Spacing: Roomy or Compact**; Compact keeps the tighter layout. (It's the `density` setting: `comfy` is Roomy.)
+
+**Fewer things at once.**
+- The red "still being built" notice is one thin line with **Read more**. Its pop-up opens by itself only once per device (Read more opens it again).
+- Log in / Sign up (or "Hi, {name}", Messages with the unread dot, and Log out) is at the top of **More**, not on the picker or Home.
+- Only one pop-up shows at a time: the "still being built" pop-up first (once per device), then the NotebookLM pop-up on a class page after it's closed or on a later visit.
+
+**Add to Home Screen.** The app is called **NVHS Finals** (`manifest.webmanifest` name and short_name, and the `apple-mobile-web-app-title` tag). Icons are in `img/`, made from the red F logo: `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (the F kept inside the safe area), `apple-touch-icon.png` (180x180), `favicon-32.png`, `favicon-16.png` and `favicon.svg`. The manifest is added only when the site is on a real web address, so opening the file from a computer doesn't show an error. The long page title (`NVHS Finals: Neuqua Valley 9th grade finals study guide`) is what search results show.
+- **Install tip:** on phones only, from the second visit on, never when the site is already opened from the home screen. iPhone: "tap Share, then Add to Home Screen". Android: an **Install** button when Chrome offers one, otherwise the menu steps. Its X closes it for good.
+- **More, Add to Home Screen** shows the same steps any time, with an Install button when Chrome offers one.
+- There's no service worker (offline copy) on purpose: an offline copy can serve old files after an update, and a half-updated copy can break pages. So the site needs a connection to open (once a page is open, studying keeps working if the connection drops).
+
+The hidden admin page is left alone (no manifest or install tags there).
+
 ## How it's organized
 
 ```
 index.html            The whole app (every page is a section in this file)
+manifest.webmanifest  Add to Home Screen settings (name NVHS Finals, icons, colors)
+img/                  App icons and favicons made from the red F logo
 404.html              Page-not-found for GitHub Pages
 css/style.css         Design system copied from the PE Midterm app
 js/config.js          Site name and finals date

@@ -3,9 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Finals Study Guide</title>
-<meta name="description" content="Lessons, flashcards and quizzes for finals, class by class.">
-<meta name="theme-color" id="theme-color" content="#15171a">
+<title>NVHS Finals: Neuqua Valley 9th grade finals study guide</title>
+<meta name="description" content="Lessons, flashcards and quizzes for Neuqua Valley 9th grade finals, class by class.">
+<meta name="theme-color" id="theme-color" content="#0c0d0f">
+<!-- Add to Home Screen: the app is called NVHS Finals -->
+<meta name="application-name" content="NVHS Finals">
+<meta name="apple-mobile-web-app-title" content="NVHS Finals">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
+<link rel="icon" href="./img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="./img/favicon-16.png" sizes="16x16" type="image/png">
 <link rel="icon" id="icon-svg" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c4122f'/%3E%3Cpath d='M9 6h15v5H14v4h8v5h-8v6H9z' fill='%23fff'/%3E%3C/svg%3E">
 <script>
 // Applies saved look settings before the page draws, so there is no flash.
@@ -15,8 +24,14 @@ try {
   var t = s.theme === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : (s.theme || 'dark');
   r.dataset.theme = t;
   if (s.size) r.dataset.size = s.size;
+  if (s.density) r.dataset.density = s.density;
   if (s.simple === 'on') r.setAttribute('data-simple', '');
 } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+// The app manifest (for Add to Home Screen) only works on a real web address,
+// so it isn't added when the file is opened straight from a computer.
+if (/^https?:$/.test(location.protocol)) {
+  var m = document.createElement('link'); m.rel = 'manifest'; m.href = './manifest.webmanifest'; document.head.appendChild(m);
+}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -91,7 +106,7 @@ try {
 
 <!-- NOT FINISHED NOTICE: shown while notFinished is true in js/config.js -->
 <div class="wip-strip" id="wip-strip" hidden>
-  <div class="wip-strip-in"><strong>This site is still being built.</strong> <span>Some classes aren't filled in yet.</span>
+  <div class="wip-strip-in"><span>This site is still being built.</span>
   <button type="button" class="wip-more" id="wip-more">Read more</button></div>
 </div>
 <!-- Shown on a class that isn't filled: true in data/subjects.js -->
@@ -104,8 +119,6 @@ try {
 <!-- HOME -->
 <section class="view" id="view-home" data-title="Home">
   <div class="wrap">
-    <!-- Small log in / logged in line, filled by main.js -->
-    <div class="acct-strip home-strip" data-acct-strip></div>
     <p class="greeting" id="greeting" hidden></p>
 
     <!-- Shown until a class is picked -->
@@ -345,6 +358,14 @@ try {
       </div>
     </div>
     <div class="set-row">
+      <span class="set-label">Spacing</span>
+      <p class="note">Roomy has bigger buttons and more space. Compact fits more on the screen.</p>
+      <div class="seg" data-set="density">
+        <button type="button" data-val="comfy">Roomy</button>
+        <button type="button" data-val="compact">Compact</button>
+      </div>
+    </div>
+    <div class="set-row">
       <span class="set-label">Simple words</span>
       <p class="note">Adds an easy-to-read note under the lessons and flashcards.</p>
       <div class="seg" data-set="simple">
@@ -375,17 +396,20 @@ try {
 <section class="view" id="view-more" data-title="More">
   <div class="wrap narrow">
     <header class="unit-head"><h1 tabindex="-1">More</h1></header>
+    <!-- Log in and Sign up, or Hi name, Messages (with the unread dot) and Log out. Filled by main.js -->
+    <div class="acct-strip more-strip" data-acct-strip></div>
     <nav class="more-list" aria-label="More pages">
-      <a href="#account"><b data-account-title>Log in</b><span data-account-note>Optional. See what happened to things you shared and message the site's owner</span></a>
+      <a href="#account" data-needs-login hidden><b data-account-title>Log in</b><span data-account-note>Optional. See what happened to things you shared and message the site's owner</span></a>
       <a href="#messages" data-needs-login hidden><b>Messages<i class="unread-dot" data-unread hidden><span class="vh">New message</span></i></b><span>Chat with the site's owner</span></a>
       <a href="#mine" data-needs-login hidden><b>My submissions</b><span>Notebooks and feedback you sent, and what happened to them</span></a>
       <a href="#games"><b>Games</b><span>Matching game and math practice</span></a>
       <a href="#saved"><b>Bookmarks</b><span>Lessons and questions you saved</span></a>
       <a href="#sheet"><b>Printable review sheet</b><span>Every flashcard on a few pages</span></a>
       <a href="#pick"><b>Change class</b><span>Study a different class</span></a>
-      <a href="#settings"><b>Settings</b><span>Dark mode, text size, simple words, backup</span></a>
+      <a href="#settings"><b>Settings</b><span>Dark mode, text size, spacing, simple words, backup</span></a>
       <a class="more-feedback" href="#feedback"><b>Send feedback</b><span>Report a problem, a wrong answer or an idea</span></a>
       <a href="#share"><b>Share a notebook</b><span>Send your NotebookLM notebook to the site's owner</span></a>
+      <a href="#install"><b>Add to Home Screen</b><span>Put NVHS Finals on your phone like an app</span></a>
     </nav>
   </div>
 </section>
@@ -458,6 +482,28 @@ try {
   </div>
 </section>
 
+<!-- ADD TO HOME SCREEN -->
+<section class="view" id="view-install" data-title="Add to Home Screen">
+  <div class="wrap narrow">
+    <a class="back-link" href="#more">More</a>
+    <header class="unit-head"><h1 tabindex="-1">Add to Home Screen</h1></header>
+    <p class="note" style="margin-top:14px">Put NVHS Finals on your phone's home screen. It opens full screen, like an app, and it's free.</p>
+    <p class="as-line" id="install-done" hidden>You're already using NVHS Finals from your home screen.</p>
+    <div class="test-actions" id="install-now-row" hidden><button type="button" class="btn solid" data-install-now>Install NVHS Finals</button></div>
+    <h2 class="set-group">iPhone or iPad (Safari)</h2>
+    <ol class="numbered">
+      <li>Tap Share (the square with an arrow pointing up).</li>
+      <li>Tap Add to Home Screen.</li>
+      <li>Tap Add.</li>
+    </ol>
+    <h2 class="set-group">Android (Chrome)</h2>
+    <ol class="numbered">
+      <li>Tap Install when it shows up, or open the browser menu (three dots).</li>
+      <li>Tap Install app or Add to Home screen.</li>
+    </ol>
+  </div>
+</section>
+
 <!-- NOT FOUND -->
 <section class="view" id="view-404" data-title="Page not found">
   <div class="wrap narrow">
@@ -469,7 +515,15 @@ try {
 
 </main>
 
-<footer class="foot"><div class="wrap">Made by students. Not an official school site. Progress saves on this device only. <a href="#share">Share a notebook</a> · <a href="#feedback">Send feedback</a></div></footer>
+<footer class="foot"><div class="wrap"><p>Made by students. Not an official school site. Progress saves on this device only.</p>
+  <div class="foot-btns"><a class="btn" href="#share">Share a notebook</a><a class="btn" href="#feedback">Send feedback</a></div></div></footer>
+
+<!-- Install tip: phones only, from the second visit, never once installed. Closing it is for good. -->
+<div class="install-tip" id="install-tip" role="region" aria-label="Add to Home Screen" hidden>
+  <p class="install-tip-text" id="install-tip-text"></p>
+  <button type="button" class="btn solid install-tip-go" data-install-now hidden>Install</button>
+  <button type="button" class="install-tip-x" id="install-tip-x" aria-label="Close and don't show this again">&times;</button>
+</div>
 
 <nav class="tabbar" aria-label="App">
   <a href="#home" data-tab="home"><svg aria-hidden="true"><use href="#t-home"></use></svg>Home</a>
