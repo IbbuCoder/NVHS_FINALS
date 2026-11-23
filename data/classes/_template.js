@@ -1,5 +1,9 @@
-// TEMPLATE for one class. Copy this file to data/classes/<id>.js, change "your-id",
-// and add the class to data/subjects.js. No other file needs to change.
+// TEMPLATE for one class's lessons, flashcards and quiz.
+// 1. Find the class in data/subjects.js and note its id (made from the name:
+//    "English 1 Honors" -> english-1-honors), or give it an id there.
+// 2. Copy this file to data/classes/<id>.js and change "your-id" below to that id.
+// 3. In data/subjects.js, add file: true to the class. When it's done, add filled: true too,
+//    and its "not filled in yet" notice and NotebookLM pop-up go away.
 FINALS.addClass('your-id', {
   // Units show up under Units. num is the big number, short is the short name.
   units: [
