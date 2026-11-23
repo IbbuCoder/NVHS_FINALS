@@ -490,7 +490,7 @@
     $$('.view').forEach(function (v) { v.classList.toggle('is-active', v === view); });
     // Which bottom tab lights up. Every page belongs to one of the 5.
     var tabId = unit ? 'units' : id;
-    if (['settings', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'feedback', 'saved', 'games', 'drills', 'match', 'account', 'messages', 'mine'].indexOf(id) > -1) tabId = 'more';
+    if (['settings', 'more', 'sheet', 'classes', 'core', 'encore', 'share', 'feedback', 'saved', 'games', 'drills', 'match', 'account', 'messages', 'mine', 'install'].indexOf(id) > -1) tabId = 'more';
     if (id === 'weak') tabId = 'test';
     // The top menu has Games too, so game pages light up Games there.
     var navId = ['games', 'drills', 'match'].indexOf(id) > -1 ? 'games' : tabId;
@@ -533,6 +533,7 @@
     if (id === 'account') { acct.msg = ''; renderAccount(); }
     if (id === 'messages') { renderMessages(); loadMessages(); }
     if (id === 'mine') renderMine();
+    if (id === 'install') renderInstall();
     if (id === 'home') paintOnline();
     window.scrollTo(0, 0);
     if (!first) {
@@ -543,7 +544,9 @@
 
   /* ---------- Not finished notices (turned on and off by hand) ---------- */
 
-  // The popup and strip follow notFinished in js/config.js.
+  // The popup and strip follow notFinished in js/config.js. The thin strip shows on every
+  // page; the pop-up opens by itself only once per device (Read more opens it again).
+  var WIP_KEY = 'finals-wip-seen';
   function buildNotFinished() {
     if (!CFG.notFinished) return;
     var pop = $('#wip-pop');
@@ -551,7 +554,14 @@
     $('#wip-ok').addEventListener('click', function () { closeDialog(pop); });
     $('#wip-more').addEventListener('click', function () { openDialog(pop); });
     pop.addEventListener('click', function (e) { if (e.target === pop) closeDialog(pop); });
-    openDialog(pop);
+    // Only one pop-up at a time: once this one closes, a class page may ask for a NotebookLM.
+    pop.addEventListener('close', function () {
+      var id = location.hash.slice(1) || 'home';
+      if (cur) maybeAskForNotebook(id, unitById(id));
+    });
+    var seen = false;
+    try { seen = localStorage.getItem(WIP_KEY) === '1'; localStorage.setItem(WIP_KEY, '1'); } catch (e) { seen = false; }
+    if (!seen) openDialog(pop);
   }
 
   // The notice on a class that isn't filled: true in data/subjects.js. After the NotebookLM
@@ -708,9 +718,7 @@
           return '<a class="pick-btn' + (i === 0 ? ' solid' : '') + '" href="#pick/' + g + '"><strong>' + GROUPS[g].name + '</strong>' +
             '<span>' + GROUPS[g].blurb + ': ' + esc(classNames(g)) + '</span></a>';
         }).join('') + '</div>' +
-        '<div class="acct-strip" data-acct-strip></div>' +
         (cur ? '<a class="link-btn pick-skip" href="#home" data-pick-keep>Keep studying ' + esc(className()) + '</a>' : '');
-      paintStrips();
       return;
     }
     var subject = subjectId ? subjectById(group, subjectId) : null;
@@ -2775,6 +2783,88 @@
     document.addEventListener('visibilitychange', beat);
   }
 
+  /* ---------- Add to Home Screen ---------- */
+
+  // The install tip shows on phones only, from the second visit on, never when the site is
+  // already opened from the home screen, and never again once its X is tapped.
+  // iPhone: steps (Safari has no install button). Android: an Install button when Chrome
+  // offers one (beforeinstallprompt), otherwise steps.
+  var TIP_CLOSED_KEY = 'finals-install-tip-closed';
+  var OPENS_KEY = 'finals-opens';
+  var installPrompt = null;
+
+  function isInstalled() {
+    return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function isIOS() {
+    var ua = navigator.userAgent || '';
+    return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  }
+  function isPhone() {
+    var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+    var small = Math.min(screen.width || 9999, screen.height || 9999) <= 600;
+    return !!touch && small;
+  }
+  function tipClosed() {
+    try { return localStorage.getItem(TIP_CLOSED_KEY) === '1'; } catch (e) { return true; }
+  }
+  function countOpen() {
+    try {
+      var n = (Number(localStorage.getItem(OPENS_KEY)) || 0) + 1;
+      localStorage.setItem(OPENS_KEY, String(n));
+      return n;
+    } catch (e) { return 1; }
+  }
+
+  function paintInstallTip() {
+    var bar = $('#install-tip');
+    var show = isPhone() && !isInstalled() && !tipClosed() && install.opens >= 2;
+    bar.hidden = !show;
+    document.body.classList.toggle('has-install-tip', show);
+    if (!show) return;
+    var btn = $('.install-tip-go', bar);
+    btn.hidden = !installPrompt;
+    $('#install-tip-text').textContent = installPrompt
+      ? 'Put NVHS Finals on your home screen.'
+      : isIOS() ? 'Add NVHS Finals to your home screen: tap Share, then Add to Home Screen.'
+      : 'Add NVHS Finals to your home screen: open the browser menu, then Add to Home screen.';
+  }
+
+  function renderInstall() {
+    $('#install-done').hidden = !isInstalled();
+    $('#install-now-row').hidden = !installPrompt || isInstalled();
+  }
+
+  var install = { opens: 1 };
+
+  function buildInstall() {
+    install.opens = countOpen();
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      installPrompt = e;
+      paintInstallTip();
+      if ($('#view-install').classList.contains('is-active')) renderInstall();
+    });
+    window.addEventListener('appinstalled', function () {
+      installPrompt = null;
+      try { localStorage.setItem(TIP_CLOSED_KEY, '1'); } catch (e) { /* ignore */ }
+      paintInstallTip();
+      toast('NVHS Finals was added to your home screen');
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('[data-install-now]') || !installPrompt) return;
+      var prompt = installPrompt;
+      installPrompt = null;
+      prompt.prompt();
+      Promise.resolve(prompt.userChoice).then(function () { paintInstallTip(); renderInstall(); }, function () {});
+    });
+    $('#install-tip-x').addEventListener('click', function () {
+      try { localStorage.setItem(TIP_CLOSED_KEY, '1'); } catch (e) { /* ignore */ }
+      paintInstallTip();
+    });
+    paintInstallTip();
+  }
+
   /* ---------- Clear progress ---------- */
 
   // Bookmarks stay, like in the PE Midterm app.
@@ -2828,6 +2918,7 @@
     buildMatch();
     buildFeedbackForm();
     buildNotebookAsk();
+    buildInstall();
     buildShareForm();
     buildPick();
     startClock();
