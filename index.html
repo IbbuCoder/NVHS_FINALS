@@ -73,7 +73,7 @@ try {
 
 <header class="top">
   <div class="top-in">
-    <a class="brand" href="#home"><svg class="brand-logo" aria-hidden="true"><use href="#i-logo"></use></svg><span data-site-title>Finals</span></a>
+    <a class="brand" href="#home" aria-label="Finals study guide, Home"><svg class="brand-logo" aria-hidden="true"><use href="#i-logo"></use></svg><span data-site-title>Finals</span></a>
     <nav id="nav" class="nav" aria-label="Main">
       <a href="#home">Home</a>
       <a href="#units">Lessons</a>
@@ -82,7 +82,7 @@ try {
       <a href="#games">Games</a>
       <a href="#more">More<i class="unread-dot" data-unread hidden><span class="vh">New message</span></i></a>
     </nav>
-    <a class="class-chip" id="class-chip" href="#pick" hidden><span class="class-chip-name" id="class-chip-name"></span><span class="class-chip-change">Change</span></a>
+    <a class="class-chip" id="class-chip" href="#pick" aria-label="Change class" hidden><span class="class-chip-name" id="class-chip-name"></span><span class="class-chip-change">Change</span></a>
     <button type="button" class="icon-btn" id="search-btn" aria-label="Search the notes"><svg aria-hidden="true"><use href="#i-search"></use></svg></button>
     <button type="button" class="dumb-btn" id="dumb-btn" aria-pressed="false">Simple words</button>
     <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -94,7 +94,7 @@ try {
   <div class="wip-strip-in"><strong>This site is still being built.</strong> <span>Some classes aren't filled in yet.</span>
   <button type="button" class="wip-more" id="wip-more">Read more</button></div>
 </div>
-<!-- Shown on a class that has unfinished: true in data/subjects.js -->
+<!-- Shown on a class that isn't filled: true in data/subjects.js -->
 <div class="wip-class" id="wip-class" hidden></div>
 
 <noscript><p class="noscript">This study site needs JavaScript. Turn it on in your browser, then reload.</p></noscript>
@@ -276,6 +276,10 @@ try {
     <a class="back-link" href="#more">More</a>
     <header class="unit-head"><h1 tabindex="-1">Share a notebook</h1></header>
     <p class="note" style="margin-top:14px">Made a NotebookLM notebook from your own class notes? Share it here. The site's owner will look at it and use it to help build the lessons for that class.</p>
+    <div class="nb-explain">
+      <p><b>What's a NotebookLM?</b> It's a free Google tool that holds a class's notes, slides and assignments in one place.</p>
+      <p><b>Why we ask:</b> we use shared notebooks as the source material to build real lessons, flashcards and quizzes. The more classes people share, the faster they get filled in.</p>
+    </div>
     <h2 class="set-group">How to share</h2>
     <ol class="numbered">
       <li>Open your class notebook in NotebookLM.</li>
@@ -492,11 +496,29 @@ try {
     <p class="welcome-lead">Thanks for checking it out! This is an early version, so not everything is finished yet.</p>
     <ul class="wip-list">
       <li><strong>PE / Health</strong> is the finished example. It shows what every class will look like.</li>
-      <li>The other classes are <strong>not filled in yet</strong>. Their notes, flashcards and questions are <strong>samples</strong> that will be replaced with real class content.</li>
+      <li>The other classes are <strong>not filled in yet</strong>. They're empty for now and will get real lessons, flashcards and quizzes. Sharing a NotebookLM for a class helps fill it in.</li>
       <li>Some things may still change or have mistakes. If you see one, use <strong>Send feedback</strong> under More.</li>
     </ul>
     <p class="note">Made by students. Not an official school site.</p>
     <div class="welcome-actions"><button type="button" class="btn solid wip-ok" id="wip-ok">Got it, show me the site</button></div>
+  </div>
+</dialog>
+
+<!-- Shown once per class per device when someone opens a class that isn't filled in yet. -->
+<dialog class="welcome nb-pop" id="nb-pop" aria-labelledby="nb-pop-title">
+  <div class="welcome-in">
+    <p class="wip-badge" id="nb-pop-class"></p>
+    <h2 id="nb-pop-title">This class isn't filled in yet</h2>
+    <h3 class="nb-pop-h">What's a NotebookLM?</h3>
+    <p>It's a free Google tool that holds a class's notes, slides and assignments in one place. If you use one for this class, you can share it with us.</p>
+    <h3 class="nb-pop-h">Why we ask</h3>
+    <p>We use shared notebooks as the source material to build real lessons, flashcards and quizzes for this class. The more classes people share, the faster it gets filled in.</p>
+    <h3 class="nb-pop-h">How to share</h3>
+    <p>Open your notebook, choose Share, set it so anyone with the link can view, and paste the link here. Please don't include other students' work or grades. Only the site owner sees what you share.</p>
+    <div class="welcome-actions">
+      <button type="button" class="btn ghost" id="nb-pop-later">Maybe later</button>
+      <button type="button" class="btn solid" id="nb-pop-share">Share a notebook</button>
+    </div>
   </div>
 </dialog>
 

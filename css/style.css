@@ -1036,3 +1036,18 @@ html[data-theme="dark"] .wip-class { background: #2a1a1d; }
 .strip-hi { font: 700 22px/1.1 var(--head); }
 .strip-note { flex-basis: 100%; color: var(--mute); font-size: 15px; }
 @media (min-width: 560px) { .strip-note { flex-basis: auto; } }
+
+/* Classes grouped by subject on the Classes page */
+.class-sub { margin: 22px 0 0; font: 700 22px/1.15 var(--head); color: var(--mute); text-transform: uppercase; letter-spacing: .03em; }
+
+/* NotebookLM pop-up and the explanation on the Share form */
+.nb-pop .welcome-in > p { margin: 6px 0 0; }
+.nb-pop-h { margin: 14px 0 0; font: 700 21px/1.15 var(--head); }
+.nb-explain { margin-top: 14px; padding: 12px 14px; background: var(--fill); border-left: 5px solid var(--accent); }
+.nb-explain p { margin: 0; }
+.nb-explain p + p { margin-top: 8px; }
+.wip-class-ask { display: inline-block; margin-top: 4px; font-weight: 700; color: inherit; text-decoration: underline; text-underline-offset: 3px; min-height: 24px; }
+
+/* Phones with a notch: keep content inside the safe area on the sides too. */
+.wrap, .top-in { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+html, body { max-width: 100%; overflow-x: clip; }

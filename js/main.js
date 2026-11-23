@@ -483,7 +483,7 @@
       history.replaceState(null, '', '#pick');
       id = 'pick';
     }
-    var pickGroup = /^pick(\/(core|encore))?$/.exec(id);
+    var pickGroup = /^pick(\/(core|encore)(\/([a-z0-9-]+))?)?$/.exec(id);
     var viewId = unit ? 'unit' : (id === 'core' || id === 'encore') ? 'classes' : pickGroup ? 'pick' : id;
     var view = document.getElementById('view-' + viewId);
     if (!view || (viewId === 'unit' && !unit)) { id = '404'; viewId = '404'; view = $('#view-404'); }
@@ -511,7 +511,7 @@
     closeMenu();
     if (id === 'home') renderHome();
     if (viewId === 'classes') renderClasses(id);
-    if (pickGroup) renderPick(pickGroup[2] || '');
+    if (pickGroup) renderPick(pickGroup[2] || '', pickGroup[4] || '');
     if (id === 'units') renderUnits();
     if (unit) renderUnit(unit);
     if (id === 'flashcards') renderCard();
@@ -523,7 +523,12 @@
     if (id === 'match') renderMatch();
     if (id === 'games') renderGames();
     if (id === 'feedback') { if (!$('#fb-name').value) $('#fb-name').value = studentName(); renderFeedback(); }
-    if (id === 'share') { if (!$('#sh-name').value) $('#sh-name').value = studentName(); renderShare(); }
+    if (id === 'share') {
+      if (!$('#sh-name').value) $('#sh-name').value = studentName();
+      if (sharePrefill) { $('#sh-class').value = sharePrefill; sharePrefill = ''; }
+      renderShare();
+    }
+    if (cur) maybeAskForNotebook(id, unit);
     if (id === 'settings') $('#set-student').value = studentName();
     if (id === 'account') { acct.msg = ''; renderAccount(); }
     if (id === 'messages') { renderMessages(); loadMessages(); }
@@ -549,24 +554,84 @@
     openDialog(pop);
   }
 
-  // The warning on a class with unfinished: true in data/subjects.js.
+  // The notice on a class that isn't filled: true in data/subjects.js. After the NotebookLM
+  // pop-up has been seen for this class, it also asks for a notebook.
   function paintClassWarning(onPicker) {
     var box = $('#wip-class');
     var s = subjectOf(cur);
-    var show = !!(s && s.unfinished && !onPicker);
+    var show = !!(s && !s.filled && !onPicker);
     box.hidden = !show;
     if (show) {
-      box.innerHTML = '<div class="wip-class-in"><strong>' + esc(s.name) + ' is not filled in yet.</strong> ' +
-        '<span>The notes, flashcards and questions here are samples, not real class content.</span></div>';
+      box.innerHTML = '<div class="wip-class-in"><strong>' + esc(s.name) + ' isn\'t filled in yet.</strong> ' +
+        '<span>There are no lessons, flashcards or quiz questions for this class yet.</span>' +
+        (nbSeen(s.id) ? ' <a class="wip-class-ask" href="#share" data-share-class>Got a NotebookLM for this class? Help fill it in.</a>' : '') + '</div>';
     }
+  }
+
+  // "English · 1 Honors": the subject, then the class without the subject repeated.
+  function chipLabel(s) {
+    if (!s) return '';
+    if (s.name === s.subject) return s.name;
+    var rest = s.name.indexOf(s.subject + ' ') === 0 ? s.name.slice(s.subject.length + 1) : s.name;
+    return s.subject + ' · ' + rest;
   }
 
   // The class you're studying, always in the top bar. Tap it to change class.
   function paintClassChip(onPicker) {
     var chip = $('#class-chip');
+    var s = subjectOf(cur);
     chip.hidden = !cur || !!onPicker;
-    $('#class-chip-name').textContent = className();
+    $('#class-chip-name').textContent = chipLabel(s);
     chip.setAttribute('aria-label', 'Studying ' + className() + '. Change class');
+  }
+
+  /* ---------- NotebookLM pop-up on a class that isn't filled in ---------- */
+
+  // Shown once per class per device, on that class's pages. PE / Health (filled) never shows it.
+  var NB_KEY = 'finals-nb-asked';
+  var sharePrefill = '';
+
+  function nbSeenList() {
+    try { return JSON.parse(localStorage.getItem(NB_KEY) || '[]') || []; } catch (e) { return []; }
+  }
+  function nbSeen(id) { return nbSeenList().indexOf(id) > -1; }
+  function markNbSeen(id) {
+    var list = nbSeenList();
+    if (list.indexOf(id) > -1) return;
+    list.push(id);
+    try { localStorage.setItem(NB_KEY, JSON.stringify(list)); } catch (e) { /* storage blocked: may show again */ }
+  }
+
+  var NB_PAGES = ['home', 'units', 'flashcards', 'test', 'saved', 'games', 'sheet', 'weak', 'match', 'drills'];
+
+  function maybeAskForNotebook(id, unit) {
+    var s = subjectOf(cur);
+    if (!s || s.filled || nbSeen(s.id)) return;
+    if (!unit && NB_PAGES.indexOf(id) === -1) return;
+    var box = $('#nb-pop');
+    // Never on top of another pop-up.
+    if (box.open || $$('dialog[open]').length) return;
+    box.dataset.cls = s.id;
+    $('#nb-pop-class').textContent = s.name;
+    markNbSeen(s.id);
+    openDialog(box);
+  }
+
+  function buildNotebookAsk() {
+    var box = $('#nb-pop');
+    $('#nb-pop-later').addEventListener('click', function () { closeDialog(box); });
+    $('#nb-pop-share').addEventListener('click', function () {
+      var s = subjectOf(box.dataset.cls);
+      sharePrefill = s ? s.name : '';
+      closeDialog(box);
+      location.hash = 'share';
+    });
+    box.addEventListener('click', function (e) { if (e.target === box) closeDialog(box); });
+    // Once it's closed, the class page shows the small "Help fill it in" line.
+    box.addEventListener('close', function () { paintClassWarning(false); });
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-share-class]')) sharePrefill = className();
+    });
   }
 
   // Games: the matching game, and math practice for classes that have it.
@@ -619,7 +684,22 @@
     encore: { name: 'Encore', blurb: 'Electives' }
   };
 
-  function renderPick(group) {
+  // Subjects in Core or Encore, in the order data/subjects.js lists them.
+  function subjectsIn(category) {
+    return FINALS.catalog.filter(function (g) { return g.category === category && g.classes.length; });
+  }
+  function subjectById(category, subjectId) {
+    return subjectsIn(category).filter(function (g) { return g.subjectId === subjectId; })[0] || null;
+  }
+  function classStatus(s) {
+    if (s.id === cur) return 'Studied last time';
+    if (!s.filled) return 'Not filled in yet';
+    var units = dataOf(s.id).units.length;
+    return units + (units === 1 ? ' lesson' : ' lessons');
+  }
+
+  // Step 1: Core or Encore. Step 2: the subject. Step 3: the class (skipped for one-class subjects).
+  function renderPick(group, subjectId) {
     var root = $('#pick-root');
     if (!group) {
       root.innerHTML =
@@ -633,16 +713,29 @@
       paintStrips();
       return;
     }
-    var list = SUBJECTS.filter(function (s) { return s.category === group; });
+    var subject = subjectId ? subjectById(group, subjectId) : null;
+    if (!subject) {
+      var mine = subjectOf(cur);
+      root.innerHTML =
+        '<div class="pick-head"><h1 tabindex="-1">' + GROUPS[group].name + '</h1><a class="btn ghost" href="#pick">Back</a></div>' +
+        '<p class="pick-sub">' + GROUPS[group].blurb + '. Pick a subject.</p>' +
+        '<div class="pick-subjects">' + subjectsIn(group).map(function (g) {
+          var only = g.classes.length === 1 ? g.classes[0] : null;
+          var last = mine && mine.subjectId === g.subjectId;
+          var sub = only ? classStatus(only) : (last ? 'Studied last time. ' : '') + g.classes.length + ' classes';
+          return (only
+            ? '<button type="button" class="pick-subject' + (last ? ' is-last' : '') + '" data-pick-class="' + only.id + '">'
+            : '<a class="pick-subject' + (last ? ' is-last' : '') + '" href="#pick/' + group + '/' + g.subjectId + '">') +
+            '<b>' + esc(g.subject) + '</b><span>' + esc(sub) + '</span>' + (only ? '</button>' : '</a>');
+        }).join('') + '</div>';
+      return;
+    }
     root.innerHTML =
-      '<div class="pick-head"><h1 tabindex="-1">' + GROUPS[group].name + '</h1><a class="btn ghost" href="#pick">Back</a></div>' +
-      '<p class="pick-sub">' + GROUPS[group].blurb + '. Pick your class.</p>' +
-      '<div class="pick-subjects">' + list.map(function (s) {
-        var units = dataOf(s.id).units.length;
-        var last = s.id === cur;
-        return '<button type="button" class="pick-subject' + (last ? ' is-last' : '') + '" data-pick-class="' + s.id + '">' +
-          '<b>' + esc(s.name) + '</b><span>' + (last ? 'Studied last time' : units ? units + (units === 1 ? ' lesson' : ' lessons') : 'No lessons yet') + '</span>' +
-          (s.unfinished ? '<em class="wip-tag">Not filled in yet</em>' : '') + '</button>';
+      '<div class="pick-head"><h1 tabindex="-1">' + esc(subject.subject) + '</h1><a class="btn ghost" href="#pick/' + group + '">Back</a></div>' +
+      '<p class="pick-sub">' + GROUPS[group].name + '. Which class are you in?</p>' +
+      '<div class="pick-subjects">' + subject.classes.map(function (s) {
+        return '<button type="button" class="pick-subject' + (s.id === cur ? ' is-last' : '') + '" data-pick-class="' + s.id + '">' +
+          '<b>' + esc(s.name) + '</b><span>' + esc(classStatus(s)) + '</span></button>';
       }).join('') + '</div>';
   }
 
@@ -662,8 +755,9 @@
 
   /* ---------- Class list (Home with no class, #classes, #core, #encore) ---------- */
 
+  // The subjects in Core or Encore, for the big buttons: "English, Math, Science, Social Studies".
   function classNames(cat) {
-    return SUBJECTS.filter(function (s) { return s.category === cat; }).map(function (s) { return s.name; }).join(', ');
+    return subjectsIn(cat).map(function (g) { return g.subject; }).join(', ');
   }
 
   function classReady(id) {
@@ -676,13 +770,14 @@
     var label = { core: 'Core', encore: 'Encore' };
     var blurb = { core: 'Main classes', encore: 'Electives' };
     $('#classes-root').innerHTML = cats.map(function (cat) {
-      var list = SUBJECTS.filter(function (s) { return s.category === cat; });
-      return '<h2 class="class-group">' + label[cat] + '</h2><p class="note" style="margin:8px 0 0">' + blurb[cat] + '</p>' + list.map(function (s) {
-        var ready = classReady(s.id);
-        var units = dataOf(s.id).units.length;
-        return '<a class="class-row' + (s.id === cur ? ' is-current' : '') + '" href="#class/' + s.id + '"' + (s.id === cur ? ' aria-current="true"' : '') + '>' +
-          '<span class="sb-name">' + esc(s.name) + '</span><span class="sb-pct">' + (units ? ready + '%' : '') + '</span>' +
-          '<span class="pct"><i style="width:' + ready + '%"></i></span></a>';
+      return '<h2 class="class-group">' + label[cat] + '</h2><p class="note" style="margin:8px 0 0">' + blurb[cat] + '</p>' + subjectsIn(cat).map(function (g) {
+        return '<h3 class="class-sub">' + esc(g.subject) + '</h3>' + g.classes.map(function (s) {
+          var ready = classReady(s.id);
+          var units = dataOf(s.id).units.length;
+          return '<a class="class-row' + (s.id === cur ? ' is-current' : '') + '" href="#class/' + s.id + '"' + (s.id === cur ? ' aria-current="true"' : '') + '>' +
+            '<span class="sb-name">' + esc(s.name) + '</span><span class="sb-pct">' + (units ? ready + '%' : (s.filled ? '' : 'Not filled in')) + '</span>' +
+            '<span class="pct"><i style="width:' + ready + '%"></i></span></a>';
+        }).join('');
       }).join('');
     }).join('') +
       (cats.length === 1 ? '<p class="nf-links"><a class="btn" href="#' + (cats[0] === 'core' ? 'encore' : 'core') + '">See ' + (cats[0] === 'core' ? 'Encore' : 'Core') + ' classes</a></p>' : '');
@@ -2475,8 +2570,8 @@
     });
     var sel = $('#fb-class');
     var keep = sel.value || cur || '';
-    sel.innerHTML = '<option value="">Not about one class</option>' + ['core', 'encore'].map(function (cat) {
-      return '<optgroup label="' + (cat === 'core' ? 'Core' : 'Encore') + '">' + SUBJECTS.filter(function (s) { return s.category === cat; }).map(function (s) {
+    sel.innerHTML = '<option value="">Not about one class</option>' + FINALS.catalog.map(function (g) {
+      return '<optgroup label="' + esc(g.subject) + '">' + g.classes.map(function (s) {
         return '<option value="' + s.id + '"' + (s.id === keep ? ' selected' : '') + '>' + esc(s.name) + '</option>';
       }).join('') + '</optgroup>';
     }).join('');
@@ -2701,10 +2796,11 @@
 
   // Loads every class file listed in data/subjects.js, then starts the app.
   function loadClasses(done) {
-    // A class with tools: true in data/subjects.js also loads data/classes/<id>-tools.js.
+    // file: true loads data/classes/<id>.js, and tools: true also loads data/classes/<id>-tools.js.
+    // Classes that aren't filled in have no file, so nothing is requested for them.
     var files = [];
     SUBJECTS.forEach(function (s) {
-      files.push(s.id);
+      if (s.file) files.push(s.id);
       if (s.tools) files.push(s.id + '-tools');
     });
     var left = files.length;
@@ -2731,6 +2827,7 @@
     buildDrill();
     buildMatch();
     buildFeedbackForm();
+    buildNotebookAsk();
     buildShareForm();
     buildPick();
     startClock();
@@ -2753,7 +2850,7 @@
       opening = settings.startPage === 'last' ? saved.lastPage : settings.startPage === 'home' ? '' : settings.startPage;
     }
     if (opening && !/^(pick|class\/|home$|404$)/.test(opening)) pickReturn = opening;
-    history.replaceState(null, '', '#' + (/^pick\/(core|encore)$/.test(location.hash.slice(1)) ? location.hash.slice(1) : 'pick'));
+    history.replaceState(null, '', '#' + (/^pick\/(core|encore)(\/[a-z0-9-]+)?$/.test(location.hash.slice(1)) ? location.hash.slice(1) : 'pick'));
     window.addEventListener('hashchange', function () { route(false); });
     route(true);
     // Count this visit, then keep "studying now" up to date.
