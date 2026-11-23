@@ -66,11 +66,12 @@
       flashcards: d.flashcards || [],
       questions: d.questions || [],
       formulas: d.formulas || [],
-      drills: d.drills || []
+      drills: d.drills || [],
+      examFacts: d.examFacts || []
     };
   }
 
-  var C = { units: [], flashcards: [], questions: [], formulas: [], drills: [] };
+  var C = { units: [], flashcards: [], questions: [], formulas: [], drills: [], examFacts: [] };
 
   // Progress for one class.
   function progressOf(id) {
@@ -870,7 +871,9 @@
     $('#board').innerHTML =
       '<div class="sb-total"><span class="sb-label">Ready for the final</span><div class="sb-tiles" role="img" aria-label="' + total + ' percent ready">' +
       String(total).split('').map(function (d) { return '<span class="sb-tile">' + d + '</span>'; }).join('') +
-      '<span class="sb-tile unit">%</span></div><p class="sb-note">Goes up as you take quizzes and mark flashcards Got it.</p>' + examLine() + '</div>' + next;
+      '<span class="sb-tile unit">%</span></div><p class="sb-note">Goes up as you take quizzes and mark flashcards Got it.</p>' + examLine() + '</div>' + next +
+      // examFacts in a class's data file: the date, format and what to bring, shown under the board.
+      (C.examFacts.length ? '<div class="sb-facts"><h2>The final</h2><ul>' + C.examFacts.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></div>' : '');
 
     var knownCount = C.flashcards.filter(isKnown).length;
     $('#home-lessons').textContent = C.units.length + (C.units.length === 1 ? ' lesson' : ' lessons');

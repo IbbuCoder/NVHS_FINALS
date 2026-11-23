@@ -29,7 +29,7 @@ FINALS.setCatalog([
     { name: "Algebra Academy" },
     { name: "Geometry" },
     { name: "Geometry Essentials" },
-    { name: "Honors Geometry" },
+    { name: "Honors Geometry", file: true, filled: true, exam: "2026-12-16" },
     { name: "Algebra 2/Trig & Stats" },
     { name: "Honors Algebra 2/Trig & Stats" }
   ] },
