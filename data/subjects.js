@@ -104,7 +104,7 @@ FINALS.setCatalog([
     { name: "French 2" },
     { name: "German 1" },
     { name: "Spanish 1" },
-    { name: "Spanish 2" },
+    { name: "Spanish 2", file: true, filled: true, exam: "2026-12-17" },
     { name: "Heritage Spanish 2" },
     { name: "Heritage Spanish 3" },
     { name: "Chinese 1" },
