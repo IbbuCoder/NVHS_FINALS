@@ -41,7 +41,7 @@ FINALS.setCatalog([
     { name: "Earth Science" }
   ] },
   { category: "core", subject: "Social Studies", classes: [
-    { name: "Human Geography" },
+    { name: "Human Geography", file: true, filled: true, exam: "2026-12-16" },
     { name: "AP Human Geography" },
     { name: "US History" },
     { name: "World History" },
