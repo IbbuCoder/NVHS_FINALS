@@ -1,60 +1,181 @@
 // Español 2: Semester 1 final (Thu Dec 17, period 3).
 // Same format as human-geography.js: units with sections, flashcards, questions and examFacts.
+// Lessons are written as HTML with diagrams and cards, in plain 9th-grade language.
 // Built from the class notebooks: Unit 0 Repaso de Español 1, Unit 1 Familia, Tradiciones y
 // Comida, Unit 2 Salud, Hábitos y Rutina Diaria. The exam format was not posted, so Home says so.
 (function () {
+  // ---------- Visual helpers ----------
+  // Lessons below are written as HTML. Every color is one of the site's own CSS variables,
+  // so these pictures follow light, dark and accent themes.
+  var HEAD = 'font-family:var(--head);';
+  function say(h) { return '<p style="font-size:18px;line-height:1.5;margin:0 0 14px">' + h + '</p>'; }
+  function tip(label, h, trap) {
+    var c = trap ? 'var(--ink)' : 'var(--accent)';
+    return '<div style="margin:14px 0;padding:10px 14px;background:var(--fill);border-left:6px solid ' + c + '">' +
+      '<b style="' + HEAD + 'font-size:20px;letter-spacing:.05em;text-transform:uppercase;color:' + c + '">' + label + '</b>' +
+      '<div style="font-size:17px;line-height:1.45;margin-top:2px">' + h + '</div></div>';
+  }
+  function flow(steps) {
+    var out = '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:12px 0 16px">';
+    steps.forEach(function (s, i) {
+      if (i) out += '<div aria-hidden="true" style="align-self:center;font:700 28px/1 var(--head);color:var(--accent)">→</div>';
+      out += '<div style="flex:1 1 130px;border:2px solid var(--ink);background:var(--surface);padding:10px 12px"><b style="font:700 21px/1.1 var(--head);display:block">' + s.t + '</b>' +
+        (s.s ? '<span style="font-size:15px;color:var(--mute);line-height:1.3;display:block;margin-top:3px">' + s.s + '</span>' : '') + '</div>';
+    });
+    return out + '</div>';
+  }
+  function stack(layers) {
+    var out = '<div style="margin:12px 0 16px;border:2px solid var(--ink)">';
+    layers.forEach(function (l, i) {
+      out += '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;background:' + (i % 2 ? 'var(--fill)' : 'var(--surface)') + ';' + (i ? 'border-top:1px solid var(--ink);' : '') + '">' +
+        '<div style="background:var(--accent);color:var(--on-accent);text-align:center;font:700 26px/1 var(--head);align-self:stretch;display:flex;align-items:center;justify-content:center">' + (l.n || (i + 1)) + '</div>' +
+        '<div style="padding:9px 12px"><b style="font:700 21px/1.1 var(--head)">' + l.t + '</b>' + (l.s ? '<div style="font-size:16px;line-height:1.35;color:var(--mute);margin-top:2px">' + l.s + '</div>' : '') + '</div></div>';
+    });
+    return out + '</div>';
+  }
+  function cards(items, min) {
+    var out = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(' + (min || 200) + 'px,1fr));gap:10px;margin:12px 0 16px">';
+    items.forEach(function (c) {
+      out += '<div style="border:2px solid var(--ink);background:var(--surface);padding:10px 12px">' +
+        (c.k ? '<div style="font:600 14px/1 var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px">' + c.k + '</div>' : '') +
+        '<b style="font:700 22px/1.1 var(--head);display:block">' + (c.i ? '<span aria-hidden="true">' + c.i + '</span> ' : '') + c.h + '</b>' +
+        (c.t ? '<div style="font-size:16px;line-height:1.4;margin-top:4px">' + c.t + '</div>' : '') + '</div>';
+    });
+    return out + '</div>';
+  }
+  function tiles(items) {
+    var out = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:12px 0 16px">';
+    items.forEach(function (c) {
+      out += '<div style="border:2px solid var(--ink);background:var(--surface);padding:10px 12px;text-align:left">' +
+        '<div style="font:700 44px/1 var(--head);color:var(--accent)">' + c.n + '</div>' +
+        '<div style="font-size:16px;line-height:1.3;margin-top:4px">' + c.t + '</div></div>';
+    });
+    return out + '</div>';
+  }
+  function pills(items) {
+    var out = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px">';
+    items.forEach(function (c) {
+      var w = typeof c === 'string' ? { w: c } : c;
+      out += '<span style="border:2px solid var(--ink);background:var(--surface);padding:3px 9px;font-size:16px;line-height:1.3"><b>' + w.w + '</b>' + (w.m ? ' <span style="color:var(--mute)">· ' + w.m + '</span>' : '') + '</span>';
+    });
+    return out + '</div>';
+  }
+  function h3(t) { return '<h3 style="font:700 24px/1.1 var(--head);margin:18px 0 6px">' + t + '</h3>'; }
+  function tbl(head, rows) {
+    return '<table class="tbl stack"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr><th scope="row">' + r[0] + '</th>' + r.slice(1).map(function (c, i) { return '<td data-label="' + (head[i + 1] || '') + '">' + c + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody></table>';
+  }
+  function svg(w, h, inner, alt) {
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="display:block;width:100%;max-width:' + w + 'px;height:auto;margin:12px 0 16px;background:var(--surface);border:2px solid var(--ink)">' +
+      '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>' + inner + '</svg>';
+  }
+  // svg text and shapes: t(x, y, text, size, weight, anchor, color)
+  function t(x, y, s, size, wt, anchor, color) {
+    return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" style="font:' + (wt || 600) + ' ' + (size || 16) + 'px var(--body)" fill="' + (color || 'var(--ink)') + '">' + s + '</text>';
+  }
+  function rect(x, y, w, h, fill, stroke, extra) {
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + (fill || 'var(--surface)') + '" stroke="' + (stroke || 'var(--ink)') + '" stroke-width="2" ' + (extra || '') + '/>';
+  }
+  function line(x1, y1, x2, y2, arrow, color) {
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + (color || 'var(--accent)') + '" stroke-width="3"' + (arrow ? ' marker-end="url(#ah)"' : '') + '/>';
+  }
+
   var units = [
     /* ---------- 00 ---------- */
     {
       id: 'u1', num: '00', title: 'Repaso de Español 1', short: 'Repaso',
       sections: [
         {
-          id: 'u0-present', title: 'Present tense endings',
-          body: ['Drop -ar, -er or -ir from the infinitive, then add the ending for who is doing the action.'],
-          table: { head: ['Who', '-AR', '-ER', '-IR'], rows: [
-            ['yo', '-o', '-o', '-o'],
-            ['tú', '-as', '-es', '-es'],
-            ['él / ella / Ud.', '-a', '-e', '-e'],
-            ['nosotros', '-amos', '-emos', '-imos'],
-            ['vosotros', '-áis', '-éis', '-ís'],
-            ['ellos / ellas / Uds.', '-an', '-en', '-en']
-          ] },
-          simple: 'Take off the last two letters, then add the ending that matches the person.'
+          id: 'u0-present', title: 'Present tense: how to build it',
+          simple: 'Cut off -ar, -er or -ir. Then add the ending that matches who is doing the action.',
+          html:
+            say('Every present-tense verb is built the same way: <b>chop off the ending, then add a new one.</b>') +
+            flow([{ t: 'hablar', s: 'start with the infinitive' }, { t: 'habl-', s: 'cut off -ar, -er or -ir' }, { t: 'habl + o', s: 'add the ending for who is doing it' }]) +
+            tbl(['Who', '-AR (hablar)', '-ER (comer)', '-IR (vivir)'], [
+              ['yo (I)', 'habl<b>o</b>', 'com<b>o</b>', 'viv<b>o</b>'],
+              ['tú (you)', 'habl<b>as</b>', 'com<b>es</b>', 'viv<b>es</b>'],
+              ['él / ella / Ud.', 'habl<b>a</b>', 'com<b>e</b>', 'viv<b>e</b>'],
+              ['nosotros (we)', 'habl<b>amos</b>', 'com<b>emos</b>', 'viv<b>imos</b>'],
+              ['vosotros (you all)', 'habl<b>áis</b>', 'com<b>éis</b>', 'viv<b>ís</b>'],
+              ['ellos / ellas / Uds.', 'habl<b>an</b>', 'com<b>en</b>', 'viv<b>en</b>']
+            ]) +
+            tip('Remember', 'Only the <b>nosotros</b> and <b>vosotros</b> endings change between -ER and -IR (-emos / -imos and -éis / -ís). The rest match.')
         },
         {
-          id: 'u0-verbs', title: 'Core verbs',
-          list: [
-            '-AR: bailar, cantar, comprar, descansar, dibujar, enseñar, escuchar música, estudiar, hablar por teléfono, jugar al fútbol, mirar la televisión, montar en bicicleta, practicar deportes, preparar la comida, tocar un instrumento, tomar apuntes, trabajar, necesitar, llegar, llevar, limpiar, lavar, usar.',
-            '-ER: beber, comer, correr, comprender / entender, conocer, deber, hacer, perder, poder, poner, querer, ser, tener, traer, vender, ver, volver.',
-            '-IR: abrir, compartir, decir, dormir, escribir, ir, pedir, preferir, recibir, salir, servir, venir, vivir.',
-            'Tener expressions: tener hambre, sed, frío, calor, sueño, miedo de, # años, y tener que + infinitive (to have to).'
-          ]
+          id: 'u0-verbs', title: 'Core verbs and “tener” expressions',
+          simple: 'Know the common verbs by type. Use tener for hungry, thirsty, cold, hot, sleepy and for your age.',
+          html:
+            cards([
+              { k: '-AR verbs', h: 'Do and use', t: 'bailar, cantar, comprar, descansar, dibujar, enseñar, escuchar música, estudiar, hablar por teléfono, jugar al fútbol, mirar la televisión, montar en bicicleta, practicar deportes, preparar la comida, tocar un instrumento, tomar apuntes, trabajar, necesitar, llegar, llevar, limpiar, lavar, usar' },
+              { k: '-ER verbs', h: 'Daily actions', t: 'beber, comer, correr, comprender / entender, conocer, deber, hacer, perder, poder, poner, querer, ser, tener, traer, vender, ver, volver' },
+              { k: '-IR verbs', h: 'Go and share', t: 'abrir, compartir, decir, dormir, escribir, ir, pedir, preferir, recibir, salir, servir, venir, vivir' }
+            ], 260) +
+            h3('Tener = “to have”, but also how you feel') +
+            cards([
+              { i: '🍽️', h: 'tener hambre', t: 'to be hungry' }, { i: '🥤', h: 'tener sed', t: 'to be thirsty' },
+              { i: '🥶', h: 'tener frío', t: 'to be cold' }, { i: '🥵', h: 'tener calor', t: 'to be hot' },
+              { i: '😴', h: 'tener sueño', t: 'to be sleepy' }, { i: '🎂', h: 'tener # años', t: 'to be # years old' },
+              { i: '😨', h: 'tener miedo de', t: 'to be afraid of' }, { i: '📌', h: 'tener que + infinitive', t: 'to have to do something' }
+            ], 170)
         },
         {
-          id: 'u0-boot', title: 'Stem-changing (“boot”) verbs',
-          body: ['The stem changes in every form except nosotros and vosotros. Draw the boot around the forms that change.'],
-          table: { head: ['Change', 'Verb', 'Forms'], rows: [
-            ['e → ie', 'preferir', 'prefiero, prefieres, prefiere, preferimos, preferís, prefieren'],
-            ['u → ue', 'jugar', 'juego, juegas, juega, jugamos, jugáis, juegan'],
-            ['o → ue', 'volver', 'vuelvo, vuelves, vuelve, volvemos, volvéis, vuelven'],
-            ['e → i', 'servir', 'sirvo, sirves, sirve, servimos, servís, sirven']
-          ] }
+          id: 'u0-boot', title: 'Boot verbs (stem-changing)',
+          simple: 'In a boot verb the middle of the word changes in every form except nosotros and vosotros.',
+          html:
+            say('In a boot verb, the vowel in the middle changes. Draw a boot around the forms that change: <b>yo, tú, él, ellos</b>. The two forms outside the boot, <b>nosotros</b> and <b>vosotros</b>, stay normal.') +
+            svg(460, 230,
+              rect(20, 20, 200, 190, 'var(--tint)', 'var(--accent)') +
+              rect(220, 20, 220, 130, 'var(--surface)', 'var(--rule)') +
+              rect(220, 150, 220, 60, 'var(--tint)', 'var(--accent)') +
+              t(120, 58, 'yo → <tspan fill="var(--accent)">prefiero</tspan>', 20) +
+              t(120, 118, 'tú → <tspan fill="var(--accent)">prefieres</tspan>', 20) +
+              t(120, 178, 'él → <tspan fill="var(--accent)">prefiere</tspan>', 20) +
+              t(330, 58, 'nosotros → preferimos', 19) +
+              t(330, 118, 'vosotros → preferís', 19) +
+              t(330, 187, 'ellos → <tspan fill="var(--accent)">prefieren</tspan>', 20) +
+              t(230, 15, 'The boot is the shaded part', 13, 600, 'middle', 'var(--mute)'),
+              'Boot shape diagram for the verb preferir. The shaded forms yo, tú, él and ellos change; nosotros and vosotros do not.') +
+            tbl(['Change', 'Verb', 'yo, tú, él, nosotros, vosotros, ellos'], [
+              ['e → ie', 'preferir', 'prefiero, prefieres, prefiere, preferimos, preferís, prefieren'],
+              ['u → ue', 'jugar', 'juego, juegas, juega, jugamos, jugáis, juegan'],
+              ['o → ue', 'volver', 'vuelvo, vuelves, vuelve, volvemos, volvéis, vuelven'],
+              ['e → i', 'servir', 'sirvo, sirves, sirve, servimos, servís, sirven']
+            ])
         },
         {
-          id: 'u0-gustar', title: 'Gustar',
-          body: ['Use the indirect object pronoun + gusta (one thing) or gustan (plural things). The thing you like is the subject, so the verb matches it.'],
-          table: { head: ['To add emphasis', 'Pronoun'], rows: [
-            ['A mí', 'me'], ['A ti', 'te'], ['A él / ella / Ud.', 'le'],
-            ['A nosotros', 'nos'], ['A vosotros', 'os'], ['A ellos / ellas / Uds.', 'les']
-          ] }
+          id: 'u0-gustar', title: 'Gustar: “I like…”',
+          simple: 'Use gusta for one thing and gustan for more than one thing. Start with me, te, le, nos, os or les.',
+          html:
+            say('<b>Gustar</b> works backward. Spanish says “the thing is pleasing to me.” So the verb agrees with the <b>thing you like</b>, not with you.') +
+            flow([{ t: 'A mí', s: 'optional, for emphasis' }, { t: 'me', s: 'who likes it' }, { t: 'gusta / gustan', s: 'matches the thing' }, { t: 'el pozole', s: 'the thing you like' }]) +
+            cards([
+              { k: 'One thing or a verb', h: 'Me gusta el pozole', t: 'Also: Me gusta bailar.' },
+              { k: 'More than one thing', h: 'Me gustan los tacos', t: 'Plural thing → gustan.' }
+            ], 240) +
+            tbl(['Emphasis', 'Pronoun'], [
+              ['A mí', 'me'], ['A ti', 'te'], ['A él / ella / Ud.', 'le'], ['A nosotros', 'nos'], ['A vosotros', 'os'], ['A ellos / ellas / Uds.', 'les']
+            ])
         },
         {
           id: 'u0-serestar', title: 'Ser vs. estar',
-          table: { head: ['', 'Use', 'Forms'], rows: [
-            ['SER = DOCTOR', 'Description, Origin, Characteristics, Time, Occupation, Relationship', 'soy, eres, es, somos, sois, son'],
-            ['ESTAR = PLACE', 'Position, Location, Action (progressive), Condition, Emotion', 'estoy, estás, está, estamos, estáis, están']
-          ] },
-          simple: 'Ser is for what something IS. Estar is for where it is and how it feels right now.'
+          simple: 'Ser is for what something is. Estar is for where it is and how it feels right now.',
+          html:
+            say('Both mean “to be.” Use these two memory words to pick the right one.') +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0 16px">' +
+              '<div style="border:2px solid var(--ink);background:var(--surface);padding:12px"><b style="font:700 34px/1 var(--head);color:var(--accent)">SER = DOCTOR</b>' +
+              '<ul style="list-style:none;margin:8px 0;padding:0;font-size:17px;line-height:1.6"><li><b>D</b>escription</li><li><b>O</b>rigin</li><li><b>C</b>haracteristics</li><li><b>T</b>ime</li><li><b>O</b>ccupation</li><li><b>R</b>elationship</li></ul>' +
+              '<div style="font-size:16px;color:var(--mute)">soy · eres · es · somos · sois · son</div></div>' +
+              '<div style="border:2px solid var(--ink);background:var(--surface);padding:12px"><b style="font:700 34px/1 var(--head);color:var(--accent)">ESTAR = PLACE</b>' +
+              '<ul style="list-style:none;margin:8px 0;padding:0;font-size:17px;line-height:1.6"><li><b>P</b>osition</li><li><b>L</b>ocation</li><li><b>A</b>ction (progressive)</li><li><b>C</b>ondition</li><li><b>E</b>motion</li></ul>' +
+              '<div style="font-size:16px;color:var(--mute)">estoy · estás · está · estamos · estáis · están</div></div>' +
+            '</div>' +
+            cards([
+              { h: 'Mi papá es médico.', t: 'Occupation → ser' },
+              { h: 'El libro está en la mesa.', t: 'Location → estar' },
+              { h: 'Estamos cansados.', t: 'Condition → estar' }
+            ], 220)
         }
       ]
     },
@@ -64,69 +185,121 @@
       sections: [
         {
           id: 'u1-vocab', title: 'Vocabulary',
-          list: [
-            'Nouns: la alimentación (food, diet), el banquete (feast), el barrio (neighborhood), la calle (street), la costumbre (custom), el disfraz (costume), el hogar (home), el ingrediente, los invitados (guests), los parientes (relatives), la pimienta (pepper), el platillo típico / auténtico, el postre (dessert), el pueblo (town), la receta (recipe), el sabor (flavor), la sal (salt), la tradición.',
-            'Verbs: ayudar, celebrar / festejar, cocinar, compartir, conversar, disfrutar, ir de vacaciones, probar (o→ue), servir (e→i), visitar.',
-            'Adjectives: caliente (hot), dulce (sweet), orgulloso/a (proud), picante (spicy), rico/a (delicious).',
-            'Papálotl terms: el santuario / bosque, la ofrenda / altar, el oyamel (fir tree), la migración, Papálotl (Nahuatl for butterfly), las alas (wings).'
-          ]
+          simple: 'Learn these words in groups: things, actions, describing words and the butterfly words.',
+          html:
+            h3('Things') +
+            pills([
+              { w: 'la alimentación', m: 'food, diet' }, { w: 'el banquete', m: 'feast' }, { w: 'el barrio', m: 'neighborhood' }, { w: 'la calle', m: 'street' },
+              { w: 'la costumbre', m: 'custom' }, { w: 'el disfraz', m: 'costume' }, { w: 'el hogar', m: 'home' }, { w: 'el ingrediente', m: 'ingredient' },
+              { w: 'los invitados', m: 'guests' }, { w: 'los parientes', m: 'relatives' }, { w: 'la pimienta', m: 'pepper' }, { w: 'el platillo típico / auténtico', m: 'traditional dish' },
+              { w: 'el postre', m: 'dessert' }, { w: 'el pueblo', m: 'town' }, { w: 'la receta', m: 'recipe' }, { w: 'el sabor', m: 'flavor' }, { w: 'la sal', m: 'salt' }, { w: 'la tradición', m: 'tradition' }
+            ]) +
+            h3('Actions') +
+            pills([
+              { w: 'ayudar', m: 'help' }, { w: 'celebrar / festejar', m: 'celebrate' }, { w: 'cocinar', m: 'cook' }, { w: 'compartir', m: 'share' }, { w: 'conversar', m: 'chat' },
+              { w: 'disfrutar', m: 'enjoy' }, { w: 'ir de vacaciones', m: 'go on vacation' }, { w: 'probar (o→ue)', m: 'try, taste' }, { w: 'servir (e→i)', m: 'serve' }, { w: 'visitar', m: 'visit' }
+            ]) +
+            h3('Describing words') +
+            pills([{ w: 'caliente', m: 'hot' }, { w: 'dulce', m: 'sweet' }, { w: 'orgulloso/a', m: 'proud' }, { w: 'picante', m: 'spicy' }, { w: 'rico/a', m: 'delicious' }]) +
+            h3('Butterfly (Papálotl) words') +
+            pills([
+              { w: 'el santuario / el bosque', m: 'sanctuary / forest' }, { w: 'la ofrenda / el altar', m: 'offering / altar' }, { w: 'el oyamel', m: 'fir tree' },
+              { w: 'la migración', m: 'migration' }, { w: 'Papálotl', m: 'butterfly in Nahuatl' }, { w: 'las alas', m: 'wings' }
+            ])
         },
         {
           id: 'u1-compare', title: 'Comparing and connecting words',
-          list: [
-            'ambos / los dos (both), también (also), tampoco (neither / either, negative).',
-            'más … que (more … than), menos … que (less … than).',
-            'a diferencia de (unlike), comparado con (compared to), tener en común (to have in common).',
-            'por lo tanto / por eso (therefore), además (besides), mientras que (while, whereas), sin embargo (however).'
-          ]
+          simple: 'Use these small words to say things are alike, different, or that one thing causes another.',
+          html:
+            say('These words make your writing sound smooth. Sort them by the job they do.') +
+            cards([
+              { k: 'Same', h: 'ambos / los dos', t: 'both' },
+              { k: 'Same', h: 'también', t: 'also' },
+              { k: 'Same', h: 'tener en común', t: 'to have in common' },
+              { k: 'Different', h: 'a diferencia de', t: 'unlike' },
+              { k: 'Different', h: 'comparado con', t: 'compared to' },
+              { k: 'Different', h: 'más … que / menos … que', t: 'more … than / less … than' },
+              { k: 'Different', h: 'mientras que', t: 'while, whereas' },
+              { k: 'Different', h: 'sin embargo', t: 'however' },
+              { k: 'Negative', h: 'tampoco', t: 'neither, not either' },
+              { k: 'Because / so', h: 'por lo tanto / por eso', t: 'therefore, so' },
+              { k: 'Add on', h: 'además', t: 'besides, also' }
+            ], 190)
         },
         {
           id: 'u1-infinitive', title: 'Two verbs together',
-          body: ['When two verbs sit together, conjugate the first one and leave the second one as an infinitive.'],
-          list: [
-            'Key phrases that take an infinitive: gustar + inf., antes de, después de, tener que, ir a, tener ganas de, es importante, para, acabar de, hay que, deber, saber.',
-            'Examples: Me gusta bailar. Voy a comer. Tengo que estudiar. Acabo de llegar.'
-          ]
+          simple: 'When two verbs sit next to each other, change the first one and leave the second one as an infinitive.',
+          html:
+            say('If two verbs are side by side, <b>only the first one changes.</b> The second stays in its “to” form.') +
+            flow([{ t: 'Conjugated verb', s: 'changes to match the person' }, { t: '+', s: '' }, { t: 'Infinitive', s: 'stays the same (-ar, -er, -ir)' }]) +
+            cards([
+              { h: 'Me gusta bailar.', t: 'I like to dance.' },
+              { h: 'Voy a comer.', t: 'I am going to eat.' },
+              { h: 'Tengo que estudiar.', t: 'I have to study.' },
+              { h: 'Acabo de llegar.', t: 'I just arrived.' }
+            ], 210) +
+            h3('Phrases that are followed by an infinitive') +
+            pills(['gustar + inf.', 'antes de', 'después de', 'tener que', 'ir a', 'tener ganas de', 'es importante', 'para', 'acabar de', 'hay que', 'deber', 'saber'])
         },
         {
-          id: 'u1-progressive', title: 'Present progressive',
-          body: ['Use ESTAR (conjugated) + gerundio to say what is happening right now.'],
-          table: { head: ['Verb type', 'Gerundio ending', 'Example'], rows: [
-            ['-AR', '-ando', 'hablar → hablando'],
-            ['-ER / -IR', '-iendo', 'comer → comiendo, vivir → viviendo'],
-            ['Irregular (y)', '-yendo', 'leer → leyendo, traer → trayendo, ir → yendo'],
-            ['Stem-changing -IR', 'vowel change + -iendo', 'dormir → durmiendo, servir → sirviendo, pedir → pidiendo, competir → compitiendo, decir → diciendo, seguir → siguiendo']
-          ] }
+          id: 'u1-progressive', title: 'Present progressive: “is happening right now”',
+          simple: 'Use estar plus a word ending in -ando or -iendo to say what is happening right now.',
+          html:
+            flow([{ t: 'estar', s: 'change it: estoy, estás, está…' }, { t: '+', s: '' }, { t: 'gerundio', s: '-ar → -ando · -er / -ir → -iendo' }]) +
+            cards([
+              { h: 'Estoy hablando', t: 'hablar → hablando' },
+              { h: 'Ella está comiendo', t: 'comer → comiendo' },
+              { h: 'Estamos viviendo', t: 'vivir → viviendo' }
+            ], 200) +
+            h3('Watch out for these') +
+            tbl(['Type', 'Rule', 'Examples'], [
+              ['y verbs', 'Use -yendo', 'leer → leyendo, traer → trayendo, ir → yendo'],
+              ['Boot -IR verbs', 'The vowel changes too', 'dormir → durmiendo, servir → sirviendo, pedir → pidiendo, competir → compitiendo, decir → diciendo, seguir → siguiendo']
+            ])
         },
         {
           id: 'u1-food', title: 'Ocho platillos típicos',
-          table: { head: ['Platillo', 'What to know'], rows: [
-            ['Chiles en nogada', 'From Puebla. Green poblano chile, pork picadillo, walnut sauce and pomegranate seeds: the colors of the Mexican flag.'],
-            ['Pozole', 'Hominy and pork soup. White or green in Guerrero, red in Sinaloa and Jalisco. Topped with lettuce, radish, onion and oregano.'],
-            ['Tostadas', 'Prehispanic crispy corn tortillas with toppings.'],
-            ['Tamales', 'Corn dough (masa) filled, wrapped in corn husks or banana leaves, then steamed.'],
-            ['Enchiladas', 'Precolombian rolled tortillas covered in sauce or mole.'],
-            ['Tacos', 'Prehispanic. Corn or wheat tortillas with fillings.'],
-            ['Elotes y esquites', 'Corn with lime, mayonnaise, cheese, salt and chiles.'],
-            ['Mole poblano', 'Complex sauce of chiles, seeds, herbs, spices and chocolate, served over turkey or chicken.']
-          ] },
-          list: ['Guacamole is avocado, eaten with totopos (tortilla chips).']
+          simple: 'Know what each of the eight Mexican dishes is made of and where it comes from.',
+          html:
+            cards([
+              { i: '🌶️', h: 'Chiles en nogada', k: 'Puebla', t: 'Green poblano chile, pork picadillo, walnut sauce and pomegranate seeds. The colors match the Mexican flag: green, white, red.' },
+              { i: '🍲', h: 'Pozole', t: 'Soup with hominy and pork. White or green in Guerrero. Red in Sinaloa and Jalisco. Topped with lettuce, radish, onion and oregano.' },
+              { i: '🥙', h: 'Tostadas', t: 'Prehispanic crispy corn tortillas with toppings.' },
+              { i: '🌽', h: 'Tamales', t: 'Corn dough (masa) with a filling, wrapped in corn husks or banana leaves, then steamed.' },
+              { i: '🫔', h: 'Enchiladas', t: 'Precolombian rolled tortillas covered in sauce or mole.' },
+              { i: '🌮', h: 'Tacos', t: 'Prehispanic. Corn or wheat tortillas with fillings.' },
+              { i: '🌽', h: 'Elotes y esquites', t: 'Corn with lime, mayonnaise, cheese, salt and chiles.' },
+              { i: '🍫', h: 'Mole poblano', t: 'A rich sauce of chiles, seeds, herbs, spices and chocolate, served over turkey or chicken.' }
+            ], 250) +
+            tip('Bonus', '<b>Guacamole</b> is avocado, eaten with <b>totopos</b> (tortilla chips).')
         },
         {
           id: 'u1-family', title: 'La familia mexicana',
-          list: [
-            '98% of Mexicans say family is vital.',
-            'Top family values: communication (23%), union (22%), respect (21%).',
-            '70% of parents see their role as educating and guiding their children.'
-          ]
+          simple: 'Family is extremely important in Mexico. Know the three top values and the big numbers.',
+          html:
+            tiles([
+              { n: '98%', t: 'say family is vital' },
+              { n: '23%', t: 'top value: communication' },
+              { n: '22%', t: 'next: union' },
+              { n: '21%', t: 'next: respect' },
+              { n: '70%', t: 'of parents see their role as educating and guiding' }
+            ])
         },
         {
           id: 'u1-holidays', title: 'Fiestas y tradiciones',
-          table: { head: ['Holiday', 'What to know'], rows: [
-            ['Día de los Muertos (Nov 1–2)', 'Ofrendas / altares with marigolds, incense and food. Monarch butterflies arrive in Michoacán at this time; in Mazahua tradition they are the spirits of ancestors.'],
-            ['Rosca de Reyes (Jan 6)', 'Epiphany pastry with a baby doll hidden inside. Whoever finds it hosts the Candlemas party.'],
-            ['Nochevieja / Año Nuevo', 'Eat 12 grapes at midnight (12 wishes). Wear yellow underwear for money or red for love. Put a coin in your shoe, hold 12 coins, sweep bad energy out the door, light colored candles.']
-          ] }
+          simple: 'Three celebrations: Día de los Muertos, Rosca de Reyes and Año Nuevo.',
+          html:
+            svg(520, 140,
+              line(30, 70, 490, 70, false, 'var(--ink)') +
+              '<circle cx="90" cy="70" r="10" fill="var(--accent)"/>' + t(90, 40, 'Nov 1–2', 18, 700) + t(90, 105, 'Día de los Muertos', 14) +
+              '<circle cx="270" cy="70" r="10" fill="var(--accent)"/>' + t(270, 40, 'Dec 31', 18, 700) + t(270, 105, 'Nochevieja / Año Nuevo', 14) +
+              '<circle cx="450" cy="70" r="10" fill="var(--accent)"/>' + t(450, 40, 'Jan 6', 18, 700) + t(450, 105, 'Rosca de Reyes', 14),
+              'Timeline: Día de los Muertos on Nov 1 and 2, Año Nuevo on Dec 31, Rosca de Reyes on Jan 6.') +
+            cards([
+              { i: '🌼', h: 'Día de los Muertos', k: 'Nov 1–2', t: 'Families build ofrendas / altares with marigolds, incense and food. Monarch butterflies arrive in Michoacán. In Mazahua tradition they are the spirits of ancestors.' },
+              { i: '🍞', h: 'Rosca de Reyes', k: 'Jan 6', t: 'An Epiphany pastry with a baby doll hidden inside. Whoever finds the doll hosts the Candlemas party.' },
+              { i: '🎆', h: 'Nochevieja / Año Nuevo', k: 'Dec 31', t: 'Eat 12 grapes at midnight (12 wishes). Wear yellow underwear for money or red for love. Put a coin in your shoe, hold 12 coins, sweep bad energy out the door and light colored candles.' }
+            ], 250)
         }
       ]
     },
@@ -136,70 +309,155 @@
       sections: [
         {
           id: 'u2-vocab', title: 'Vocabulary',
-          list: [
-            'Nouns: el azúcar, el premio, el partido (game), la competencia, la salud, la grasa (fat), la comida saludable / chatarra / basura / variada / rápida, la merienda (snack), el médico, la vida sana, el consejo (advice), el cuerpo, el juego, el ganador, el perdedor, el trofeo, la medalla (oro / plata / bronce), los carbohidratos, las calorías, la actividad física / al aire libre, el estrés, la depresión, el hábito, una rutina sana, la proteína.',
-            'Actions: hacer ejercicio, mantenerse en forma, seguir (e→i) una dieta balanceada, competir (e→i), desayunar, almorzar (o→ue), cenar, subir / bajar de peso, entrenarse.',
-            'Daily routine: despertarse (e→ie), levantarse, acostarse (o→ue), dormirse (o→ue), lavarse, estirarse, enfermarse, relajarse, ducharse, bañarse, afeitarse, secarse, cepillarse los dientes, vestirse (e→i), ponerse la ropa, maquillarse, peinarse.',
-            'Adjectives: sano/a, saludable, balanceado/a, variado/a, activo/a, competitivo/a, optimista, pesimista.'
-          ]
+          simple: 'Words for health, sports and your daily routine.',
+          html:
+            h3('Health and sports') +
+            pills([
+              { w: 'el azúcar', m: 'sugar' }, { w: 'la grasa', m: 'fat' }, { w: 'los carbohidratos', m: 'carbs' }, { w: 'la proteína', m: 'protein' }, { w: 'las calorías', m: 'calories' },
+              { w: 'la comida saludable / chatarra / basura', m: 'healthy / junk food' }, { w: 'la comida variada / rápida', m: 'varied / fast food' }, { w: 'la merienda', m: 'snack' },
+              { w: 'la salud', m: 'health' }, { w: 'el médico', m: 'doctor' }, { w: 'la vida sana', m: 'healthy life' }, { w: 'el consejo', m: 'advice' }, { w: 'el hábito', m: 'habit' },
+              { w: 'una rutina sana', m: 'healthy routine' }, { w: 'el estrés', m: 'stress' }, { w: 'la depresión', m: 'depression' }, { w: 'la actividad física / al aire libre', m: 'physical / outdoor activity' },
+              { w: 'el partido', m: 'game' }, { w: 'el juego', m: 'game' }, { w: 'la competencia', m: 'competition' }, { w: 'el premio', m: 'prize' }, { w: 'el trofeo', m: 'trophy' },
+              { w: 'la medalla (oro / plata / bronce)', m: 'medal' }, { w: 'el ganador / el perdedor', m: 'winner / loser' }
+            ]) +
+            h3('Healthy actions') +
+            pills([
+              { w: 'hacer ejercicio', m: 'exercise' }, { w: 'mantenerse en forma', m: 'stay in shape' }, { w: 'seguir (e→i) una dieta balanceada', m: 'follow a balanced diet' },
+              { w: 'competir (e→i)', m: 'compete' }, { w: 'desayunar', m: 'eat breakfast' }, { w: 'almorzar (o→ue)', m: 'eat lunch' }, { w: 'cenar', m: 'eat dinner' },
+              { w: 'subir / bajar de peso', m: 'gain / lose weight' }, { w: 'entrenarse', m: 'train' }
+            ]) +
+            h3('Daily routine') +
+            pills([
+              { w: 'despertarse (e→ie)', m: 'wake up' }, { w: 'levantarse', m: 'get up' }, { w: 'acostarse (o→ue)', m: 'go to bed' }, { w: 'dormirse (o→ue)', m: 'fall asleep' },
+              { w: 'lavarse', m: 'wash up' }, { w: 'estirarse', m: 'stretch' }, { w: 'enfermarse', m: 'get sick' }, { w: 'relajarse', m: 'relax' }, { w: 'ducharse / bañarse', m: 'shower / bathe' },
+              { w: 'afeitarse', m: 'shave' }, { w: 'secarse', m: 'dry off' }, { w: 'cepillarse los dientes', m: 'brush teeth' }, { w: 'vestirse (e→i)', m: 'get dressed' },
+              { w: 'ponerse la ropa', m: 'put on clothes' }, { w: 'maquillarse', m: 'put on makeup' }, { w: 'peinarse', m: 'comb your hair' }
+            ]) +
+            h3('Describing words') +
+            pills(['sano/a', 'saludable', 'balanceado/a', 'variado/a', 'activo/a', 'competitivo/a', 'optimista', 'pesimista'])
         },
         {
           id: 'u2-body', title: 'Las partes del cuerpo',
-          list: [
-            'Head: la cabeza, la cara, los ojos, las orejas / los oídos (ears), la nariz, la boca, los dientes, la lengua.',
-            'Trunk: el cuello, los hombros, el pecho, la espalda, el estómago, las caderas, la cintura.',
-            'Arms: los brazos, el codo, la muñeca, las manos, los dedos.',
-            'Legs: las piernas, la rodilla, el tobillo, los pies, los dedos del pie.',
-            'Inside and outside: los músculos, los huesos, la piel, el corazón, los pulmones.'
-          ]
+          simple: 'Learn the body part names. The picture shows the big ones.',
+          html:
+            svg(600, 400,
+              '<circle cx="300" cy="62" r="32" fill="var(--fill)" stroke="var(--ink)" stroke-width="2"/>' +
+              rect(288, 92, 24, 12, 'var(--fill)') +
+              rect(262, 104, 76, 118, 'var(--fill)') +
+              rect(232, 106, 28, 108, 'var(--fill)') + rect(232, 216, 28, 24, 'var(--fill)') +
+              rect(340, 106, 28, 108, 'var(--fill)') + rect(340, 216, 28, 24, 'var(--fill)') +
+              rect(266, 226, 32, 128, 'var(--fill)') + rect(302, 226, 32, 128, 'var(--fill)') +
+              rect(256, 358, 42, 20, 'var(--fill)') + rect(302, 358, 42, 20, 'var(--fill)') +
+              line(100, 56, 268, 60, false, 'var(--mute)') + t(10, 61, 'la cabeza', 16, 700, 'start') + '<circle cx="268" cy="60" r="4" fill="var(--accent)"/>' +
+              line(100, 98, 292, 98, false, 'var(--mute)') + t(10, 103, 'el cuello', 16, 700, 'start') + '<circle cx="292" cy="98" r="4" fill="var(--accent)"/>' +
+              line(100, 150, 246, 150, false, 'var(--mute)') + t(10, 155, 'el brazo', 16, 700, 'start') + '<circle cx="246" cy="150" r="4" fill="var(--accent)"/>' +
+              line(100, 228, 246, 228, false, 'var(--mute)') + t(10, 233, 'la mano', 16, 700, 'start') + '<circle cx="246" cy="228" r="4" fill="var(--accent)"/>' +
+              line(100, 290, 284, 290, false, 'var(--mute)') + t(10, 295, 'la rodilla', 16, 700, 'start') + '<circle cx="284" cy="290" r="4" fill="var(--accent)"/>' +
+              line(100, 368, 270, 368, false, 'var(--mute)') + t(10, 373, 'el pie', 16, 700, 'start') + '<circle cx="270" cy="368" r="4" fill="var(--accent)"/>' +
+              line(480, 112, 338, 110, false, 'var(--mute)') + t(490, 117, 'el hombro', 16, 700, 'start') + '<circle cx="338" cy="110" r="4" fill="var(--accent)"/>' +
+              line(480, 152, 300, 152, false, 'var(--mute)') + t(490, 157, 'el pecho', 16, 700, 'start') + '<circle cx="300" cy="152" r="4" fill="var(--accent)"/>' +
+              line(480, 200, 300, 200, false, 'var(--mute)') + t(490, 205, 'el estómago', 16, 700, 'start') + '<circle cx="300" cy="200" r="4" fill="var(--accent)"/>' +
+              line(480, 290, 318, 290, false, 'var(--mute)') + t(490, 295, 'la pierna', 16, 700, 'start') + '<circle cx="318" cy="290" r="4" fill="var(--accent)"/>',
+              'A simple body with labels: head, neck, shoulder, chest, stomach, arm, hand, leg, knee and foot in Spanish.') +
+            cards([
+              { k: 'Head', h: 'La cabeza', t: 'la cara · los ojos · las orejas / los oídos · la nariz · la boca · los dientes · la lengua' },
+              { k: 'Middle', h: 'El tronco', t: 'el cuello · los hombros · el pecho · la espalda · el estómago · las caderas · la cintura' },
+              { k: 'Arms', h: 'Los brazos', t: 'el codo · la muñeca · las manos · los dedos' },
+              { k: 'Legs', h: 'Las piernas', t: 'la rodilla · el tobillo · los pies · los dedos del pie' },
+              { k: 'Inside / outside', h: 'El cuerpo', t: 'los músculos · los huesos · la piel · el corazón · los pulmones' }
+            ], 230)
         },
         {
-          id: 'u2-reflexive', title: 'Reflexive verbs',
-          body: ['In a reflexive verb the subject does the action AND receives it (me lavo = I wash myself). The pronouns are me, te, se, nos, os, se.'],
-          table: { head: ['Who', 'levantarse'], rows: [
-            ['yo', 'me levanto'], ['tú', 'te levantas'], ['él / ella / Ud.', 'se levanta'],
-            ['nosotros', 'nos levantamos'], ['vosotros', 'os levantáis'], ['ellos / ellas / Uds.', 'se levantan']
-          ] },
-          list: [
-            'The pronoun goes before the conjugated verb: Me levanto.',
-            'Or attach it to the infinitive: Voy a levantarme.',
-            'Or attach it to the gerundio, and add an accent: Estoy levantándome.'
-          ]
+          id: 'u2-reflexive', title: 'Reflexive verbs: you do it to yourself',
+          simple: 'A reflexive verb has a pronoun like me or te because the person does the action to themselves.',
+          html:
+            say('In a reflexive verb the action <b>goes back to the person doing it.</b> That is why there is an extra little word: <b>me, te, se, nos, os, se.</b>') +
+            svg(420, 120,
+              rect(30, 35, 120, 50, 'var(--surface)') + t(90, 66, 'Yo', 22, 700) +
+              rect(270, 35, 120, 50, 'var(--surface)') + t(330, 66, 'me lavo', 20, 700) +
+              line(150, 60, 268, 60, true) +
+              '<path d="M90 35 C90 5 330 5 330 33" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="6 5" marker-end="url(#ah)"/>' +
+              t(210, 105, 'I wash myself', 15, 600, 'middle', 'var(--mute)'),
+              'Diagram: Yo me lavo. The action goes from the person back to themselves.') +
+            tbl(['Who', 'levantarse'], [
+              ['yo', '<b>me</b> levanto'], ['tú', '<b>te</b> levantas'], ['él / ella / Ud.', '<b>se</b> levanta'],
+              ['nosotros', '<b>nos</b> levantamos'], ['vosotros', '<b>os</b> levantáis'], ['ellos / ellas / Uds.', '<b>se</b> levantan']
+            ]) +
+            h3('Where does the pronoun go?') +
+            cards([
+              { k: 'Option 1', h: 'Before the verb', t: 'Me levanto.' },
+              { k: 'Option 2', h: 'Stuck on the infinitive', t: 'Voy a levantarme.' },
+              { k: 'Option 3', h: 'Stuck on the gerundio', t: 'Estoy levantándome. (Add an accent!)' }
+            ], 200)
         },
         {
-          id: 'u2-doler', title: 'Doler (to hurt)',
-          body: ['Doler works like gustar: duele (one thing hurts) and duelen (more than one thing hurts). It is also a boot verb (o→ue). Use the definite article (el, la, los, las) with body parts, not “my”.'],
-          list: ['Me duele la cabeza. Me duelen los pies.']
+          id: 'u2-doler', title: 'Doler: “it hurts”',
+          simple: 'Doler works like gustar. Use duele for one thing and duelen for more than one. Use “el / la / los / las,” not “my.”',
+          html:
+            flow([{ t: 'Me', s: 'who it hurts' }, { t: 'duele / duelen', s: 'matches the body part' }, { t: 'la cabeza', s: 'use el, la, los, las' }]) +
+            cards([
+              { h: 'Me duele la cabeza.', t: 'My head hurts. (one thing → duele)' },
+              { h: 'Me duelen los pies.', t: 'My feet hurt. (more than one → duelen)' }
+            ], 240) +
+            tip('Test trap', 'Do <b>not</b> say “mi cabeza.” With body parts Spanish uses <b>el, la, los, las</b> because “me” already shows whose body part it is.', true)
         },
         {
-          id: 'u2-tu-affirm', title: 'Tú commands: affirmative',
-          list: [
-            'Use the él / ella (3rd person singular) present form: ¡Habla! ¡Escucha! ¡Escribe!',
-            'Eight irregulars: venir → ven, decir → di, salir → sal, hacer → haz, tener → ten, ir → ve, poner → pon, ser → sé. (Ven Di Sal Haz Ten Ve Pon Sé)',
-            'AAA rule (Affirmative Always Attach): attach the pronouns to the end and add an accent mark if needed: ¡Despiértate! ¡Vístete! ¡Póntelos!'
-          ]
+          id: 'u2-tu-affirm', title: 'Tú commands: telling someone to do it',
+          simple: 'To tell a friend to do something, use the él / ella form. Eight verbs are irregular. Attach pronouns to the end.',
+          html:
+            say('A <b>tú command</b> is how you give an order to a friend. For regular verbs, just use the <b>él / ella</b> form.') +
+            cards([
+              { h: '¡Habla!', t: 'Speak!' }, { h: '¡Escucha!', t: 'Listen!' }, { h: '¡Escribe!', t: 'Write!' }
+            ], 150) +
+            h3('Eight irregular commands: Ven Di Sal Haz Ten Ve Pon Sé') +
+            cards([
+              { h: 'ven', t: 'venir' }, { h: 'di', t: 'decir' }, { h: 'sal', t: 'salir' }, { h: 'haz', t: 'hacer' },
+              { h: 'ten', t: 'tener' }, { h: 've', t: 'ir' }, { h: 'pon', t: 'poner' }, { h: 'sé', t: 'ser' }
+            ], 100) +
+            tip('AAA rule: Affirmative Always Attach', 'In a “do it!” command, stick the pronoun on the end and add an accent if needed.<br><b>¡Despiértate!</b> · <b>¡Vístete!</b> · <b>¡Póntelos!</b>')
         },
         {
-          id: 'u2-tu-neg', title: 'Tú commands: negative',
-          list: [
-            'Start with the yo form, drop the -o, then add the opposite vowel: -ar verbs get -es, -er / -ir verbs get -as. ¡No hables! ¡No comas! ¡No escribas!',
-            'Spelling changes carry over: -car → -ques, -gar → -gues, -zar → -ces. Stem changes carry over too: No pongas, No enciendas, No duermas.',
-            'Irregular negatives (SIDES): ir → no vayas, ser → no seas, estar → no estés, dar → no des, saber → no sepas.',
-            'NNA rule (Negatives Never Attach): the pronoun goes BEFORE the command. ¡No te duermas! ¡No lo hagas!'
-          ]
+          id: 'u2-tu-neg', title: 'Tú commands: telling someone NOT to do it',
+          simple: 'For no-commands, start with yo, drop the -o, and add the opposite ending. Pronouns go before the verb.',
+          html:
+            say('Negative commands use a <b>different recipe</b>.') +
+            flow([{ t: 'Start with yo', s: 'hablo' }, { t: 'Drop the -o', s: 'habl-' }, { t: 'Add the opposite vowel', s: '-ar → -es · -er / -ir → -as' }, { t: '¡No hables!', s: '' }]) +
+            cards([
+              { h: '¡No hables!', t: 'hablar (-ar → -es)' }, { h: '¡No comas!', t: 'comer (-er → -as)' }, { h: '¡No escribas!', t: 'escribir (-ir → -as)' }
+            ], 170) +
+            h3('Spelling changes carry over') +
+            tbl(['Ending', 'Becomes', 'Example'], [
+              ['-car', '-ques', 'tocar → ¡No toques!'], ['-gar', '-gues', 'jugar → ¡No juegues!'], ['-zar', '-ces', 'empezar → ¡No empieces!'],
+              ['Boot verbs', 'Keep the boot', 'No pongas, No enciendas, No duermas']
+            ]) +
+            h3('SIDES: five irregular no-commands') +
+            cards([
+              { k: 'S', h: 'ser', t: '¡No seas!' }, { k: 'I', h: 'ir', t: '¡No vayas!' }, { k: 'D', h: 'dar', t: '¡No des!' },
+              { k: 'E', h: 'estar', t: '¡No estés!' }, { k: 'S', h: 'saber', t: '¡No sepas!' }
+            ], 120) +
+            h3('Yes-command vs. no-command: where does the pronoun go?') +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:10px 0 16px">' +
+              '<div style="border:2px solid var(--ink);background:var(--surface);padding:12px"><b style="font:700 22px/1 var(--head);color:var(--accent)">YES: attach (AAA)</b><div style="font-size:20px;margin-top:6px"><b>¡Duérmete!</b></div></div>' +
+              '<div style="border:2px solid var(--ink);background:var(--surface);padding:12px"><b style="font:700 22px/1 var(--head);color:var(--accent)">NO: before (NNA)</b><div style="font-size:20px;margin-top:6px"><b>¡No te duermas!</b></div></div>' +
+            '</div>' +
+            tip('NNA rule', 'Negatives Never Attach. The pronoun goes <b>before</b> the verb: ¡No te duermas! ¡No lo hagas!')
         },
         {
           id: 'u2-habits', title: 'Hábitos saludables',
-          list: [
-            '30 minutes of physical activity every day.',
-            '2 liters of water a day.',
-            '5 servings of fruits and vegetables a day.',
-            'Avoid saturated fats (grasas saturadas).',
-            '5 small meals a day, and never skip breakfast.',
-            'Sleep 7–8 hours.',
-            'No tobacco or alcohol.',
-            'A sedentary lifestyle raises the risk of obesity, diabetes and heart disease.'
-          ]
+          simple: 'Know the daily numbers for a healthy life.',
+          html:
+            tiles([
+              { n: '30', t: 'minutes of physical activity every day' },
+              { n: '2 L', t: 'of water every day' },
+              { n: '5', t: 'servings of fruits and vegetables every day' },
+              { n: '5', t: 'small meals a day. Never skip breakfast.' },
+              { n: '7–8', t: 'hours of sleep' },
+              { n: '0', t: 'tobacco or alcohol' }
+            ]) +
+            cards([
+              { i: '🚫', h: 'Avoid', t: 'Saturated fats (grasas saturadas).' },
+              { i: '⚠️', h: 'Risk', t: 'A sedentary lifestyle raises the risk of obesity, diabetes and heart disease.' }
+            ], 240)
         }
       ]
     }
