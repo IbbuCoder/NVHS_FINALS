@@ -85,9 +85,7 @@
         {
           id: 'u2-shrimp', title: 'Ghost shrimp caffeine experiment',
           body: ['Independent variable: mg/mL of caffeine. Dependent variable: heart rate in beats per minute (bpm).'],
-          table: { head: ['Result', 'Trend'], rows: [
-            ['Heart rates: 292, 291, 290, 272, 242 bpm', 'As caffeine goes up, heart rate goes down']
-          ] }
+          list: ['Heart rates recorded: 292, 291, 290, 272 and 242 bpm. Use your class table to match each rate to its caffeine dose.']
         }
       ]
     },
@@ -319,10 +317,9 @@
     { u: 2, t: 'mc', q: 'What unit is TDS measured in?', c: ['ppm', 'mL', 'bpm', 'kJ'], a: 0, why: 'Total dissolved solids are measured in parts per million (ppm).' },
     { u: 2, t: 'mc', q: 'Which formula gives percent recovered?', c: ['(final ÷ start) × 100', '(start ÷ final) × 100', 'final − start', 'start × final'], a: 0, why: 'Percent recovered = (final ÷ start) × 100.' },
     { u: 2, t: 'mc', q: 'In the ghost shrimp experiment, what is the dependent variable?', c: ['Heart rate (bpm)', 'Caffeine (mg/mL)', 'The type of shrimp', 'The water temperature'], a: 0, why: 'The DV is what you measure: heart rate in bpm.' },
-    { u: 2, t: 'mc', q: 'What happened to ghost shrimp heart rate (292 → 242 bpm) as caffeine increased?', c: ['It went down', 'It went up', 'It stayed the same', 'It stopped'], a: 0, why: 'The heart rates dropped: 292, 291, 290, 272, 242.' },
     { u: 2, t: 'mc', q: 'What was the budget in the filter challenge?', c: ['$2.00', '$5.00', '$10.00', '$20.00'], a: 0, why: 'The filter challenge was $2.00, 500 mL and 40 minutes.' },
     // Unit 3
-    { u: 3, t: 'mc', q: 'Which is a correctly formatted hypothesis?', c: ['If caffeine increases, then heart rate decreases, because caffeine affects the heart', 'Caffeine makes hearts go faster', 'I think caffeine is bad', 'What does caffeine do?'], a: 0, why: 'Use “If [IV], then [DV], because [reasoning].”' },
+    { u: 3, t: 'mc', q: 'Which is a correctly formatted hypothesis?', c: ['If the caffeine dose increases, then the shrimp’s heart rate will change, because caffeine affects the body', 'Caffeine makes hearts go faster', 'I think caffeine is bad', 'What does caffeine do?'], a: 0, why: 'Use “If [IV], then [DV], because [reasoning].”' },
     { u: 3, t: 'mc', q: 'What is the independent variable?', c: ['The variable you change on purpose', 'The variable you measure', 'The group with no treatment', 'The variable you keep the same'], a: 0, why: 'The IV is what you change. The DV is what you measure.' },
     { u: 3, t: 'mc', q: 'What are constants?', c: ['Variables kept the same in every group', 'The results', 'The variable you change', 'The hypothesis'], a: 0, why: 'Constants stay the same so the test is fair.' },
     { u: 3, t: 'mc', q: 'Which is an inference?', c: ['The shrimp are probably stressed', 'The shrimp moved 3 times', 'The water is 20°C', 'There are 5 shrimp'], a: 0, why: 'An inference is a conclusion drawn from observations.' },
