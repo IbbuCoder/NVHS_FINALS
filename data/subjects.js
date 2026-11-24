@@ -35,7 +35,7 @@ FINALS.setCatalog([
   ] },
   { category: "core", subject: "Science", classes: [
     { name: "Biology" },
-    { name: "Honors Biology" },
+    { name: "Honors Biology", file: true, filled: true, exam: "2026-12-17" },
     { name: "Chem/Phys" },
     { name: "Environmental Science" },
     { name: "Earth Science" }
