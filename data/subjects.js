@@ -67,7 +67,7 @@ FINALS.setCatalog([
     { name: "Web Design" },
     { name: "Advertising" },
     { name: "Cybersecurity" },
-    { name: "Coding" },
+    { name: "Coding", file: true, filled: true, exam: "2026-12-18" },
     { name: "Visual Media" },
     { name: "Emerging Technology" },
     { name: "Business Orientation" },
