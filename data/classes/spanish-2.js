@@ -47,7 +47,7 @@
     var out = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:12px 0 16px">';
     items.forEach(function (c) {
       out += '<div style="border:2px solid var(--ink);background:var(--surface);padding:10px 12px;text-align:left">' +
-        '<div style="font:700 44px/1 var(--head);color:var(--accent)">' + c.n + '</div>' +
+        '<div style="font:700 ' + (String(c.n).length > 10 ? 24 : String(c.n).length > 5 ? 32 : 44) + 'px/1.05 var(--head);color:var(--accent)">' + c.n + '</div>' +
         '<div style="font-size:16px;line-height:1.3;margin-top:4px">' + c.t + '</div></div>';
     });
     return out + '</div>';
@@ -73,7 +73,7 @@
   }
   // svg text and shapes: t(x, y, text, size, weight, anchor, color)
   function t(x, y, s, size, wt, anchor, color) {
-    return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" style="font:' + (wt || 600) + ' ' + (size || 16) + 'px var(--body)" fill="' + (color || 'var(--ink)') + '">' + s + '</text>';
+    return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" style="font:' + (wt || 600) + ' ' + Math.max(size || 16, 15) + 'px var(--body)" fill="' + (color || 'var(--ink)') + '">' + s + '</text>';
   }
   function rect(x, y, w, h, fill, stroke, extra) {
     return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + (fill || 'var(--surface)') + '" stroke="' + (stroke || 'var(--ink)') + '" stroke-width="2" ' + (extra || '') + '/>';
