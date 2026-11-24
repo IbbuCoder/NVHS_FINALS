@@ -20,7 +20,7 @@
 // To mark a class done: add its data file, then set file: true and filled: true.
 FINALS.setCatalog([
   { category: "core", subject: "English", classes: [
-    { name: "English 1" },
+    { name: "English 1", file: true, filled: true, exam: "2026-12-18" },
     { name: "English 1 Honors" },
     { name: "English 2 American Society" }
   ] },
