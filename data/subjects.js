@@ -132,6 +132,6 @@ FINALS.setCatalog([
   ] },
   // The finished example. Its id and files stay exactly as they were.
   { category: "encore", subject: "PE / Health", classes: [
-    { id: "pe-health", name: "PE / Health", file: true, tools: true, filled: true, exam: "" }
+    { id: "pe-health", name: "PE / Health", file: true, tools: true, filled: true, exam: "2026-12-17" }
   ] }
 ]);
