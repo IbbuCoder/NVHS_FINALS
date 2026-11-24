@@ -1,8 +1,87 @@
+// Lessons are written as HTML with diagrams and cards, in plain 9th-grade language.
 // English I CP: Semester 1 final (Fri Dec 18, period 4). Ms. Reppy.
 // Same format as human-geography.js: units with sections, flashcards, questions and examFacts.
 // Built from the class notebook: course policies, writing skills, literary terms, The Marrow
 // Thieves, Fahrenheit 451, the short stories and the vocab lists.
 (function () {
+  // ---------- Visual helpers ----------
+  // Lessons below are written as HTML. Every color is one of the site's own CSS variables,
+  // so these pictures follow light, dark and accent themes.
+  var HEAD = 'font-family:var(--head);';
+  function say(h) { return '<p style="font-size:18px;line-height:1.5;margin:0 0 14px">' + h + '</p>'; }
+  function tip(label, h, trap) {
+    var c = trap ? 'var(--ink)' : 'var(--accent)';
+    return '<div style="margin:14px 0;padding:10px 14px;background:var(--fill);border-left:6px solid ' + c + '">' +
+      '<b style="' + HEAD + 'font-size:20px;letter-spacing:.05em;text-transform:uppercase;color:' + c + '">' + label + '</b>' +
+      '<div style="font-size:17px;line-height:1.45;margin-top:2px">' + h + '</div></div>';
+  }
+  function flow(steps) {
+    var out = '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:12px 0 16px">';
+    steps.forEach(function (s, i) {
+      if (i) out += '<div aria-hidden="true" style="align-self:center;font:700 28px/1 var(--head);color:var(--accent)">→</div>';
+      out += '<div style="flex:1 1 130px;border:2px solid var(--ink);background:var(--surface);padding:10px 12px"><b style="font:700 21px/1.1 var(--head);display:block">' + s.t + '</b>' +
+        (s.s ? '<span style="font-size:15px;color:var(--mute);line-height:1.3;display:block;margin-top:3px">' + s.s + '</span>' : '') + '</div>';
+    });
+    return out + '</div>';
+  }
+  function stack(layers) {
+    var out = '<div style="margin:12px 0 16px;border:2px solid var(--ink)">';
+    layers.forEach(function (l, i) {
+      out += '<div style="display:grid;grid-template-columns:48px 1fr;align-items:center;background:' + (i % 2 ? 'var(--fill)' : 'var(--surface)') + ';' + (i ? 'border-top:1px solid var(--ink);' : '') + '">' +
+        '<div style="background:var(--accent);color:var(--on-accent);text-align:center;font:700 26px/1 var(--head);align-self:stretch;display:flex;align-items:center;justify-content:center">' + (l.n || (i + 1)) + '</div>' +
+        '<div style="padding:9px 12px"><b style="font:700 21px/1.1 var(--head)">' + l.t + '</b>' + (l.s ? '<div style="font-size:16px;line-height:1.35;color:var(--mute);margin-top:2px">' + l.s + '</div>' : '') + '</div></div>';
+    });
+    return out + '</div>';
+  }
+  function cards(items, min) {
+    var out = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(' + (min || 200) + 'px,1fr));gap:10px;margin:12px 0 16px">';
+    items.forEach(function (c) {
+      out += '<div style="border:2px solid var(--ink);background:var(--surface);padding:10px 12px">' +
+        (c.k ? '<div style="font:600 14px/1 var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px">' + c.k + '</div>' : '') +
+        '<b style="font:700 22px/1.1 var(--head);display:block">' + (c.i ? '<span aria-hidden="true">' + c.i + '</span> ' : '') + c.h + '</b>' +
+        (c.t ? '<div style="font-size:16px;line-height:1.4;margin-top:4px">' + c.t + '</div>' : '') + '</div>';
+    });
+    return out + '</div>';
+  }
+  function tiles(items) {
+    var out = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:12px 0 16px">';
+    items.forEach(function (c) {
+      out += '<div style="border:2px solid var(--ink);background:var(--surface);padding:10px 12px;text-align:left">' +
+        '<div style="font:700 ' + (String(c.n).length > 10 ? 24 : String(c.n).length > 5 ? 32 : 44) + 'px/1.05 var(--head);color:var(--accent)">' + c.n + '</div>' +
+        '<div style="font-size:16px;line-height:1.3;margin-top:4px">' + c.t + '</div></div>';
+    });
+    return out + '</div>';
+  }
+  function pills(items) {
+    var out = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px">';
+    items.forEach(function (c) {
+      var w = typeof c === 'string' ? { w: c } : c;
+      out += '<span style="border:2px solid var(--ink);background:var(--surface);padding:3px 9px;font-size:16px;line-height:1.3"><b>' + w.w + '</b>' + (w.m ? ' <span style="color:var(--mute)">· ' + w.m + '</span>' : '') + '</span>';
+    });
+    return out + '</div>';
+  }
+  function h3(t) { return '<h3 style="font:700 24px/1.1 var(--head);margin:18px 0 6px">' + t + '</h3>'; }
+  function tbl(head, rows) {
+    return '<table class="tbl stack"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr><th scope="row">' + r[0] + '</th>' + r.slice(1).map(function (c, i) { return '<td data-label="' + (head[i + 1] || '') + '">' + c + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody></table>';
+  }
+  function svg(w, h, inner, alt) {
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="display:block;width:100%;max-width:' + w + 'px;height:auto;margin:12px 0 16px;background:var(--surface);border:2px solid var(--ink)">' +
+      '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>' + inner + '</svg>';
+  }
+  // svg text and shapes: t(x, y, text, size, weight, anchor, color)
+  function t(x, y, s, size, wt, anchor, color) {
+    return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" style="font:' + (wt || 600) + ' ' + Math.max(size || 16, 15) + 'px var(--body)" fill="' + (color || 'var(--ink)') + '">' + s + '</text>';
+  }
+  function rect(x, y, w, h, fill, stroke, extra) {
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + (fill || 'var(--surface)') + '" stroke="' + (stroke || 'var(--ink)') + '" stroke-width="2" ' + (extra || '') + '/>';
+  }
+  function line(x1, y1, x2, y2, arrow, color) {
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + (color || 'var(--accent)') + '" stroke-width="3"' + (arrow ? ' marker-end="url(#ah)"' : '') + '/>';
+  }
+
   var units = [
     /* ---------- 01 ---------- */
     {
@@ -10,49 +89,70 @@
       sections: [
         {
           id: 'u1-pov', title: 'Point of view',
-          table: { head: ['Person', 'Pronouns', 'Used for'], rows: [
-            ['1st person', 'I, me, my, mine, we, our, us', 'Journals, reflections, memoirs'],
-            ['2nd person', 'you, your, yours', 'How-to guides, advice'],
-            ['3rd person', 'he, she, it, they, them', 'Academic writing (required)']
-          ] },
-          simple: 'In a formal essay, do not use “I” or “you.”'
+          simple: 'In school essays, write in 3rd person: he, she, it, they. Do not use “I” or “you.”',
+          html:
+            cards([
+              { k: '1st person', h: 'I, me, my, mine, we, our, us', t: 'Use for journals, reflections and memoirs.' },
+              { k: '2nd person', h: 'you, your, yours', t: 'Use for how-to guides and advice.' },
+              { k: '3rd person ✅', h: 'he, she, it, they, them', t: 'Required for academic writing.' }
+            ], 220) +
+            tip('Test trap', 'In a formal essay, never write “I think” or “you can see.” Say “The author shows…” instead.', true)
         },
         {
           id: 'u1-mla', title: 'MLA formatting',
-          list: [
-            '1-inch margins, 12 pt font, double-spaced.',
-            'In-text citation: (Author Page#), like (Bradbury 14). The period goes OUTSIDE the closing parenthesis.',
-            'Italicize titles of novels and plays.',
-            'Use “quotation marks” for titles of short stories, poems and articles.'
-          ]
+          simple: 'Cite like (Author 14) with the period after the parenthesis. Italics for novels. Quotation marks for short stories.',
+          html:
+            tiles([{ n: '1 in', t: 'margins on every side' }, { n: '12 pt', t: 'font size' }, { n: '2×', t: 'double-spaced' }]) +
+            h3('In-text citation: (Author Page#)') +
+            flow([{ t: '(', s: 'open' }, { t: 'Author', s: 'last name' }, { t: 'Page#', s: 'no comma, no “p.”' }, { t: ')', s: 'close' }, { t: '.', s: 'period goes AFTER' }]) +
+            say('Example: The street feels empty <b>(Bradbury 14)</b><b style="color:var(--accent)">.</b>') +
+            h3('Titles') +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:10px 0 16px">' +
+              '<div style="border:2px solid var(--ink);background:var(--surface);padding:12px"><b style="font:700 22px/1 var(--head);color:var(--accent)">ITALICS</b><div style="font-size:18px;margin-top:6px"><i>Fahrenheit 451</i><br><i>The Marrow Thieves</i><br><span style="color:var(--mute)">novels and plays</span></div></div>' +
+              '<div style="border:2px solid var(--ink);background:var(--surface);padding:12px"><b style="font:700 22px/1 var(--head);color:var(--accent)">“QUOTATION MARKS”</b><div style="font-size:18px;margin-top:6px">“The Pedestrian”<br>“Harrison Bergeron”<br><span style="color:var(--mute)">short stories, poems, articles</span></div></div>' +
+            '</div>'
         },
         {
           id: 'u1-intro', title: 'Introduction paragraph (3 parts)',
-          list: [
-            'Hook / attention getter: a universal statement, scenario, quote or fact. NO rhetorical questions.',
-            'Bridge / summary: connects the hook to the text, names the author and title, and gives a 1–2 sentence summary.',
-            'Thesis statement: the last sentence. It must include the author, the title, a thematic claim, and the reasoning or prongs.'
-          ]
+          simple: 'An intro has a hook, a bridge and a thesis. No question hooks.',
+          html:
+            stack([
+              { n: '1', t: 'Hook', s: 'A universal statement, scenario, quote or fact. It grabs the reader.' },
+              { n: '2', t: 'Bridge', s: 'Connects the hook to the text. Names the author and title. 1–2 sentence summary.' },
+              { n: '3', t: 'Thesis', s: 'The LAST sentence. It makes your argument.' }
+            ]) +
+            tip('Test trap', 'A hook can <b>never</b> be a rhetorical question.', true) +
+            h3('A thesis has 3 parts') +
+            flow([{ t: 'Author + title', s: 'who wrote what' }, { t: 'Thematic claim', s: 'the big idea about life' }, { t: 'Prongs / reasoning', s: 'how you will prove it' }])
         },
         {
           id: 'u1-body', title: 'Body paragraph (5 parts)',
-          list: [
-            'Topic sentence: a mini-thesis that previews the evidence.',
-            'Context: 1–2 sentences of background before the quote.',
-            'Integrated direct quote: the author’s exact words with an MLA citation.',
-            'Analysis: 2–3 sentences explaining how and why the quote proves the claim.',
-            'Concluding sentence: closes the paragraph and restates the argument.'
-          ]
+          simple: 'Topic sentence, context, quote, analysis, concluding sentence.',
+          html:
+            stack([
+              { t: 'Topic sentence', s: 'A mini-thesis that previews your evidence.' },
+              { t: 'Context', s: '1–2 sentences of background before the quote.' },
+              { t: 'Integrated quote', s: 'The author’s exact words with an MLA citation.' },
+              { t: 'Analysis', s: '2–3 sentences: how and why the quote proves your claim.' },
+              { t: 'Concluding sentence', s: 'Closes the paragraph and repeats your argument.' }
+            ]) +
+            tip('Remember', 'Think of it like a sandwich. The <b>quote</b> is the filling, but the <b>analysis</b> is what makes it a meal.')
         },
         {
-          id: 'u1-quotes', title: 'Four ways to integrate a quote',
-          table: { head: ['Method', 'How it works'], rows: [
-            ['Colon', 'Independent clause : “quote”'],
-            ['Introductory phrase', 'Explanatory phrase, “quote”'],
-            ['Flow quote', 'Woven into your sentence with no separating punctuation. Use brackets [ ] to change a word.'],
-            ['Bits and pieces', 'Short snippets built into your own sentence']
-          ] },
-          list: ['Use ellipses (...) to shorten a long quote. Never drop in a standalone quote.']
+          id: 'u1-quotes', title: 'Four ways to use a quote',
+          simple: 'Colon, introductory phrase, flow quote, or bits and pieces. Never drop a quote in alone.',
+          html:
+            cards([
+              { k: 'Method 1', h: 'Colon', t: 'A full sentence <b>:</b> “quote”' },
+              { k: 'Method 2', h: 'Introductory phrase', t: 'The author explains, “quote”' },
+              { k: 'Method 3', h: 'Flow quote', t: 'Woven right into your sentence with no punctuation before it. Use brackets [ ] to change a word.' },
+              { k: 'Method 4', h: 'Bits and pieces', t: 'Short snippets of the quote built into your own sentence.' }
+            ], 230) +
+            cards([
+              { h: 'Ellipses ( ... )', t: 'Use to cut words out of a long quote.' },
+              { h: 'Brackets [ ]', t: 'Use to change a word so the quote fits your sentence.' }
+            ], 240) +
+            tip('Test trap', 'Never drop in a <b>standalone quote</b>. Always introduce it.', true)
         }
       ]
     },
@@ -62,35 +162,49 @@
       sections: [
         {
           id: 'u2-terms', title: 'Literary devices and concepts',
-          table: { head: ['Term', 'Meaning'], rows: [
-            ['Plot', 'The sequence of events'],
-            ['Subject / concept', 'A 1–2 word topic (isolation, power, family, sacrifice)'],
-            ['Theme / thematic claim', 'A universal, arguable statement about a subject. 3rd person, complete sentence, no plot details.'],
-            ['Message', 'A specific, concrete example of the theme in action'],
-            ['Archetype', 'A universal character model (mother, loner, hero)'],
-            ['Tone', 'The storyteller’s attitude toward the subject'],
-            ['Symbol', 'A physical object with deeper meaning'],
-            ['Imagery', 'Language that appeals to the five senses'],
-            ['Motif', 'A recurring element that forms a pattern'],
-            ['Peritext', 'Text around the main body of a book (cover, foreword, afterword, author bio)'],
-            ['Social criticism', 'Literature that analyzes issues in society'],
-            ['Dystopia', 'An imagined future society with an oppressive government, lost freedoms, environmental destruction or technology domination']
-          ] },
-          body: ['To write a thematic claim: start with “The author believes that [subject]...” then remove “The author believes that.”']
+          simple: 'Know what each term means. A theme is a full sentence about life.',
+          html:
+            h3('From story to theme') +
+            flow([{ t: 'Plot', s: 'what happens' }, { t: 'Subject', s: 'a 1–2 word topic, like “power”' }, { t: 'Theme', s: 'a full sentence about life' }, { t: 'Message', s: 'a concrete example of the theme' }]) +
+            tip('Theme formula', 'Write “The author believes that [subject]…” then <b>delete</b> “The author believes that.” Use 3rd person, a complete sentence, and no plot details.') +
+            cards([
+              { i: '👑', h: 'Archetype', t: 'A universal character model: the mother, the loner, the hero.' },
+              { i: '🎭', h: 'Tone', t: 'The storyteller’s attitude toward the subject.' },
+              { i: '🔑', h: 'Symbol', t: 'A physical object with a deeper meaning.' },
+              { i: '👃', h: 'Imagery', t: 'Language that appeals to the five senses.' },
+              { i: '🔁', h: 'Motif', t: 'A recurring element that forms a pattern.' },
+              { i: '📖', h: 'Peritext', t: 'Text around the book: cover, foreword, afterword, author bio.' },
+              { i: '📣', h: 'Social criticism', t: 'Literature that analyzes problems in society.' },
+              { i: '🏚️', h: 'Dystopia', t: 'An imagined future society with an oppressive government, lost freedoms, environmental destruction or technology taking over.' }
+            ], 230)
         },
         {
           id: 'u2-policy', title: 'Course policies',
-          list: [
-            'Taught by Ms. Sydney Reppy at Neuqua Valley High School.',
-            'Grades: 100–90 A, 89–80 B, 79–70 C, 69–60 D, 59 and below F. No rounding.',
-            'Categories: Assessment, Speaking & Listening, Participation, Writing, Final Exam.',
-            'Gradebook codes: Z = missing (zero until made up); M = missing (no grade impact); 0 = zero (cannot be made up); X = excused.',
-            'Generative AI is not acceptable unless the teacher directs it. Plagiarism is 9+ consecutive words without a citation. Google Doc history must show natural drafting.',
-            'AI/plagiarism 1st offense: 0% and parent, counselor and dean notified. 2nd offense: 0%, semester failure, course withdrawal.',
-            'Cell phones silenced and stored. 1st offense: warning. Repeated: Dean referral.',
-            'Extra credit: Abe Lincoln Book Award Program (0.5% per book, max 2 books = 1% a year).',
-            'S.T.E.A.L. = Speech, Thoughts, Effect on others, Actions, Looks.'
-          ]
+          simple: 'Know the grading scale, the gradebook codes and the AI and plagiarism rules.',
+          html:
+            say('English I CP, <b>Ms. Sydney Reppy</b>, Neuqua Valley High School.') +
+            svg(520, 130,
+              [['A', '100–90'], ['B', '89–80'], ['C', '79–70'], ['D', '69–60'], ['F', '≤ 59']].map(function (g, i) {
+                var x = 20 + i * 98;
+                return rect(x, 20, 90, 64, i < 3 ? 'var(--tint)' : 'var(--surface)', i < 3 ? 'var(--accent)' : 'var(--ink)') + t(x + 45, 52, g[0], 28, 700) + t(x + 45, 76, g[1], 15, 600, 'middle', 'var(--mute)');
+              }).join('') + t(260, 112, 'No rounding.', 15, 700),
+              'Grading scale: A is 100 to 90, B is 89 to 80, C is 79 to 70, D is 69 to 60, F is 59 and below. No rounding.') +
+            cards([{ k: 'Assessment' }, { k: 'Speaking & Listening' }, { k: 'Participation' }, { k: 'Writing' }, { k: 'Final Exam' }].map(function (c) { return { h: c.k }; }), 150) +
+            h3('Gradebook codes') +
+            tiles([{ n: 'Z', t: 'Missing. A zero until you make it up.' }, { n: 'M', t: 'Missing. No grade impact.' }, { n: '0', t: 'Zero. Cannot be made up.' }, { n: 'X', t: 'Excused.' }]) +
+            h3('AI and plagiarism') +
+            cards([
+              { i: '🚫', h: 'Generative AI', t: 'Not acceptable unless the teacher says so.' },
+              { i: '9️⃣', h: 'Plagiarism', t: '9 or more words in a row with no citation.' },
+              { i: '📝', h: 'Google Doc history', t: 'It must show natural drafting.' }
+            ], 220) +
+            flow([{ t: '1st offense', s: '0%. Parent, counselor and dean notified.' }, { t: '2nd offense', s: '0%, semester failure, course withdrawal.' }]) +
+            cards([
+              { i: '📵', h: 'Phones', t: 'Silenced and stored. 1st offense: warning. Repeated: Dean referral.' },
+              { i: '📚', h: 'Extra credit', t: 'Abe Lincoln Book Award: 0.5% per book, max 2 books (1% a year).' }
+            ], 240) +
+            h3('S.T.E.A.L.') +
+            pills(['Speech', 'Thoughts', 'Effect on others', 'Actions', 'Looks'])
         }
       ]
     },
@@ -100,49 +214,82 @@
       sections: [
         {
           id: 'u3-context', title: 'Historical context',
-          list: [
-            'Author: Cherie Dimaline (2017).',
-            'There are 500+ recognized Native nations in the US. “Indigenous” is the broadest term. In Canada: First Nations / First Peoples.',
-            'Settler-colonialism: displacing and replacing the original inhabitants.',
-            'Blood quantum: government-imposed tracking meant to dilute tribal membership.',
-            'Residential schools: mandatory boarding schools (1860s–1996) meant to forcibly assimilate Indigenous children (“kill the Indian, save the man”).'
-          ]
+          simple: 'The book is about real history: Indigenous children were taken to residential schools to erase their culture.',
+          html:
+            say('<i>The Marrow Thieves</i> is by <b>Cherie Dimaline</b> (2017). The story is made up, but it is built on real history.') +
+            svg(520, 130,
+              line(30, 60, 490, 60, false, 'var(--ink)') +
+              rect(80, 44, 320, 32, 'var(--accent)', 'var(--ink)') +
+              t(240, 66, 'Residential schools', 17, 700, 'middle', 'var(--on-accent)') +
+              t(80, 28, '1860s', 18, 700) + t(400, 28, '1996', 18, 700) +
+              t(240, 112, 'Forced boarding schools meant to make Indigenous children assimilate', 14, 600, 'middle', 'var(--mute)'),
+              'Timeline: residential schools ran from the 1860s to 1996.') +
+            cards([
+              { h: 'Words for the people', t: 'Indigenous is the broadest term. Also Native American. In Canada: First Nations / First Peoples. There are 500+ recognized Native nations in the US.' },
+              { h: 'Settler-colonialism', t: 'Displacing and replacing the original inhabitants of a land.' },
+              { h: 'Blood quantum', t: 'Government tracking meant to dilute tribal membership.' },
+              { h: 'Residential schools', t: 'Mandatory boarding schools (1860s–1996). The goal: “kill the Indian, save the man.”' }
+            ], 240)
         },
         {
           id: 'u3-setting', title: 'Setting and plot',
-          body: ['A dystopian future Canada after the “Water Wars.” Non-Indigenous people have lost the ability to dream, which drives them mad. They hunt Indigenous people to harvest bone marrow, which holds dreams. Government “Recruiters” capture people for new residential schools.']
+          simple: 'In the future, people who cannot dream hunt Indigenous people for their bone marrow.',
+          html:
+            flow([
+              { t: 'The Water Wars', s: 'Canada becomes dystopian' },
+              { t: 'Non-Indigenous people lose the ability to dream', s: 'It drives them mad' },
+              { t: 'Marrow holds dreams', s: 'Indigenous people are hunted for it' },
+              { t: 'Recruiters capture them', s: 'They go to new residential schools' }
+            ])
         },
         {
           id: 'u3-chars', title: 'Characters',
-          table: { head: ['Character', 'Key facts'], rows: [
-            ['Frenchie (Francis)', '16-year-old Métis narrator. Lost his brother Mitch to Recruiters.'],
-            ['Mitch', 'Frenchie’s older brother. Sacrificed himself so Frenchie could escape.'],
-            ['Miigwans (Miig)', 'Group leader and Elder. Wears a pouch with a vial of his husband Isaac’s marrow.'],
-            ['Isaac', 'Miig’s husband, a Cree poet who dreamt in Cree. Harvested in a school. Reunited with Miig at the end.'],
-            ['Minerva', 'Anishinaabe Elder. Destroyed School #47E when her marrow sang in Anishinaabemowin. Killed during a rescue.'],
-            ['Rose', '16 years old, raised by Granny and great-uncles. Frenchie’s romantic interest.'],
-            ['Chi-Boy', '17-year-old Cree scout and bow hunter. In love with Wab.'],
-            ['Wab', '18 years old, with a keloid scar on her face.'],
-            ['RiRi', '7-year-old Métis girl. Killed when the traitor Lincoln pushes her off a cliff.'],
-            ['Tree and Zheegwon', '12-year-old twins, scarred from experiments. Share a baseball cap.'],
-            ['Slopper', '9 years old. Later heads the “Miigwanang” youth council.'],
-            ['Jean', 'Frenchie’s father. Lost a leg. Reunited with Frenchie at the Council camp near Espanola.'],
-            ['Travis and Lincoln', 'Traitors. Lincoln kills RiRi. Frenchie kills Travis.']
-          ] }
+          simple: 'Know who each person is and one fact about them.',
+          html:
+            cards([
+              { k: 'Narrator', h: 'Frenchie (Francis)', t: '16-year-old Métis narrator. Lost his brother Mitch to the Recruiters.' },
+              { h: 'Mitch', t: 'Frenchie’s older brother. Sacrificed himself so Frenchie could escape.' },
+              { k: 'Leader', h: 'Miigwans (Miig)', t: 'Elder who leads the group. Carries a vial of his husband Isaac’s marrow.' },
+              { h: 'Isaac', t: 'Miig’s husband, a Cree poet who dreamt in Cree. Taken to a school. Reunited with Miig at the end.' },
+              { h: 'Minerva', t: 'Anishinaabe Elder. Destroyed School #47E when her marrow sang in Anishinaabemowin. Killed during a rescue.' },
+              { h: 'Rose', t: '16 years old, raised by Granny and great-uncles. Frenchie’s romantic interest.' },
+              { h: 'Chi-Boy', t: '17-year-old Cree scout and bow hunter. In love with Wab.' },
+              { h: 'Wab', t: '18 years old, with a keloid scar on her face.' },
+              { h: 'RiRi', t: '7-year-old Métis girl. Killed when Lincoln pushes her off a cliff.' },
+              { h: 'Tree and Zheegwon', t: '12-year-old twins, scarred from experiments. They share a baseball cap.' },
+              { h: 'Slopper', t: '9 years old. Later heads the “Miigwanang” youth council.' },
+              { h: 'Jean', t: 'Frenchie’s father. Lost a leg. Reunited with Frenchie at the Council camp near Espanola.' },
+              { k: 'Traitors', h: 'Travis and Lincoln', t: 'Lincoln kills RiRi. Frenchie kills Travis.' }
+            ], 230)
         },
         {
           id: 'u3-symbols', title: 'Symbols and motifs',
-          table: { head: ['Symbol', 'Meaning'], rows: [
-            ['Bone marrow / dreams', 'Cultural identity, soul and continuity'],
-            ['Pink boots (RiRi’s)', 'Lost innocence and tragedy'],
-            ['Jingles (tin can lids)', 'Made for a jingle dress: cultural preservation and sacrifice'],
-            ['Moose', 'Nature’s majesty, respect and maturity'],
-            ['Syllabics / language', 'A cultural key that dismantles oppression (Kiiwen = “Go home”)']
-          ] }
+          simple: 'Each object stands for something bigger.',
+          html:
+            cards([
+              { i: '🦴', h: 'Bone marrow / dreams', t: 'Cultural identity, the soul and continuity.' },
+              { i: '👢', h: 'Pink boots (RiRi’s)', t: 'Lost innocence and tragedy.' },
+              { i: '🔔', h: 'Jingles (tin can lids)', t: 'Made for a jingle dress: cultural preservation and sacrifice.' },
+              { i: '🫎', h: 'Moose', t: 'Nature’s majesty, respect and maturity.' },
+              { i: '🗣️', h: 'Syllabics / language', t: 'A cultural key that breaks down oppression. Kiiwen means “Go home.”' }
+            ], 230)
         },
         {
           id: 'u3-vocab', title: 'Vocabulary (20)',
-          list: ['Ally, Assimilation, Bystander, Colonization, Cultural Appropriation, Discrimination, Disenfranchise, Displacement, Empathy, Equality, Equity, Implicit Bias, Indigenous, Intersectionality, Oppression, Prejudice, Privilege, Racism, Reconciliation, Tolerance']
+          simple: 'Twenty words about fairness and identity.',
+          html:
+            pills([
+              { w: 'Ally', m: 'supports a group they are not part of' }, { w: 'Assimilation', m: 'forcing a group to give up its culture' },
+              { w: 'Bystander', m: 'sees something wrong and does nothing' }, { w: 'Colonization', m: 'taking over land and ruling its people' },
+              { w: 'Cultural Appropriation', m: 'using another culture without respect' }, { w: 'Discrimination', m: 'unfair treatment because of who someone is' },
+              { w: 'Disenfranchise', m: 'take away someone’s rights or power' }, { w: 'Displacement', m: 'forcing people to leave home' },
+              { w: 'Empathy', m: 'understanding how someone feels' }, { w: 'Equality', m: 'treating everyone the same' },
+              { w: 'Equity', m: 'giving people what they need to be fair' }, { w: 'Implicit Bias', m: 'unconscious attitudes that affect treatment' },
+              { w: 'Indigenous', m: 'the original people of a land' }, { w: 'Intersectionality', m: 'how identities overlap and affect experiences' },
+              { w: 'Oppression', m: 'unfair control by those in power' }, { w: 'Prejudice', m: 'judging before knowing' },
+              { w: 'Privilege', m: 'an unearned advantage' }, { w: 'Racism', m: 'unfair treatment because of race' },
+              { w: 'Reconciliation', m: 'repairing a relationship after harm' }, { w: 'Tolerance', m: 'accepting differences' }
+            ])
         }
       ]
     },
@@ -152,34 +299,47 @@
       sections: [
         {
           id: 'u4-context', title: 'Context and structure',
-          list: [
-            'Written by Ray Bradbury in 1952, after World War II.',
-            'Inspired by police harassing Bradbury on a walk (see “The Pedestrian”). Influences: Nazi book burnings, the Holocaust, McCarthyism and post-war consumerism.',
-            'Part 1: The Hearth and the Salamander. The hearth is knowledge burning in the mind. The salamander is the inability to destroy free thought.',
-            'Part 2: The Sieve and the Sand. The sand is knowledge and truth. The sieve is Montag’s mind trying to hold the truth.'
-          ]
+          simple: 'Bradbury wrote it in 1952. It has two parts with symbolic titles.',
+          html:
+            say('<b>Ray Bradbury</b> wrote it in <b>1952</b>, after World War II. Police once stopped him just for walking, which inspired him (see “The Pedestrian”). Other influences: Nazi book burnings, the Holocaust, McCarthyism and post-war consumerism.') +
+            cards([
+              { k: 'Part 1', h: 'The Hearth and the Salamander', t: 'Hearth: knowledge burning in the mind. Salamander: free thought cannot be destroyed.' },
+              { k: 'Part 2', h: 'The Sieve and the Sand', t: 'Sand: knowledge and truth. Sieve: Montag’s mind trying to hold on to it.' }
+            ], 270)
         },
         {
           id: 'u4-chars', title: 'Characters',
-          table: { head: ['Character', 'Key facts'], rows: [
-            ['Guy Montag', 'A fireman who burns books. Uses “The Great Python” hose.'],
-            ['Clarisse McClellan', '17-year-old neighbor whose questions awaken Montag (“Are you happy?”).'],
-            ['Mildred Montag', 'Montag’s shallow wife. Addicted to parlor walls and ear thimbles. Overdoses on sleeping pills.'],
-            ['Captain Beatty', 'Fire Captain. Uses his knowledge of literature to justify burning. The antagonist.'],
-            ['Faber', 'A retired English professor. Montag’s intellectual mentor.']
-          ] }
+          simple: 'Know each person and what they do in the story.',
+          html:
+            cards([
+              { i: '🔥', h: 'Guy Montag', t: 'A fireman who burns books. Uses “The Great Python” hose.' },
+              { i: '🌙', h: 'Clarisse McClellan', t: '17-year-old neighbor. Her questions wake Montag up: “Are you happy?”' },
+              { i: '📺', h: 'Mildred Montag', t: 'His shallow wife. Addicted to parlor walls and ear thimbles. Overdoses on sleeping pills.' },
+              { i: '🧯', h: 'Captain Beatty', t: 'Fire Captain. Uses his knowledge of books to justify burning them. The antagonist.' },
+              { i: '🎓', h: 'Faber', t: 'Retired English professor. Montag’s mentor.' }
+            ], 230)
         },
         {
           id: 'u4-symbols', title: 'Symbols',
-          table: { head: ['Symbol', 'Meaning'], rows: [
-            ['Denham’s Dentifrice', 'A blaring commercial that keeps Montag from memorizing the Bible'],
-            ['Mechanical Hound', 'The government’s hound with a lethal-injection needle for a proboscis'],
-            ['Phoenix', 'Society’s rebirth after it destroys itself']
-          ] }
+          simple: 'A commercial, a robot dog and a bird each stand for something bigger.',
+          html:
+            cards([
+              { i: '🦷', h: 'Denham’s Dentifrice', t: 'A blaring commercial that stops Montag from memorizing the Bible.' },
+              { i: '🐕‍🦺', h: 'Mechanical Hound', t: 'The government’s hound with a lethal-injection needle for a proboscis.' },
+              { i: '🐦‍🔥', h: 'Phoenix', t: 'Society’s rebirth after destroying itself.' }
+            ], 240)
         },
         {
           id: 'u4-vocab', title: 'Vocabulary (20)',
-          list: ['Refract, Imperceptibly, Pulverized, Capillary, Multifaceted, Proclivity, Odious, Ravenous, Noncombustible, Tactile, Retaliation, Receptacle, Juggernaut, Pyre, Dictum, Desolation, Incite, Burdensome, Proboscis, Phoenix']
+          simple: 'Twenty words from the book.',
+          html:
+            pills([
+              { w: 'Refract', m: 'bend light' }, { w: 'Imperceptibly', m: 'too slightly to notice' }, { w: 'Pulverized', m: 'crushed to powder' }, { w: 'Capillary', m: 'tiny blood vessel' },
+              { w: 'Multifaceted', m: 'having many sides' }, { w: 'Proclivity', m: 'natural tendency' }, { w: 'Odious', m: 'hateful, disgusting' }, { w: 'Ravenous', m: 'extremely hungry' },
+              { w: 'Noncombustible', m: 'cannot burn' }, { w: 'Tactile', m: 'related to touch' }, { w: 'Retaliation', m: 'getting back at someone' }, { w: 'Receptacle', m: 'container' },
+              { w: 'Juggernaut', m: 'huge unstoppable force' }, { w: 'Pyre', m: 'pile of material for burning' }, { w: 'Dictum', m: 'official statement' }, { w: 'Desolation', m: 'empty, lonely ruin' },
+              { w: 'Incite', m: 'stir up' }, { w: 'Burdensome', m: 'heavy and hard to carry' }, { w: 'Proboscis', m: 'long nose or snout' }, { w: 'Phoenix', m: 'bird reborn from ashes' }
+            ])
         }
       ]
     },
@@ -189,28 +349,44 @@
       sections: [
         {
           id: 'u5-stories', title: 'Short stories and films',
-          table: { head: ['Title', 'What to know'], rows: [
-            ['“Harrison Bergeron” (Vonnegut)', 'The government handicaps citizens for absolute equality. Harrison rebels.'],
-            ['“All Summer in a Day” (Bradbury)', 'Margot is locked in a closet on Venus. The sun appears once every 7 years. Community responsibility.'],
-            ['“The Pedestrian” (Bradbury)', 'Leonard Mead is arrested by a robotic police car for walking.'],
-            ['“Create” (Derek Sivers)', 'Creators vs. consumers.'],
-            ['“Bao” (Pixar short)', 'An overprotective Chinese mother; a dumpling comes to life. Maternal attachment, growing up and culture.'],
-            ['“More” (short film)', 'Consumerism, memory and artificial happiness.'],
-            ['The Lorax (Dr. Seuss)', 'The Once-ler cuts down the Truffula trees. Environmental destruction.']
-          ] }
+          simple: 'One fact and one big idea for each story or film.',
+          html:
+            cards([
+              { i: '🧠', h: '“Harrison Bergeron” (Vonnegut)', t: 'The government handicaps everyone to force equality. Harrison rebels.' },
+              { i: '☀️', h: '“All Summer in a Day” (Bradbury)', t: 'Margot is locked in a closet on Venus. The sun shows up once every 7 years. Community responsibility.' },
+              { i: '🚶', h: '“The Pedestrian” (Bradbury)', t: 'Leonard Mead is arrested by a robotic police car for walking.' },
+              { i: '🎨', h: '“Create” (Derek Sivers)', t: 'Creators vs. consumers.' },
+              { i: '🥟', h: '“Bao” (Pixar short)', t: 'An overprotective mother and a dumpling that comes to life. Maternal attachment, growing up and culture.' },
+              { i: '🛍️', h: '“More” (short film)', t: 'Consumerism, memory and artificial happiness.' },
+              { i: '🌳', h: 'The Lorax (Dr. Seuss)', t: 'The Once-ler cuts down the Truffula trees. Environmental destruction.' }
+            ], 250)
         },
         {
           id: 'u5-oral', title: 'Oral tradition texts',
-          table: { head: ['Title', 'What to know'], rows: [
-            ['Fry Bread (Kevin Noble Maillard)', 'Celebrates fry bread as food, art, place and unity.'],
-            ['We Are Grateful: Otsaliheliga (Traci Sorell)', 'Cherokee gratitude across the seasons. Trail of Tears, Cherokee New Year, Sequoyah’s syllabary.'],
-            ['We Are Water Protectors (Carole Lindstrom)', 'An Ojibwe prophecy of a “black snake” (oil pipelines). Environmental stewardship.']
-          ] }
+          simple: 'Three picture books that share Native stories and values.',
+          html:
+            cards([
+              { i: '🍞', h: 'Fry Bread (Kevin Noble Maillard)', t: 'Celebrates fry bread as food, art, place and unity.' },
+              { i: '🙏', h: 'We Are Grateful: Otsaliheliga (Traci Sorell)', t: 'Cherokee gratitude through the seasons. Trail of Tears, Cherokee New Year, Sequoyah’s syllabary.' },
+              { i: '💧', h: 'We Are Water Protectors (Carole Lindstrom)', t: 'An Ojibwe prophecy of a “black snake” (oil pipelines). Protecting the environment.' }
+            ], 250)
         },
         {
-          id: 'u5-choice', title: 'Choice novel project and WOW vocab',
-          body: ['IRU Choice Novel Brochure: a 6-panel folded brochure and a 2-minute presentation. Panels: Cover, Inside Flap (genre, year, pages, summary, conflict), Back (rating, target audience), Author Bio, Reviewer Bio, Characters, Themes & Quotes.'],
-          list: ['Word of the Week (17): Acquiesce, Ambiance, Aggrandizement, Ameliorate, Atrophy, Cacophony, Carping, Catharsis, Docile, Denunciation, Diatribe, Dogmatic, Effervescent, Engender, Equanimity, Garrulous, Hedonist']
+          id: 'u5-choice', title: 'Choice novel project and Word of the Week',
+          simple: 'A brochure and a 2-minute talk, plus 17 vocab words.',
+          html:
+            say('<b>IRU Choice Novel Brochure:</b> a 6-panel folded brochure and a 2-minute presentation.') +
+            cards([
+              { h: 'Cover' }, { h: 'Inside Flap', t: 'Genre, year, pages, summary, conflict' }, { h: 'Back', t: 'Rating and target audience' },
+              { h: 'Author Bio' }, { h: 'Reviewer Bio' }, { h: 'Characters' }, { h: 'Themes & Quotes' }
+            ], 170) +
+            h3('Word of the Week (17)') +
+            pills([
+              { w: 'Acquiesce', m: 'agree without protest' }, { w: 'Ambiance', m: 'mood of a place' }, { w: 'Aggrandizement', m: 'making something seem greater' }, { w: 'Ameliorate', m: 'make better' },
+              { w: 'Atrophy', m: 'waste away' }, { w: 'Cacophony', m: 'harsh jumble of sounds' }, { w: 'Carping', m: 'complaining about small things' }, { w: 'Catharsis', m: 'release of strong emotion' },
+              { w: 'Docile', m: 'obedient' }, { w: 'Denunciation', m: 'public criticism' }, { w: 'Diatribe', m: 'long angry speech' }, { w: 'Dogmatic', m: 'stubbornly sure of own beliefs' },
+              { w: 'Effervescent', m: 'bubbly' }, { w: 'Engender', m: 'cause or produce' }, { w: 'Equanimity', m: 'calm' }, { w: 'Garrulous', m: 'very talkative' }, { w: 'Hedonist', m: 'lives for pleasure' }
+            ])
         }
       ]
     },
@@ -220,15 +396,20 @@
       sections: [
         {
           id: 'u6-check', title: 'Be able to…',
-          list: [
-            'Explain the 3 parts of an intro paragraph (hook with no questions, bridge, thesis).',
-            'Explain the 3 parts of a thesis (author and title, thematic claim, prongs or reasoning).',
-            'Explain the 5 parts of a body paragraph.',
-            'Identify the 4 quote-integration methods: colon, introductory phrase, flow, bits and pieces.',
-            'Format MLA in-text citations and know titles in italics vs. quotation marks.',
-            'Use 3rd person pronouns in formal writing.',
-            'Know all three vocab lists: Marrow Thieves (20), Fahrenheit 451 (20) and Word of the Week (17).'
-          ]
+          simple: 'Go down this list. If you can do each one, you are ready.',
+          html:
+            '<ul style="list-style:none;margin:0;padding:0">' +
+            [
+              'Explain the <b>3 parts of an intro</b>: hook (no questions!), bridge, thesis.',
+              'Explain the <b>3 parts of a thesis</b>: author and title, thematic claim, prongs.',
+              'Explain the <b>5 parts of a body paragraph</b>.',
+              'Name the <b>4 quote methods</b>: colon, introductory phrase, flow, bits and pieces.',
+              'Format <b>MLA citations</b> and know italics vs. quotation marks.',
+              'Use <b>3rd person</b> in formal writing.',
+              'Know all <b>3 vocab lists</b>: Marrow Thieves (20), Fahrenheit 451 (20), Word of the Week (17).'
+            ].map(function (x) {
+              return '<li style="display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--rule);font-size:18px;line-height:1.4"><span aria-hidden="true" style="border:2px solid var(--ink);width:24px;height:24px;display:block;background:var(--surface)"></span><span>' + x + '</span></li>';
+            }).join('') + '</ul>'
         }
       ]
     }
