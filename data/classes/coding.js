@@ -17,7 +17,7 @@
             'Generative AI creates new content (text, images). Predictive AI predicts outcomes from data.',
             'Large Language Models (LLMs) work with text. Multimodal models work with more than one kind of input, like text and images.',
             'Prompt engineering: writing clear, detailed prompts to get better answers.',
-            'AI ethics and diversity in the industry matter because AI reflects the data and people behind it.'
+            'AI ethics and diversity in the industry are also covered in this unit.'
           ]
         },
         {
@@ -135,7 +135,7 @@
           id: 'u5-binary', title: 'Binary',
           list: [
             'Binary uses only 0 (OFF) and 1 (ON).',
-            'Binary bracelets turn letters into binary patterns.',
+            'The unit also covers binary arithmetic and binary bracelets.',
             'Challenges: Do You Have a Dog, Best Day Ever, Rolling Dice, Teenagers, Rocket and Trivia, Odd or Even Shapes, Interactive Modern Art. Unit 6 challenge options: Guessing Game, Landscape Generator, RGB.'
           ]
         }
