@@ -58,8 +58,17 @@
             'Inequalities work the same way, with one rule: when you multiply or divide both sides by a negative number, flip the inequality sign.'
           ],
           list: [
-            'Example: 3(x − 4) + 2 = 5x − 18 → 3x − 12 + 2 = 5x − 18 → 3x − 10 = 5x − 18 → 8 = 2x → x = 4. Check: 3(0) + 2 = 2 and 5(4) − 18 = 2.',
-            'Example: −2x + 5 > 13 → −2x > 8 → x < −4 (dividing by −2 flips > to <). Check x = −5: 10 + 5 = 15, and 15 > 13.'
+            'Example: solve 3(x − 4) + 2 = 5x − 18.',
+            'Step 1, distribute the 3: 3x − 12 + 2 = 5x − 18.',
+            'Step 2, combine the plain numbers on the left: 3x − 10 = 5x − 18.',
+            'Step 3, subtract 3x from both sides: −10 = 2x − 18.',
+            'Step 4, add 18 to both sides: 8 = 2x.',
+            'Step 5, divide both sides by 2: x = 4.',
+            'Check: put 4 in for x. Left side: 3(4 − 4) + 2 = 3(0) + 2 = 2. Right side: 5(4) − 18 = 20 − 18 = 2. Both sides are 2, so x = 4 works.',
+            'Example: solve −2x + 5 > 13.',
+            'Step 1, subtract 5 from both sides: −2x > 8.',
+            'Step 2, divide both sides by −2. Dividing by a negative flips the sign, so > becomes <: x < −4.',
+            'Check: try x = −5 (it is less than −4). −2(−5) + 5 = 10 + 5 = 15, and 15 > 13. It works.'
           ]
         },
         {
@@ -73,7 +82,11 @@
             ['Vertical line', 'x = h, slope undefined']
           ] },
           list: [
-            'Example: the line through (2, −1) and (6, 7). Slope = (7 − (−1)) / (6 − 2) = 8 / 4 = 2. Point-slope: y + 1 = 2(x − 2), so y = 2x − 5. Check (6, 7): 2(6) − 5 = 7.'
+            'Example: find the line through (2, −1) and (6, 7).',
+            'Step 1, find the slope: (7 − (−1)) / (6 − 2) = 8 / 4 = 2.',
+            'Step 2, use point-slope form with the point (2, −1): y + 1 = 2(x − 2).',
+            'Step 3, distribute and solve for y: y + 1 = 2x − 4, so y = 2x − 5.',
+            'Check with the other point (6, 7): 2(6) − 5 = 7. It works.'
           ]
         },
         {
@@ -83,14 +96,21 @@
             'One solution: the lines cross (different slopes).',
             'No solution: the lines are parallel (same slope, different y-intercepts).',
             'Infinitely many solutions: the same line (same slope and same y-intercept).',
-            'Example: 2x + y = 7 and x − y = 2. Add them: 3x = 9, so x = 3, then y = 1. Check: 2(3) + 1 = 7 and 3 − 1 = 2. Answer (3, 1).'
+            'Example: solve 2x + y = 7 and x − y = 2.',
+            'Step 1, add the two equations. The y terms cancel: 3x = 9, so x = 3.',
+            'Step 2, put x = 3 into x − y = 2: 3 − y = 2, so y = 1.',
+            'Check: 2(3) + 1 = 7 and 3 − 1 = 2. Both work. The answer is (3, 1).'
           ]
         },
         {
           id: 'u1-word', title: 'Word problems',
           body: ['Name the unknown, write an equation from the words, solve, then answer the question that was asked (with units).'],
           list: [
-            'Example: Plan A costs $30 to join plus $12 a month. Plan B costs $18 a month with no fee. When do they cost the same? 30 + 12m = 18m → 30 = 6m → m = 5 months. Check: 30 + 12(5) = 90 and 18(5) = 90.'
+            'Example: Plan A costs $30 to join plus $12 a month. Plan B costs $18 a month with no fee. When do they cost the same?',
+            'Step 1, set the two costs equal (m is the number of months): 30 + 12m = 18m.',
+            'Step 2, subtract 12m from both sides: 30 = 6m.',
+            'Step 3, divide by 6: m = 5 months.',
+            'Check: Plan A is 30 + 12(5) = 90 and Plan B is 18(5) = 90. They match.'
           ]
         },
         {
@@ -100,7 +120,10 @@
             ['Distance', '√((x₂ − x₁)² + (y₂ − y₁)²): the Pythagorean theorem on the grid']
           ] },
           list: [
-            'Example: A(−3, 4) and B(5, −2). Midpoint = ((−3 + 5) / 2, (4 + (−2)) / 2) = (1, 1). Distance = √(8² + (−6)²) = √(64 + 36) = √100 = 10.',
+            'Example: A(−3, 4) and B(5, −2). Find the midpoint and the distance.',
+            'Midpoint, average the x values and the y values: ((−3 + 5) / 2, (4 + (−2)) / 2) = (1, 1).',
+            'Distance, step 1: the x change is 5 − (−3) = 8 and the y change is −2 − 4 = −6.',
+            'Distance, step 2: √(8² + (−6)²) = √(64 + 36) = √100 = 10.',
             'Finding an endpoint: M(2, 3) is the midpoint of AB and A is (−1, 7). B = (2·2 − (−1), 2·3 − 7) = (5, −1). Check: ((−1 + 5) / 2, (7 + (−1)) / 2) = (2, 3).'
           ]
         },
@@ -111,9 +134,16 @@
             'Way 2, side lengths: find all three lengths. If a² + b² = c² (c is the longest side), it is a right triangle. If a² + b² > c² it is acute. If a² + b² < c² it is obtuse.'
           ],
           list: [
-            'Example: A(1, 1), B(4, 5), C(8, 2). Slope AB = (5 − 1) / (4 − 1) = 4/3. Slope BC = (2 − 5) / (8 − 4) = −3/4. (4/3)(−3/4) = −1, so there is a right angle at B.',
+            'Example: A(1, 1), B(4, 5), C(8, 2). Is there a right angle at B?',
+            'Step 1, slope of AB: (5 − 1) / (4 − 1) = 4/3.',
+            'Step 2, slope of BC: (2 − 5) / (8 − 4) = −3/4.',
+            'Step 3, multiply the slopes: (4/3)(−3/4) = −1.',
+            'The product is −1, so AB ⊥ BC and there is a right angle at B.',
             'Same triangle by lengths: AB = √(9 + 16) = 5, BC = √(16 + 9) = 5, AC = √(49 + 1) = √50. 5² + 5² = 50 = (√50)², so it is a right triangle (an isosceles right triangle).',
-            'Example: sides 7, 8, 12. 7² + 8² = 113 and 12² = 144. 113 < 144, so the triangle is obtuse. (It is a triangle because 7 + 8 = 15 > 12.)'
+            'Example: sides 7, 8 and 12. Is the triangle acute, right or obtuse?',
+            'Step 1, is it a triangle? 7 + 8 = 15, and 15 > 12, so yes.',
+            'Step 2, compare the squares of the two short sides with the square of the longest side: 7² + 8² = 49 + 64 = 113, and 12² = 144.',
+            'Step 3: 113 < 144, so the triangle is obtuse.'
           ]
         }
       ]
@@ -146,7 +176,10 @@
           id: 'u2-defs', title: 'Definitions are reversible',
           body: [
             'A good definition works both ways: the conditional and its converse are both true. So a definition can be written with “if and only if” (a biconditional).',
-            'Example: “If an angle is a right angle, then it measures 90°” and “If an angle measures 90°, then it is a right angle” are both true. So: an angle is a right angle if and only if it measures 90°.',
+            'Example: both of these are true:',
+            '“If an angle is a right angle, then it measures 90°.”',
+            '“If an angle measures 90°, then it is a right angle.”',
+            'Put them together: an angle is a right angle if and only if it measures 90°.',
             'Theorems often are not reversible. “If two angles are vertical angles, then they are congruent” is true, but its converse is false (two congruent angles do not have to be vertical).'
           ],
           table: { head: ['Word', 'Definition'], rows: [
@@ -243,7 +276,12 @@
             'Converse: If two angles of a triangle are congruent, then the sides opposite them are congruent.',
             'If a triangle is equilateral, then it is equiangular (each angle is 60°). The converse is also true.',
             'Example: the vertex angle is 40°. The base angles are (180 − 40) / 2 = 70° each.',
-            'Example: base angles (3x + 5)° and (5x − 21)°. 3x + 5 = 5x − 21 → 26 = 2x → x = 13. Each base angle is 44°, so the vertex angle is 180 − 88 = 92°.'
+            'Example: the base angles are (3x + 5)° and (5x − 21)°. Find the vertex angle.',
+            'Step 1, base angles are equal, so set them equal: 3x + 5 = 5x − 21.',
+            'Step 2, subtract 3x from both sides: 5 = 2x − 21.',
+            'Step 3, add 21 to both sides: 26 = 2x, so x = 13.',
+            'Step 4, each base angle is 3(13) + 5 = 44°.',
+            'Step 5, the three angles add to 180°, so the vertex angle is 180 − 44 − 44 = 92°.'
           ]
         },
         {
@@ -317,7 +355,11 @@
             'Converse: If a point is equidistant from the endpoints of a segment, then it is on the perpendicular bisector of the segment.',
             'Angle bisector theorem: If a point is on the bisector of an angle, then it is equidistant from the sides of the angle (distance is measured along a perpendicular).',
             'Converse: If a point inside an angle is equidistant from the sides of the angle, then it is on the angle bisector.',
-            'Example: P is on the perpendicular bisector of AB, PA = 3x + 1 and PB = 5x − 7. 3x + 1 = 5x − 7 → x = 4, so PA = PB = 13.'
+            'Example: P is on the perpendicular bisector of AB. PA = 3x + 1 and PB = 5x − 7. Find PA.',
+            'Step 1, points on a perpendicular bisector are the same distance from both ends, so PA = PB: 3x + 1 = 5x − 7.',
+            'Step 2, subtract 3x from both sides: 1 = 2x − 7.',
+            'Step 3, add 7 to both sides: 8 = 2x, so x = 4.',
+            'Step 4, PA = 3(4) + 1 = 13. Check: PB = 5(4) − 7 = 13.'
           ]
         },
         {
@@ -350,7 +392,11 @@
             'Midsegment: a segment that joins the midpoints of two sides of a triangle.',
             'Midsegment theorem: If a segment joins the midpoints of two sides of a triangle, then it is parallel to the third side and half as long.',
             'Example: the third side is 22, so the midsegment is 11.',
-            'Example: midsegment 2x + 3, third side 5x − 3. 2(2x + 3) = 5x − 3 → 4x + 6 = 5x − 3 → x = 9. Midsegment 21, third side 42.'
+            'Example: the midsegment is 2x + 3 and the third side is 5x − 3. Find both.',
+            'Step 1, the midsegment is half of the third side, so 2 times the midsegment equals the third side: 2(2x + 3) = 5x − 3.',
+            'Step 2, distribute the 2: 4x + 6 = 5x − 3.',
+            'Step 3, subtract 4x from both sides: 6 = x − 3, so x = 9.',
+            'Step 4, the midsegment is 2(9) + 3 = 21 and the third side is 5(9) − 3 = 42. Check: 21 is half of 42.'
           ]
         },
         {
@@ -360,7 +406,11 @@
             'Exterior angle theorem: If an angle is an exterior angle of a triangle, then its measure equals the sum of the two remote (non-adjacent) interior angles.',
             'An exterior angle is also bigger than either remote interior angle.',
             'Example: remote interior angles 48° and 67°. Exterior angle = 48 + 67 = 115°.',
-            'Example: exterior angle (4x + 2)°, remote interior angles (x + 20)° and (2x + 12)°. 4x + 2 = 3x + 32 → x = 30. Exterior angle = 122° (and 50 + 72 = 122).'
+            'Example: the exterior angle is (4x + 2)° and the remote interior angles are (x + 20)° and (2x + 12)°. Find the exterior angle.',
+            'Step 1, the exterior angle equals the sum of the two remote interior angles: 4x + 2 = (x + 20) + (2x + 12).',
+            'Step 2, combine on the right: 4x + 2 = 3x + 32.',
+            'Step 3, subtract 3x from both sides: x + 2 = 32, so x = 30.',
+            'Step 4, the exterior angle is 4(30) + 2 = 122°. Check: the remote angles are 50° and 72°, and 50 + 72 = 122.'
           ]
         },
         {
@@ -369,7 +419,10 @@
             'Triangle inequality: the sum of any two sides is greater than the third side.',
             'The third side must be between the difference and the sum of the other two: sides 7 and 12 → 12 − 7 < x < 12 + 7, so 5 < x < 19.',
             'If one side of a triangle is longer than another, then the angle opposite the longer side is larger. The converse is also true: the larger angle is opposite the longer side.',
-            'Example: AB = 8, BC = 11, AC = 6. The longest side BC is opposite ∠A, so ∠A is largest. The shortest side AC is opposite ∠B, so ∠B is smallest. Smallest to largest: ∠B, ∠C, ∠A.',
+            'Example: AB = 8, BC = 11 and AC = 6. Put the angles in order from smallest to largest.',
+            'The biggest angle is opposite the longest side. The longest side is BC, which is opposite ∠A, so ∠A is largest.',
+            'The smallest angle is opposite the shortest side. The shortest side is AC, which is opposite ∠B, so ∠B is smallest.',
+            'That leaves ∠C in the middle. Smallest to largest: ∠B, ∠C, ∠A.',
             'Example: m∠A = 50°, m∠B = 60°, m∠C = 70°. Shortest to longest side: BC (opposite ∠A), AC (opposite ∠B), AB (opposite ∠C).'
           ]
         }
@@ -390,7 +443,7 @@
             '<tr><th scope="row">Co-interior (same-side interior)</th><td data-label="Examples">∠3 and ∠5, ∠4 and ∠6 (between the lines, same side of t)</td><td data-label="If ℓ ∥ m">Supplementary (add to 180°)</td></tr>' +
             '<tr><th scope="row">Vertical</th><td data-label="Examples">∠1 and ∠4, ∠2 and ∠3, ∠5 and ∠8, ∠6 and ∠7</td><td data-label="If ℓ ∥ m">Congruent (even if the lines are not parallel)</td></tr>' +
             '</tbody></table>' +
-            '<p style="margin-top:12px">Example: ℓ ∥ m and m∠1 = 120°. Then ∠4 = 120° (vertical), ∠2 = ∠3 = 60° (linear pairs), ∠5 = 120° (corresponding to ∠1), ∠8 = 120° (alternate exterior with ∠1), and ∠6 = ∠7 = 60°.</p>'
+            '<p style="margin-top:12px">Example: ℓ ∥ m and m∠1 = 120°. Find the other angles.<br>∠4 = 120° (vertical with ∠1).<br>∠2 and ∠3 = 60° each (they form a linear pair with ∠1, and 180 − 120 = 60).<br>∠5 = 120° (corresponding to ∠1).<br>∠8 = 120° (alternate exterior with ∠1).<br>∠6 and ∠7 = 60° each.</p>'
         },
         {
           id: 'u5-theorems', title: 'Parallel line theorems (if-then form)',
@@ -412,8 +465,16 @@
             'If co-interior angles are supplementary, then the lines are parallel.',
             'If two lines (in a plane) are perpendicular to the same line, then they are parallel.',
             'If two lines are parallel to the same line, then they are parallel to each other.',
-            'Example: alternate interior angles are (5x − 4)° and (3x + 20)°. For the lines to be parallel: 5x − 4 = 3x + 20 → x = 12 (both angles 56°).',
-            'Example: co-interior angles are (2x + 10)° and (4x + 20)°. For the lines to be parallel: 6x + 30 = 180 → x = 25 (the angles are 60° and 120°).'
+            'Example: alternate interior angles are (5x − 4)° and (3x + 20)°. Find x so the lines are parallel.',
+            'Step 1, for parallel lines these angles are equal: 5x − 4 = 3x + 20.',
+            'Step 2, subtract 3x from both sides: 2x − 4 = 20.',
+            'Step 3, add 4 to both sides: 2x = 24, so x = 12.',
+            'Check: 5(12) − 4 = 56 and 3(12) + 20 = 56. Both angles are 56°.',
+            'Example: co-interior angles are (2x + 10)° and (4x + 20)°. Find x so the lines are parallel.',
+            'Step 1, for parallel lines these angles add to 180°: (2x + 10) + (4x + 20) = 180.',
+            'Step 2, combine like terms: 6x + 30 = 180.',
+            'Step 3, subtract 30 from both sides: 6x = 150, so x = 25.',
+            'Check: the angles are 2(25) + 10 = 60° and 4(25) + 20 = 120°. 60 + 120 = 180.'
           ]
         },
         {
@@ -421,9 +482,23 @@
           list: [
             'Parallel lines have the same slope (and different y-intercepts).',
             'Perpendicular lines have slopes that are opposite reciprocals: their product is −1. (A horizontal and a vertical line are also perpendicular.)',
-            'Example: the line through (4, 1) parallel to y = −3x + 7. Slope −3: y − 1 = −3(x − 4), so y = −3x + 13. Check: −3(4) + 13 = 1.',
-            'Example: the line through (2, −3) perpendicular to 2x − 5y = 10. Solve for y: y = (2/5)x − 2, slope 2/5. Perpendicular slope −5/2: y + 3 = −(5/2)(x − 2), so y = −(5/2)x + 2. Check: −5 + 2 = −3.',
-            'Example: the perpendicular bisector of A(−2, 1) and B(4, 5). Midpoint (1, 3). Slope AB = 4/6 = 2/3, so the perpendicular slope is −3/2. y − 3 = −(3/2)(x − 1), so y = −(3/2)x + 9/2.'
+            'Example: find the line through (4, 1) that is parallel to y = −3x + 7.',
+            'Step 1, parallel lines have the same slope, so the slope is −3.',
+            'Step 2, point-slope form with the point (4, 1): y − 1 = −3(x − 4).',
+            'Step 3, distribute and solve for y: y − 1 = −3x + 12, so y = −3x + 13.',
+            'Check: put x = 4 in. −3(4) + 13 = −12 + 13 = 1. That matches the point (4, 1).',
+            'Example: find the line through (2, −3) that is perpendicular to 2x − 5y = 10.',
+            'Step 1, solve 2x − 5y = 10 for y: y = (2/5)x − 2. Its slope is 2/5.',
+            'Step 2, flip the fraction and change the sign: the perpendicular slope is −5/2.',
+            'Step 3, point-slope form with the point (2, −3): y + 3 = −(5/2)(x − 2).',
+            'Step 4, distribute and solve for y: y + 3 = −(5/2)x + 5, so y = −(5/2)x + 2.',
+            'Check: put x = 2 in. −(5/2)(2) + 2 = −5 + 2 = −3. That matches the point (2, −3).',
+            'Example: find the perpendicular bisector of A(−2, 1) and B(4, 5). It goes through the midpoint of AB at a right angle.',
+            'Step 1, midpoint: ((−2 + 4) / 2, (1 + 5) / 2) = (1, 3).',
+            'Step 2, slope of AB: (5 − 1) / (4 − (−2)) = 4/6 = 2/3.',
+            'Step 3, the perpendicular slope is the opposite reciprocal: −3/2.',
+            'Step 4, point-slope form with the midpoint (1, 3): y − 3 = −(3/2)(x − 1).',
+            'Step 5, distribute and solve for y: y = −(3/2)x + 3/2 + 3 = −(3/2)x + 9/2.'
           ]
         }
       ]
@@ -481,7 +556,10 @@
             'Rhombus, the diagonals meet at an angle of (6x − 12)°: they are perpendicular, so 6x − 12 = 90 → x = 17.',
             'Restrictions: a length must be greater than 0, and an angle of a polygon must be between 0° and 180°.',
             'Example: a side is 2x − 6, so 2x − 6 > 0 → x > 3.',
-            'Example: an angle of a parallelogram is (2x − 10)°. 0 < 2x − 10 < 180 → 10 < 2x < 190 → 5 < x < 95.'
+            'Example: an angle of a parallelogram is (2x − 10)°. Find the possible values of x.',
+            'An angle must be more than 0° and less than 180°: 0 < 2x − 10 < 180.',
+            'Step 1, add 10 to all three parts: 10 < 2x < 190.',
+            'Step 2, divide all three parts by 2: 5 < x < 95.'
           ]
         },
         {
@@ -502,8 +580,13 @@
             'Each interior angle of a regular polygon: (n − 2) · 180° / n.',
             'Exterior angles (one at each vertex) always add to 360°. Each exterior angle of a regular polygon: 360° / n.',
             'An interior angle and its exterior angle add to 180°.',
-            'Example: each interior angle is 140°. Each exterior angle is 180 − 140 = 40°, so n = 360 / 40 = 9 sides.',
-            'Example: the interior angles add to 1440°. (n − 2) · 180 = 1440 → n − 2 = 8 → n = 10 sides.'
+            'Example: each interior angle of a regular polygon is 140°. How many sides does it have?',
+            'Step 1, each exterior angle is 180 − 140 = 40°.',
+            'Step 2, the exterior angles add to 360°, so n = 360 / 40 = 9 sides.',
+            'Example: the interior angles of a polygon add to 1440°. How many sides does it have?',
+            'Step 1, use the sum formula: (n − 2) · 180 = 1440.',
+            'Step 2, divide both sides by 180: n − 2 = 8.',
+            'Step 3, add 2 to both sides: n = 10 sides.'
           ]
         },
         {
