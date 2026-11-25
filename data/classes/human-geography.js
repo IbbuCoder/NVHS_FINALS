@@ -347,7 +347,7 @@
   FINALS.addClass('human-geography', {
     // Shown on this class's Home. The teacher has not posted an exam format.
     examFacts: [
-      'Final: Wed Dec 16, period 1. Format not posted yet. Study the vocab and the two unit study guides.'
+      'Format not posted yet. Study the vocab and the two unit study guides.'
     ],
     units: units,
     flashcards: flashcards,

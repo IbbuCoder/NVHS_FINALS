@@ -1,5 +1,5 @@
 // Lessons are written as HTML with diagrams and cards, in plain 9th-grade language.
-// Coding: Semester 1 final (Fri Dec 18, period 7).
+// Coding: Semester 1 final).
 // Same format as human-geography.js: units with sections, flashcards, questions and examFacts.
 // Built from the class notebook: intro to AI, Karel, Python / JS basics, canvas graphics,
 // conditionals, loops, functions and strings.
@@ -590,7 +590,7 @@
   FINALS.addClass('coding', {
     // Shown on this class's Home.
     examFacts: [
-      'Final: Fri Dec 18, period 7. A 25-question multiple-choice exam (10% or 20% of the final grade).',
+      'A 25-question multiple-choice exam (10% or 20% of the final grade).',
       'It tests vocabulary, code syntax, logical flow and theory.',
       'There is also a final exam coding project, submitted through a Google Doc (10% or 20% of the final grade).'
     ],

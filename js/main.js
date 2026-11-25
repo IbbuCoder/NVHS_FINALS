@@ -834,6 +834,19 @@
     return (s && s.exam) || CFG.finalsDate || '';
   }
 
+  // "Final: Wed, Dec 16, period 2." Always built from the date in data/subjects.js, so changing
+  // the date there changes it everywhere.
+  function examDateLine() {
+    var e = examDate();
+    if (!e) return '';
+    var p = e.split('-').map(Number);
+    var d = new Date(p[0], p[1] - 1, p[2]);
+    if (isNaN(d.getTime())) return '';
+    var s = subjectOf(cur);
+    var when = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return 'Final: ' + when + (s && s.period ? ', period ' + s.period : '') + '.';
+  }
+
   function examLine() {
     var exam = examDay();
     if (exam === null) return '';
@@ -873,7 +886,10 @@
       String(total).split('').map(function (d) { return '<span class="sb-tile">' + d + '</span>'; }).join('') +
       '<span class="sb-tile unit">%</span></div><p class="sb-note">Goes up as you take quizzes and mark flashcards Got it.</p>' + examLine() + '</div>' + next +
       // examFacts in a class's data file: the date, format and what to bring, shown under the board.
-      (C.examFacts.length ? '<div class="sb-facts"><h2>The final</h2><ul>' + C.examFacts.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></div>' : '');
+      (function () {
+        var facts = examDateLine() ? [examDateLine()].concat(C.examFacts) : C.examFacts;
+        return facts.length ? '<div class="sb-facts"><h2>The final</h2><ul>' + facts.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></div>' : '';
+      })();
 
     var knownCount = C.flashcards.filter(isKnown).length;
     $('#home-lessons').textContent = C.units.length + (C.units.length === 1 ? ' lesson' : ' lessons');
