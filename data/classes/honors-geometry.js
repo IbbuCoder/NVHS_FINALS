@@ -816,7 +816,7 @@
   FINALS.addClass('honors-geometry', {
     // Shown on this class's Home.
     examFacts: [
-      'Semester 1 final: Wednesday, Dec 16, period 2. Worth 15% of the semester grade.',
+      'Semester 1 final. Worth 15% of the semester grade.',
       '42 multiple choice questions plus 2 two-column proofs. Chapters 1–5.',
       'Bring your own handwritten theorem sheet (for the proofs only) and a 3×5 note card (for the multiple choice only).',
       'Calculator allowed.',

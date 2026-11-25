@@ -1,4 +1,4 @@
-// Honors Biology: Semester 1 final (Thu Dec 17, period 6).
+// Honors Biology: Semester 1 final).
 // Same format as human-geography.js: units with sections, flashcards, questions and examFacts.
 // Lessons are written as HTML with diagrams and cards, in plain 9th-grade language.
 // Built from the class notebooks for Units 1-5 and the final exam info.
@@ -627,7 +627,7 @@
   FINALS.addClass('honors-biology', {
     // Shown on this class's Home.
     examFacts: [
-      'Final: Thu Dec 17, period 6. Covers Units 1–5. Study the Learning Objectives and your old Pear Assessment quizzes.',
+      'Covers Units 1–5. Study the Learning Objectives and your old Pear Assessment quizzes.',
       'Question types: multiple choice / identification, and applied passage or infographic analysis.',
       'CER is worth 5 points: Claim (no numbers), Evidence (2 bullets, 2+ numbers each), Reasoning (max 3 sentences).'
     ],

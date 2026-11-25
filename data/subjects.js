@@ -15,12 +15,14 @@
 //   id      optional. Made from the name if left out ("English 1 Honors" -> english-1-honors).
 //           Saved progress and data file names use it, so once a class has a data file,
 //           keep its id the same (add id: "old-id" if you rename the class).
-//   exam    optional final date, "YYYY-MM-DD".
+//   exam    optional final date, "YYYY-MM-DD". THIS IS THE ONE PLACE TO CHANGE A FINAL'S DATE.
+//           The date shown on the class's Home, the countdown and the study plan all read it.
+//   period  optional class period of the final (a number). Shown next to the date.
 //
 // To mark a class done: add its data file, then set file: true and filled: true.
 FINALS.setCatalog([
   { category: "core", subject: "English", classes: [
-    { name: "English 1", file: true, filled: true, exam: "2026-12-18" },
+    { name: "English 1", file: true, filled: true, exam: "2026-12-18", period: 4 },
     { name: "English 1 Honors" },
     { name: "English 2 American Society" }
   ] },
@@ -29,19 +31,19 @@ FINALS.setCatalog([
     { name: "Algebra Academy" },
     { name: "Geometry" },
     { name: "Geometry Essentials" },
-    { name: "Honors Geometry", file: true, filled: true, exam: "2026-12-16" },
+    { name: "Honors Geometry", file: true, filled: true, exam: "2026-12-16", period: 2 },
     { name: "Algebra 2/Trig & Stats" },
     { name: "Honors Algebra 2/Trig & Stats" }
   ] },
   { category: "core", subject: "Science", classes: [
     { name: "Biology" },
-    { name: "Honors Biology", file: true, filled: true, exam: "2026-12-17" },
+    { name: "Honors Biology", file: true, filled: true, exam: "2026-12-17", period: 6 },
     { name: "Chem/Phys" },
     { name: "Environmental Science" },
     { name: "Earth Science" }
   ] },
   { category: "core", subject: "Social Studies", classes: [
-    { name: "Human Geography", file: true, filled: true, exam: "2026-12-16" },
+    { name: "Human Geography", file: true, filled: true, exam: "2026-12-16", period: 1 },
     { name: "AP Human Geography" },
     { name: "US History" },
     { name: "World History" },
@@ -67,7 +69,7 @@ FINALS.setCatalog([
     { name: "Web Design" },
     { name: "Advertising" },
     { name: "Cybersecurity" },
-    { name: "Coding", file: true, filled: true, exam: "2026-12-18" },
+    { name: "Coding", file: true, filled: true, exam: "2026-12-18", period: 7 },
     { name: "Visual Media" },
     { name: "Emerging Technology" },
     { name: "Business Orientation" },
@@ -104,7 +106,7 @@ FINALS.setCatalog([
     { name: "French 2" },
     { name: "German 1" },
     { name: "Spanish 1" },
-    { name: "Spanish 2", file: true, filled: true, exam: "2026-12-17" },
+    { name: "Spanish 2", file: true, filled: true, exam: "2026-12-17", period: 3 },
     { name: "Heritage Spanish 2" },
     { name: "Heritage Spanish 3" },
     { name: "Chinese 1" },
@@ -132,6 +134,6 @@ FINALS.setCatalog([
   ] },
   // The finished example. Its id and files stay exactly as they were.
   { category: "encore", subject: "PE / Health", classes: [
-    { id: "pe-health", name: "PE / Health", file: true, tools: true, filled: true, exam: "2026-12-17" }
+    { id: "pe-health", name: "PE / Health", file: true, tools: true, filled: true, exam: "2026-12-17", period: 8 }
   ] }
 ]);

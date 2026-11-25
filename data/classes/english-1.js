@@ -1,5 +1,5 @@
 // Lessons are written as HTML with diagrams and cards, in plain 9th-grade language.
-// English I CP: Semester 1 final (Fri Dec 18, period 4). Ms. Reppy.
+// English I CP: Semester 1 final). Ms. Reppy.
 // Same format as human-geography.js: units with sections, flashcards, questions and examFacts.
 // Built from the class notebook: course policies, writing skills, literary terms, The Marrow
 // Thieves, Fahrenheit 451, the short stories and the vocab lists.
@@ -559,7 +559,7 @@
   FINALS.addClass('english-1', {
     // Shown on this class's Home.
     examFacts: [
-      'Final: Fri Dec 18, period 4 (Ms. Reppy). Format not posted yet.',
+      'Ms. Reppy’s class. Format not posted yet.',
       'Be able to explain the intro paragraph (hook, bridge, thesis), the 5-part body paragraph, the 4 ways to integrate a quote, MLA citations, and 3rd person pronouns.',
       'Know all three vocab lists: The Marrow Thieves (20), Fahrenheit 451 (20) and Word of the Week (17).'
     ],

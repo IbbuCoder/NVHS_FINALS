@@ -1,4 +1,4 @@
-// Español 2: Semester 1 final (Thu Dec 17, period 3).
+// Español 2: Semester 1 final).
 // Same format as human-geography.js: units with sections, flashcards, questions and examFacts.
 // Built from the class notebooks: Unit 0 Repaso de Español 1, Unit 1 Familia, Tradiciones y
 // Comida, Unit 2 Salud, Hábitos y Rutina Diaria. The exam format was not posted, so Home says so.
@@ -374,7 +374,7 @@
   FINALS.addClass('spanish-2', {
     // Shown on this class's Home. The teacher has not posted an exam format.
     examFacts: [
-      'Final: Thu Dec 17, period 3. Format not posted yet. Study Unit 0 (Repaso), Unit 1 (Familia, Tradiciones y Comida) and Unit 2 (Salud, Hábitos y Rutina Diaria).'
+      'Format not posted yet. Study Unit 0 (Repaso), Unit 1 (Familia, Tradiciones y Comida) and Unit 2 (Salud, Hábitos y Rutina Diaria).'
     ],
     units: units,
     flashcards: flashcards,
