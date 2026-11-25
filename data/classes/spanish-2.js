@@ -10,51 +10,75 @@
       sections: [
         {
           id: 'u0-present', title: 'Present tense endings',
-          body: ['Drop -ar, -er or -ir from the infinitive, then add the ending for who is doing the action.'],
+          simple: 'To say what someone does, cut the end off the verb and add a new ending.',
+          body: [
+            'A Spanish verb in its basic form is called the infinitive. It ends in -ar, -er or -ir. For example: hablar (to talk), comer (to eat), vivir (to live).',
+            'To use a verb, follow 2 steps. Step 1: cut off the last 2 letters (hablar becomes habl-). Step 2: add the ending that matches who is doing the action.',
+            'Example: yo + hablar = yo hablo (I talk). Ella + comer = ella come (she eats). Nosotros + vivir = nosotros vivimos (we live).'
+          ],
           table: { head: ['Who', '-AR', '-ER', '-IR'], rows: [
-            ['yo', '-o', '-o', '-o'],
-            ['tú', '-as', '-es', '-es'],
-            ['él / ella / Ud.', '-a', '-e', '-e'],
-            ['nosotros', '-amos', '-emos', '-imos'],
-            ['vosotros', '-áis', '-éis', '-ís'],
-            ['ellos / ellas / Uds.', '-an', '-en', '-en']
-          ] },
-          simple: 'Take off the last two letters, then add the ending that matches the person.'
+            ['yo (I)', '-o', '-o', '-o'],
+            ['tú (you)', '-as', '-es', '-es'],
+            ['él / ella / Ud. (he / she / you formal)', '-a', '-e', '-e'],
+            ['nosotros (we)', '-amos', '-emos', '-imos'],
+            ['vosotros (you all, Spain)', '-áis', '-éis', '-ís'],
+            ['ellos / ellas / Uds. (they / you all)', '-an', '-en', '-en']
+          ] }
         },
         {
           id: 'u0-verbs', title: 'Core verbs',
+          simple: 'These are the verbs you need to know. Learn them by their ending.',
+          body: ['Sort the verbs by their ending (-ar, -er or -ir). That tells you which endings to use.'],
           list: [
-            '-AR: bailar, cantar, comprar, descansar, dibujar, enseñar, escuchar música, estudiar, hablar por teléfono, jugar al fútbol, mirar la televisión, montar en bicicleta, practicar deportes, preparar la comida, tocar un instrumento, tomar apuntes, trabajar, necesitar, llegar, llevar, limpiar, lavar, usar.',
-            '-ER: beber, comer, correr, comprender / entender, conocer, deber, hacer, perder, poder, poner, querer, ser, tener, traer, vender, ver, volver.',
-            '-IR: abrir, compartir, decir, dormir, escribir, ir, pedir, preferir, recibir, salir, servir, venir, vivir.',
-            'Tener expressions: tener hambre, sed, frío, calor, sueño, miedo de, # años, y tener que + infinitive (to have to).'
+            '-AR verbs: bailar (to dance), cantar (to sing), comprar (to buy), descansar (to rest), dibujar (to draw), enseñar (to teach), escuchar música (to listen to music), estudiar (to study), hablar por teléfono (to talk on the phone), jugar al fútbol (to play soccer), mirar la televisión (to watch TV), montar en bicicleta (to ride a bike), practicar deportes (to play sports), preparar la comida (to make food), tocar un instrumento (to play an instrument), tomar apuntes (to take notes), trabajar (to work), necesitar (to need), llegar (to arrive), llevar (to carry or wear), limpiar (to clean), lavar (to wash), usar (to use).',
+            '-ER verbs: beber (to drink), comer (to eat), correr (to run), comprender / entender (to understand), conocer (to know a person), deber (should), hacer (to do or make), perder (to lose), poder (can), poner (to put), querer (to want), ser (to be), tener (to have), traer (to bring), vender (to sell), ver (to see), volver (to return).',
+            '-IR verbs: abrir (to open), compartir (to share), decir (to say), dormir (to sleep), escribir (to write), ir (to go), pedir (to ask for), preferir (to prefer), recibir (to receive), salir (to leave), servir (to serve), venir (to come), vivir (to live).',
+            'Tener (to have) is also used to say how you feel: tener hambre (to be hungry), tener sed (thirsty), tener frío (cold), tener calor (hot), tener sueño (sleepy), tener miedo de (afraid of), tener 15 años (to be 15 years old).',
+            'Tener que + a verb means "have to": Tengo que estudiar = I have to study.'
           ]
         },
         {
           id: 'u0-boot', title: 'Stem-changing (“boot”) verbs',
-          body: ['The stem changes in every form except nosotros and vosotros. Draw the boot around the forms that change.'],
+          simple: 'In some verbs, a vowel in the middle changes in most forms. Nosotros and vosotros do not change.',
+          body: [
+            'Some verbs change a vowel in the middle (the stem). For example, preferir becomes prefiero, not preferio.',
+            'The change happens in yo, tú, él / ella and ellos. It does NOT happen in nosotros and vosotros.',
+            'If you draw a line around the forms that change, it looks like a boot. That is why they are called boot verbs.',
+            'There are 4 kinds of change: e → ie, u → ue, o → ue, and e → i.'
+          ],
           table: { head: ['Change', 'Verb', 'Forms'], rows: [
-            ['e → ie', 'preferir', 'prefiero, prefieres, prefiere, preferimos, preferís, prefieren'],
-            ['u → ue', 'jugar', 'juego, juegas, juega, jugamos, jugáis, juegan'],
-            ['o → ue', 'volver', 'vuelvo, vuelves, vuelve, volvemos, volvéis, vuelven'],
-            ['e → i', 'servir', 'sirvo, sirves, sirve, servimos, servís, sirven']
+            ['e → ie', 'preferir (to prefer)', 'prefiero, prefieres, prefiere, preferimos, preferís, prefieren'],
+            ['u → ue', 'jugar (to play)', 'juego, juegas, juega, jugamos, jugáis, juegan'],
+            ['o → ue', 'volver (to return)', 'vuelvo, vuelves, vuelve, volvemos, volvéis, vuelven'],
+            ['e → i', 'servir (to serve)', 'sirvo, sirves, sirve, servimos, servís, sirven']
           ] }
         },
         {
           id: 'u0-gustar', title: 'Gustar',
-          body: ['Use the indirect object pronoun + gusta (one thing) or gustan (plural things). The thing you like is the subject, so the verb matches it.'],
-          table: { head: ['To add emphasis', 'Pronoun'], rows: [
-            ['A mí', 'me'], ['A ti', 'te'], ['A él / ella / Ud.', 'le'],
-            ['A nosotros', 'nos'], ['A vosotros', 'os'], ['A ellos / ellas / Uds.', 'les']
+          simple: 'Gustar means "to like," but it works backwards: the thing you like is the subject.',
+          body: [
+            'In Spanish you do not say "I like pizza." You say "Pizza is pleasing to me": Me gusta la pizza.',
+            'The thing you like decides the verb. One thing, or a verb: gusta (Me gusta bailar. Me gusta el libro.). More than one thing: gustan (Me gustan los libros.).',
+            'Before gusta or gustan, put me, te, le, nos, os or les. This tells you who likes it.',
+            'To add emphasis, put "A + person" at the start: A mí me gusta la música. (I really like music.)'
+          ],
+          table: { head: ['Emphasis', 'Pronoun (comes before gusta)'], rows: [
+            ['A mí (me)', 'me'], ['A ti (you)', 'te'], ['A él / ella / Ud. (him / her / you formal)', 'le'],
+            ['A nosotros (us)', 'nos'], ['A vosotros (you all)', 'os'], ['A ellos / ellas / Uds. (them)', 'les']
           ] }
         },
         {
           id: 'u0-serestar', title: 'Ser vs. estar',
-          table: { head: ['', 'Use', 'Forms'], rows: [
+          simple: 'Both mean "to be." Ser is for what something IS. Estar is for where it is and how it feels right now.',
+          body: [
+            'Spanish has 2 verbs for "to be": ser and estar. You pick the one that fits.',
+            'Use SER for the things in the word DOCTOR: Description, Origin, Characteristics, Time, Occupation, Relationship. Example: Soy estudiante (I am a student).',
+            'Use ESTAR for the things in the word PLACE: Position, Location, Action (when you are doing something right now), Condition, Emotion. Example: Estoy cansado (I am tired).'
+          ],
+          table: { head: ['Verb', 'Use it for', 'Forms'], rows: [
             ['SER = DOCTOR', 'Description, Origin, Characteristics, Time, Occupation, Relationship', 'soy, eres, es, somos, sois, son'],
             ['ESTAR = PLACE', 'Position, Location, Action (progressive), Condition, Emotion', 'estoy, estás, está, estamos, estáis, están']
-          ] },
-          simple: 'Ser is for what something IS. Estar is for where it is and how it feels right now.'
+          ] }
         }
       ]
     },
@@ -64,68 +88,86 @@
       sections: [
         {
           id: 'u1-vocab', title: 'Vocabulary',
+          simple: 'Words about family, food and traditions. Learn them in groups.',
+          body: ['Learn the words in their groups. Words with el or la are nouns (things). Words like ayudar are verbs (actions).'],
           list: [
-            'Nouns: la alimentación (food, diet), el banquete (feast), el barrio (neighborhood), la calle (street), la costumbre (custom), el disfraz (costume), el hogar (home), el ingrediente, los invitados (guests), los parientes (relatives), la pimienta (pepper), el platillo típico / auténtico, el postre (dessert), el pueblo (town), la receta (recipe), el sabor (flavor), la sal (salt), la tradición.',
-            'Verbs: ayudar, celebrar / festejar, cocinar, compartir, conversar, disfrutar, ir de vacaciones, probar (o→ue), servir (e→i), visitar.',
+            'Nouns: la alimentación (food, diet), el banquete (feast), el barrio (neighborhood), la calle (street), la costumbre (custom), el disfraz (costume), el hogar (home), el ingrediente (ingredient), los invitados (guests), los parientes (relatives), la pimienta (pepper), el platillo típico / auténtico (traditional dish), el postre (dessert), el pueblo (town), la receta (recipe), el sabor (flavor), la sal (salt), la tradición (tradition).',
+            'Verbs: ayudar (to help), celebrar / festejar (to celebrate), cocinar (to cook), compartir (to share), conversar (to chat), disfrutar (to enjoy), ir de vacaciones (to go on vacation), probar (to try; o→ue), servir (to serve; e→i), visitar (to visit).',
             'Adjectives: caliente (hot), dulce (sweet), orgulloso/a (proud), picante (spicy), rico/a (delicious).',
-            'Papálotl terms: el santuario / bosque, la ofrenda / altar, el oyamel (fir tree), la migración, Papálotl (Nahuatl for butterfly), las alas (wings).'
+            'Butterfly words (Papálotl): el santuario / bosque (sanctuary / forest), la ofrenda / altar (offering / altar), el oyamel (fir tree), la migración (migration), Papálotl (the Nahuatl word for butterfly), las alas (wings).'
           ]
         },
         {
           id: 'u1-compare', title: 'Comparing and connecting words',
+          simple: 'These words help you compare things and join ideas.',
+          body: ['Use these words to compare two things or to join two sentences.'],
           list: [
-            'ambos / los dos (both), también (also), tampoco (neither / either, negative).',
-            'más … que (more … than), menos … que (less … than).',
-            'a diferencia de (unlike), comparado con (compared to), tener en común (to have in common).',
-            'por lo tanto / por eso (therefore), además (besides), mientras que (while, whereas), sin embargo (however).'
+            'ambos / los dos = both. También = also. Tampoco = neither or either (use it in a negative sentence).',
+            'más … que = more … than. Menos … que = less … than. Example: Mi casa es más grande que tu casa.',
+            'a diferencia de = unlike. Comparado con = compared to. Tener en común = to have in common.',
+            'por lo tanto / por eso = therefore. Además = besides. Mientras que = while, whereas. Sin embargo = however.'
           ]
         },
         {
           id: 'u1-infinitive', title: 'Two verbs together',
-          body: ['When two verbs sit together, conjugate the first one and leave the second one as an infinitive.'],
+          simple: 'When 2 verbs are next to each other, change the first one. Keep the second one in its basic form.',
+          body: [
+            'Sometimes 2 verbs sit side by side. Change only the first one to match the person. Leave the second one as an infinitive (the form ending in -ar, -er or -ir).',
+            'Example: Voy a comer. "Voy" is changed (from ir). "Comer" stays the same.'
+          ],
           list: [
-            'Key phrases that take an infinitive: gustar + inf., antes de, después de, tener que, ir a, tener ganas de, es importante, para, acabar de, hay que, deber, saber.',
-            'Examples: Me gusta bailar. Voy a comer. Tengo que estudiar. Acabo de llegar.'
+            'Phrases that are followed by an infinitive: gustar + infinitive, antes de (before), después de (after), tener que (have to), ir a (going to), tener ganas de (feel like), es importante (it is important), para (in order to), acabar de (just did), hay que (one must), deber (should), saber (to know how to).',
+            'Examples: Me gusta bailar (I like to dance). Voy a comer (I am going to eat). Tengo que estudiar (I have to study). Acabo de llegar (I just arrived).'
           ]
         },
         {
           id: 'u1-progressive', title: 'Present progressive',
-          body: ['Use ESTAR (conjugated) + gerundio to say what is happening right now.'],
+          simple: 'Use it to say what is happening right now: estar + a verb ending in -ando or -iendo.',
+          body: [
+            'The present progressive says what is happening at this very moment. In English: "I am eating."',
+            'Build it in 2 parts. Part 1: the right form of ESTAR (estoy, estás, está...). Part 2: the gerundio, which is the "-ing" form of the verb.',
+            'Example: Estoy hablando = I am talking. Ella está comiendo = She is eating.'
+          ],
           table: { head: ['Verb type', 'Gerundio ending', 'Example'], rows: [
             ['-AR', '-ando', 'hablar → hablando'],
             ['-ER / -IR', '-iendo', 'comer → comiendo, vivir → viviendo'],
             ['Irregular (y)', '-yendo', 'leer → leyendo, traer → trayendo, ir → yendo'],
-            ['Stem-changing -IR', 'vowel change + -iendo', 'dormir → durmiendo, servir → sirviendo, pedir → pidiendo, competir → compitiendo, decir → diciendo, seguir → siguiendo']
+            ['Stem-changing -IR', 'change the vowel, then add -iendo', 'dormir → durmiendo, servir → sirviendo, pedir → pidiendo, competir → compitiendo, decir → diciendo, seguir → siguiendo']
           ] }
         },
         {
           id: 'u1-food', title: 'Ocho platillos típicos',
+          simple: 'Eight famous Mexican dishes and one fact about each.',
+          body: ['A platillo típico is a traditional dish. Learn one fact about each of these 8.'],
           table: { head: ['Platillo', 'What to know'], rows: [
-            ['Chiles en nogada', 'From Puebla. Green poblano chile, pork picadillo, walnut sauce and pomegranate seeds: the colors of the Mexican flag.'],
-            ['Pozole', 'Hominy and pork soup. White or green in Guerrero, red in Sinaloa and Jalisco. Topped with lettuce, radish, onion and oregano.'],
-            ['Tostadas', 'Prehispanic crispy corn tortillas with toppings.'],
-            ['Tamales', 'Corn dough (masa) filled, wrapped in corn husks or banana leaves, then steamed.'],
-            ['Enchiladas', 'Precolombian rolled tortillas covered in sauce or mole.'],
-            ['Tacos', 'Prehispanic. Corn or wheat tortillas with fillings.'],
+            ['Chiles en nogada', 'From Puebla. A green poblano chile filled with pork picadillo, covered in walnut sauce and pomegranate seeds. The colors are the colors of the Mexican flag.'],
+            ['Pozole', 'A soup made with hominy (large corn kernels) and pork. White or green in Guerrero, red in Sinaloa and Jalisco. Topped with lettuce, radish, onion and oregano.'],
+            ['Tostadas', 'Very old (prehispanic). Crispy corn tortillas with toppings.'],
+            ['Tamales', 'Corn dough (masa) with a filling, wrapped in corn husks or banana leaves, then steamed.'],
+            ['Enchiladas', 'Very old (precolombian). Rolled tortillas covered in sauce or mole.'],
+            ['Tacos', 'Very old (prehispanic). Corn or wheat tortillas with fillings.'],
             ['Elotes y esquites', 'Corn with lime, mayonnaise, cheese, salt and chiles.'],
-            ['Mole poblano', 'Complex sauce of chiles, seeds, herbs, spices and chocolate, served over turkey or chicken.']
+            ['Mole poblano', 'A complex sauce made of chiles, seeds, herbs, spices and chocolate. Served over turkey or chicken.']
           ] },
-          list: ['Guacamole is avocado, eaten with totopos (tortilla chips).']
+          list: ['Guacamole is avocado. It is eaten with totopos (tortilla chips).']
         },
         {
           id: 'u1-family', title: 'La familia mexicana',
+          simple: 'Three facts about how important family is in Mexico.',
           list: [
-            '98% of Mexicans say family is vital.',
-            'Top family values: communication (23%), union (22%), respect (21%).',
+            '98% of Mexicans say family is vital (very important).',
+            'The top family values are communication (23%), union (22%) and respect (21%).',
             '70% of parents see their role as educating and guiding their children.'
           ]
         },
         {
           id: 'u1-holidays', title: 'Fiestas y tradiciones',
+          simple: 'Three holidays and what people do for each one.',
+          body: ['Learn what happens at each holiday.'],
           table: { head: ['Holiday', 'What to know'], rows: [
-            ['Día de los Muertos (Nov 1–2)', 'Ofrendas / altares with marigolds, incense and food. Monarch butterflies arrive in Michoacán at this time; in Mazahua tradition they are the spirits of ancestors.'],
-            ['Rosca de Reyes (Jan 6)', 'Epiphany pastry with a baby doll hidden inside. Whoever finds it hosts the Candlemas party.'],
-            ['Nochevieja / Año Nuevo', 'Eat 12 grapes at midnight (12 wishes). Wear yellow underwear for money or red for love. Put a coin in your shoe, hold 12 coins, sweep bad energy out the door, light colored candles.']
+            ['Día de los Muertos (Nov 1–2)', 'Families build ofrendas (altars) with marigolds, incense and food. Monarch butterflies arrive in Michoacán at this time. In Mazahua tradition, they are the spirits of ancestors.'],
+            ['Rosca de Reyes (Jan 6)', 'A sweet bread eaten on Epiphany. A baby doll is hidden inside. Whoever finds it hosts the Candlemas party.'],
+            ['Nochevieja / Año Nuevo (New Year)', 'Eat 12 grapes at midnight (12 wishes). Wear yellow underwear for money or red for love. Put a coin in your shoe, hold 12 coins, sweep bad energy out the door, and light colored candles.']
           ] }
         }
       ]
@@ -136,60 +178,80 @@
       sections: [
         {
           id: 'u2-vocab', title: 'Vocabulary',
+          simple: 'Words about health, food, sports and your daily routine.',
+          body: ['Learn the words in their groups.'],
           list: [
-            'Nouns: el azúcar, el premio, el partido (game), la competencia, la salud, la grasa (fat), la comida saludable / chatarra / basura / variada / rápida, la merienda (snack), el médico, la vida sana, el consejo (advice), el cuerpo, el juego, el ganador, el perdedor, el trofeo, la medalla (oro / plata / bronce), los carbohidratos, las calorías, la actividad física / al aire libre, el estrés, la depresión, el hábito, una rutina sana, la proteína.',
-            'Actions: hacer ejercicio, mantenerse en forma, seguir (e→i) una dieta balanceada, competir (e→i), desayunar, almorzar (o→ue), cenar, subir / bajar de peso, entrenarse.',
-            'Daily routine: despertarse (e→ie), levantarse, acostarse (o→ue), dormirse (o→ue), lavarse, estirarse, enfermarse, relajarse, ducharse, bañarse, afeitarse, secarse, cepillarse los dientes, vestirse (e→i), ponerse la ropa, maquillarse, peinarse.',
-            'Adjectives: sano/a, saludable, balanceado/a, variado/a, activo/a, competitivo/a, optimista, pesimista.'
+            'Nouns: el azúcar (sugar), el premio (prize), el partido (game), la competencia (competition), la salud (health), la grasa (fat), la comida saludable / chatarra / basura / variada / rápida (healthy / junk / junk / varied / fast food), la merienda (snack), el médico (doctor), la vida sana (healthy life), el consejo (advice), el cuerpo (body), el juego (game), el ganador (winner), el perdedor (loser), el trofeo (trophy), la medalla (medal: oro / plata / bronce = gold / silver / bronze), los carbohidratos (carbs), las calorías (calories), la actividad física / al aire libre (physical / outdoor activity), el estrés (stress), la depresión (depression), el hábito (habit), una rutina sana (healthy routine), la proteína (protein).',
+            'Actions: hacer ejercicio (to exercise), mantenerse en forma (to stay in shape), seguir (e→i) una dieta balanceada (to follow a balanced diet), competir (e→i) (to compete), desayunar (to eat breakfast), almorzar (o→ue) (to eat lunch), cenar (to eat dinner), subir / bajar de peso (to gain / lose weight), entrenarse (to train).',
+            'Daily routine: despertarse (e→ie) (to wake up), levantarse (to get up), acostarse (o→ue) (to go to bed), dormirse (o→ue) (to fall asleep), lavarse (to wash), estirarse (to stretch), enfermarse (to get sick), relajarse (to relax), ducharse (to shower), bañarse (to bathe), afeitarse (to shave), secarse (to dry off), cepillarse los dientes (to brush teeth), vestirse (e→i) (to get dressed), ponerse la ropa (to put on clothes), maquillarse (to put on makeup), peinarse (to comb hair).',
+            'Adjectives: sano/a (healthy), saludable (healthy), balanceado/a (balanced), variado/a (varied), activo/a (active), competitivo/a (competitive), optimista (optimistic), pesimista (pessimistic).'
           ]
         },
         {
           id: 'u2-body', title: 'Las partes del cuerpo',
+          simple: 'Body parts, grouped by where they are.',
+          body: ['Learn the body parts in groups: head, trunk, arms, legs, and inside and outside.'],
           list: [
-            'Head: la cabeza, la cara, los ojos, las orejas / los oídos (ears), la nariz, la boca, los dientes, la lengua.',
-            'Trunk: el cuello, los hombros, el pecho, la espalda, el estómago, las caderas, la cintura.',
-            'Arms: los brazos, el codo, la muñeca, las manos, los dedos.',
-            'Legs: las piernas, la rodilla, el tobillo, los pies, los dedos del pie.',
-            'Inside and outside: los músculos, los huesos, la piel, el corazón, los pulmones.'
+            'Head: la cabeza (head), la cara (face), los ojos (eyes), las orejas / los oídos (ears), la nariz (nose), la boca (mouth), los dientes (teeth), la lengua (tongue).',
+            'Trunk (the middle): el cuello (neck), los hombros (shoulders), el pecho (chest), la espalda (back), el estómago (stomach), las caderas (hips), la cintura (waist).',
+            'Arms: los brazos (arms), el codo (elbow), la muñeca (wrist), las manos (hands), los dedos (fingers).',
+            'Legs: las piernas (legs), la rodilla (knee), el tobillo (ankle), los pies (feet), los dedos del pie (toes).',
+            'Inside and outside: los músculos (muscles), los huesos (bones), la piel (skin), el corazón (heart), los pulmones (lungs).'
           ]
         },
         {
           id: 'u2-reflexive', title: 'Reflexive verbs',
-          body: ['In a reflexive verb the subject does the action AND receives it (me lavo = I wash myself). The pronouns are me, te, se, nos, os, se.'],
-          table: { head: ['Who', 'levantarse'], rows: [
+          simple: 'A reflexive verb is an action you do to yourself. Add me, te, se, nos, os or se before the verb.',
+          body: [
+            'A reflexive verb is an action you do to yourself. Example: me lavo = I wash myself. Levantarse = to get (yourself) up.',
+            'You can spot one because the infinitive ends in -se (levantarse, lavarse, vestirse).',
+            'Before the verb, add a small word that matches who is acting: me, te, se, nos, os, se. Then change the verb like normal.'
+          ],
+          table: { head: ['Who', 'levantarse (to get up)'], rows: [
             ['yo', 'me levanto'], ['tú', 'te levantas'], ['él / ella / Ud.', 'se levanta'],
             ['nosotros', 'nos levantamos'], ['vosotros', 'os levantáis'], ['ellos / ellas / Uds.', 'se levantan']
           ] },
           list: [
-            'The pronoun goes before the conjugated verb: Me levanto.',
-            'Or attach it to the infinitive: Voy a levantarme.',
-            'Or attach it to the gerundio, and add an accent: Estoy levantándome.'
+            'Where does the small word go? Option 1: before the verb. Me levanto.',
+            'Option 2: attached to the end of an infinitive. Voy a levantarme.',
+            'Option 3: attached to the end of a gerundio. You must also add an accent: Estoy levantándome.'
           ]
         },
         {
           id: 'u2-doler', title: 'Doler (to hurt)',
-          body: ['Doler works like gustar: duele (one thing hurts) and duelen (more than one thing hurts). It is also a boot verb (o→ue). Use the definite article (el, la, los, las) with body parts, not “my”.'],
-          list: ['Me duele la cabeza. Me duelen los pies.']
+          simple: 'Doler works like gustar. Use duele for one thing and duelen for more than one.',
+          body: [
+            'Doler means "to hurt." It works backwards, just like gustar. The body part is the subject.',
+            'One body part: duele. More than one: duelen. Put me, te, le, nos, os or les before it.',
+            'Doler is also a boot verb (o→ue): that is why it is duele, not dole.',
+            'With body parts, use el, la, los or las. Do NOT say "my."'
+          ],
+          list: ['Me duele la cabeza (My head hurts). Me duelen los pies (My feet hurt).']
         },
         {
           id: 'u2-tu-affirm', title: 'Tú commands: affirmative',
+          simple: 'A "yes, do it" command to a friend uses the él / ella form of the verb.',
+          body: ['A command tells someone to do something. This lesson is about telling a friend (tú) to DO something, like "Talk!" or "Eat!"'],
           list: [
-            'Use the él / ella (3rd person singular) present form: ¡Habla! ¡Escucha! ¡Escribe!',
-            'Eight irregulars: venir → ven, decir → di, salir → sal, hacer → haz, tener → ten, ir → ve, poner → pon, ser → sé. (Ven Di Sal Haz Ten Ve Pon Sé)',
-            'AAA rule (Affirmative Always Attach): attach the pronouns to the end and add an accent mark if needed: ¡Despiértate! ¡Vístete! ¡Póntelos!'
+            'Rule: use the él / ella form of the verb. Hablar → ¡Habla! (Talk!) Escuchar → ¡Escucha! (Listen!) Escribir → ¡Escribe! (Write!)',
+            'There are 8 irregular ones. Memorize them with the words: Ven Di Sal Haz Ten Ve Pon Sé. They are venir → ven, decir → di, salir → sal, hacer → haz, tener → ten, ir → ve, poner → pon, ser → sé.',
+            'AAA rule: Affirmative Always Attach. Attach the small words (me, te, se, lo...) to the END of the command. Add an accent mark if needed: ¡Despiértate! ¡Vístete! ¡Póntelos!'
           ]
         },
         {
           id: 'u2-tu-neg', title: 'Tú commands: negative',
+          simple: 'A "no, don\'t" command: take the yo form, drop the -o, and add the OPPOSITE ending.',
+          body: ['This is how to tell a friend NOT to do something. Example: ¡No hables! (Do not talk!)'],
           list: [
-            'Start with the yo form, drop the -o, then add the opposite vowel: -ar verbs get -es, -er / -ir verbs get -as. ¡No hables! ¡No comas! ¡No escribas!',
-            'Spelling changes carry over: -car → -ques, -gar → -gues, -zar → -ces. Stem changes carry over too: No pongas, No enciendas, No duermas.',
-            'Irregular negatives (SIDES): ir → no vayas, ser → no seas, estar → no estés, dar → no des, saber → no sepas.',
-            'NNA rule (Negatives Never Attach): the pronoun goes BEFORE the command. ¡No te duermas! ¡No lo hagas!'
+            'Rule: start with the yo form. Drop the -o. Then add the opposite vowel. -ar verbs get -es. -er and -ir verbs get -as. Examples: ¡No hables! ¡No comas! ¡No escribas!',
+            'Spelling changes: -car → -ques, -gar → -gues, -zar → -ces. Stem changes stay: No pongas, No enciendas, No duermas.',
+            'Irregular negatives. Memorize them as SIDES: ir → no vayas, ser → no seas, estar → no estés, dar → no des, saber → no sepas.',
+            'NNA rule: Negatives Never Attach. The small word goes BEFORE the command: ¡No te duermas! ¡No lo hagas!'
           ]
         },
         {
           id: 'u2-habits', title: 'Hábitos saludables',
+          simple: 'Healthy habits and numbers to remember.',
           list: [
             '30 minutes of physical activity every day.',
             '2 liters of water a day.',
@@ -198,7 +260,7 @@
             '5 small meals a day, and never skip breakfast.',
             'Sleep 7–8 hours.',
             'No tobacco or alcohol.',
-            'A sedentary lifestyle raises the risk of obesity, diabetes and heart disease.'
+            'A sedentary lifestyle (sitting a lot) raises the risk of obesity, diabetes and heart disease.'
           ]
         }
       ]
