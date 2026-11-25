@@ -25,7 +25,7 @@ try {
   r.dataset.theme = t;
   if (s.size) r.dataset.size = s.size;
   if (s.density) r.dataset.density = s.density;
-  if (s.simple === 'on') r.setAttribute('data-simple', '');
+  if (s.simple !== 'off') r.setAttribute('data-simple', '');
 } catch (e) { document.documentElement.dataset.theme = 'dark'; }
 // The app manifest (for Add to Home Screen) only works on a real web address,
 // so it isn't added when the file is opened straight from a computer.

@@ -53,6 +53,7 @@
       sections: [
         {
           id: 'u1-solve', title: 'Solving equations and inequalities',
+          simple: 'Solving means getting x by itself. Do the opposite of whatever is being done to x, and do it to both sides. If you multiply or divide by a negative number, flip the sign (< becomes >).',
           body: [
             'Undo the operations in reverse order. Distribute first, collect the variable on one side, then divide.',
             'Inequalities work the same way, with one rule: when you multiply or divide both sides by a negative number, flip the inequality sign.'
@@ -73,6 +74,7 @@
         },
         {
           id: 'u1-lines', title: 'Slope and equations of lines',
+          simple: 'Slope tells you how steep a line is: rise over run. You can write a line as y = mx + b (m is the slope, b is where it crosses the y-axis). If you know a point and the slope, use point-slope form.',
           table: { head: ['Thing', 'Formula or rule'], rows: [
             ['Slope', 'm = (y₂ − y₁) / (x₂ − x₁)'],
             ['Slope-intercept form', 'y = mx + b (b is the y-intercept)'],
@@ -91,6 +93,7 @@
         },
         {
           id: 'u1-systems', title: 'Systems of equations',
+          simple: 'A system is two equations at once. The answer is the spot where the two lines cross. Lines that cross once have 1 answer. Parallel lines never cross, so 0 answers. The same line twice has endless answers.',
           body: ['Solve by substitution (replace one variable) or elimination (add or subtract the equations so one variable cancels).'],
           list: [
             'One solution: the lines cross (different slopes).',
@@ -104,6 +107,7 @@
         },
         {
           id: 'u1-word', title: 'Word problems',
+          simple: 'For word problems: pick a letter for what you don’t know, turn the words into an equation, solve it, then answer the question in words (with units).',
           body: ['Name the unknown, write an equation from the words, solve, then answer the question that was asked (with units).'],
           list: [
             'Example: Plan A costs $30 to join plus $12 a month. Plan B costs $18 a month with no fee. When do they cost the same?',
@@ -115,6 +119,7 @@
         },
         {
           id: 'u1-coord', title: 'Midpoint and distance',
+          simple: 'Midpoint is the middle of two points: average the x’s and average the y’s. Distance is how far apart they are: it’s just the Pythagorean theorem on a grid.',
           table: { head: ['Formula', 'What it is'], rows: [
             ['Midpoint', '((x₁ + x₂) / 2, (y₁ + y₂) / 2): average the x’s and average the y’s'],
             ['Distance', '√((x₂ − x₁)² + (y₂ − y₁)²): the Pythagorean theorem on the grid']
@@ -129,6 +134,7 @@
         },
         {
           id: 'u1-right', title: 'Is it a right triangle?',
+          simple: 'To check for a right angle, you can use slopes (if they multiply to −1, the sides are perpendicular) or side lengths (if a² + b² = c², it’s a right triangle). Bigger than c² is acute. Smaller is obtuse.',
           body: [
             'Way 1, slopes: if two sides have slopes that are opposite reciprocals (they multiply to −1), those sides are perpendicular, so the triangle has a right angle.',
             'Way 2, side lengths: find all three lengths. If a² + b² = c² (c is the longest side), it is a right triangle. If a² + b² > c² it is acute. If a² + b² < c² it is obtuse.'
@@ -155,6 +161,7 @@
       sections: [
         {
           id: 'u2-ifthen', title: 'If-then statements',
+          simple: 'An if-then statement says: if this happens, then that happens. The converse flips the two parts. The contrapositive flips them AND adds “not” to both. The contrapositive is always true or false the same as the original. One example that breaks the statement (a counterexample) proves it false.',
           body: [
             'A conditional is “If p, then q.” p is the hypothesis, q is the conclusion.',
             'To write a sentence in if-then form, put the subject in the “if” part. “Vertical angles are congruent” becomes “If two angles are vertical angles, then they are congruent.”',
@@ -174,6 +181,7 @@
         },
         {
           id: 'u2-defs', title: 'Definitions are reversible',
+          simple: 'A good definition works both ways, so you can write it with “if and only if.” Theorems often don’t work both ways. The table is the vocab you need to know.',
           body: [
             'A good definition works both ways: the conditional and its converse are both true. So a definition can be written with “if and only if” (a biconditional).',
             'Example: both of these are true:',
@@ -197,6 +205,7 @@
         },
         {
           id: 'u2-angles', title: 'Angle theorems (if-then form)',
+          simple: 'These are the angle rules you can use as reasons. Straight-line pairs add to 180°. Vertical angles (across from each other) are equal. All right angles are equal. Angles that match the same angle’s supplement (or complement) are equal to each other.',
           list: [
             'Linear pair theorem: If two angles form a linear pair, then they are supplementary.',
             'Vertical angles theorem: If two angles are vertical angles, then they are congruent.',
@@ -207,6 +216,7 @@
         },
         {
           id: 'u2-asn', title: 'Always, sometimes or never',
+          simple: 'Always, sometimes or never? Try a few examples. If it works every time, it’s always. If it works for some and not others, it’s sometimes. If it can’t ever work, it’s never.',
           body: ['Try a few examples. If you find one case where it is true and one where it is false, the answer is sometimes. If it can’t fail, always. If it can’t happen, never.'],
           table: { head: ['Statement', 'Answer', 'Why'], rows: [
             ['Vertical angles are congruent.', 'Always', 'Vertical angles theorem'],
@@ -221,6 +231,7 @@
         },
         {
           id: 'u2-algebra', title: 'Angle algebra',
+          simple: 'Turn the angle words into an equation, then solve it. Supplement means add to 180°. Complement means add to 90°. Vertical angles are equal.',
           list: [
             'An angle’s supplement is 3 times its complement. Find the angle. 180 − x = 3(90 − x) → 180 − x = 270 − 3x → 2x = 90 → x = 45°. Check: supplement 135°, complement 45°, and 3 · 45 = 135.',
             'Two angles form a linear pair: (3x + 10)° and (5x − 30)°. 8x − 20 = 180 → x = 25. The angles are 85° and 95° (85 + 95 = 180).',
@@ -229,6 +240,7 @@
         },
         {
           id: 'u2-reasons', title: 'Reasons you can use',
+          simple: 'These are the reasons you write on the right side of a proof. Reflexive: a thing equals itself. Symmetric: you can flip the sides. Transitive: if A = B and B = C, then A = C. Addition postulates: the parts add up to the whole.',
           table: { head: ['Reason', 'What it says'], rows: [
             ['Reflexive property', 'AB ≅ AB (anything is congruent to itself)'],
             ['Symmetric property', 'If AB ≅ CD, then CD ≅ AB'],
@@ -248,6 +260,7 @@
       sections: [
         {
           id: 'u3-cong', title: 'Congruent triangles and CPCTC',
+          simple: 'Congruent triangles are exact copies: same size and same shape. The letters have to be in the matching order. CPCTC means once you prove the triangles are copies, all their matching parts are equal too.',
           body: [
             'Two triangles are congruent when all three pairs of sides and all three pairs of angles are congruent.',
             'The order of the letters matters. △ABC ≅ △DEF means A matches D, B matches E and C matches F. So AB ≅ DE, BC ≅ EF, AC ≅ DF, ∠A ≅ ∠D, ∠B ≅ ∠E and ∠C ≅ ∠F.',
@@ -256,6 +269,7 @@
         },
         {
           id: 'u3-shortcuts', title: 'Ways to prove triangles congruent',
+          simple: 'You don’t need all 6 matching parts. These 5 shortcuts are enough: SSS, SAS, ASA, AAS and HL (right triangles only). SSA and AAA do NOT work.',
           table: { head: ['Shortcut', 'What you need'], rows: [
             ['SSS', 'All three pairs of sides congruent'],
             ['SAS', 'Two pairs of sides and the angle between them (the included angle)'],
@@ -270,6 +284,7 @@
         },
         {
           id: 'u3-isos', title: 'Isosceles triangles',
+          simple: 'An isosceles triangle has 2 equal sides. The angles across from those sides (the base angles) are equal too. This works both ways. An equilateral triangle has 3 equal sides and 3 angles of 60°.',
           body: ['An isosceles triangle has two congruent sides (the legs). The third side is the base. The angles at the base are the base angles, and the angle between the legs is the vertex angle.'],
           list: [
             'Base angles theorem: If two sides of a triangle are congruent, then the angles opposite them are congruent.',
@@ -286,6 +301,7 @@
         },
         {
           id: 'u3-layout', title: 'How to set up a two-column proof',
+          simple: 'A proof is a list. Left side: what you know. Right side: why it’s true. Start with the givens, add easy facts (like a shared side), prove the triangles match with a shortcut, then use CPCTC to get what you need.',
           list: [
             'Write the Given and the Prove, and mark the diagram: matching tick marks for congruent sides, arcs for congruent angles.',
             'Statements go on the left, reasons on the right. Number every line. Every statement needs a reason.',
@@ -297,6 +313,7 @@
         },
         {
           id: 'u3-proof1', title: 'Proof practice 1: SAS with a midpoint',
+          simple: 'This proof uses SAS. The midpoint gives you 2 equal sides, and the vertical angles give you the equal angle between them.',
           html: proof('M is the midpoint of AD and M is the midpoint of BC.', 'AB ≅ DC',
             fig('Segments AD and BC cross at M, making triangle AMB on the left and triangle DMC on the right', 260, 170,
               [[30, 30, 230, 140], [30, 140, 230, 30], [30, 30, 30, 140], [230, 30, 230, 140]],
@@ -313,6 +330,7 @@
         },
         {
           id: 'u3-proof2', title: 'Proof practice 2: isosceles triangle',
+          simple: 'The line from the top corner cuts the angle in half. The 2 equal sides, the 2 equal half-angles and the shared line make 2 matching triangles (SAS). Then CPCTC gives you BD = CD.',
           html: proof('AB ≅ AC and AD bisects ∠BAC (D is on BC).', 'BD ≅ CD',
             fig('Isosceles triangle ABC with A at the top and a segment from A down to D on the base BC', 260, 180,
               [[130, 20, 30, 160], [130, 20, 230, 160], [30, 160, 230, 160], [130, 20, 130, 160]],
@@ -327,6 +345,7 @@
         },
         {
           id: 'u3-proof3', title: 'Proof practice 3: HL',
+          simple: 'This proof uses HL. HL only works on right triangles, so first say they are right triangles. The hypotenuses match, and so does one shared leg.',
           html: proof('AB ⊥ BC, DC ⊥ BC and AC ≅ DB.', 'AB ≅ DC',
             fig('Points A and D above B and C, with right angles at B and C and diagonals AC and DB crossing', 260, 170,
               [[40, 30, 40, 140], [220, 30, 220, 140], [40, 140, 220, 140], [40, 30, 220, 140], [220, 30, 40, 140]],
@@ -350,6 +369,7 @@
       sections: [
         {
           id: 'u4-bisectors', title: 'Perpendicular bisectors and angle bisectors',
+          simple: 'Any point on a perpendicular bisector is the same distance from both ends of the segment. Any point on an angle bisector is the same distance from both sides of the angle. Both rules work backwards too.',
           list: [
             'Perpendicular bisector theorem: If a point is on the perpendicular bisector of a segment, then it is equidistant from the endpoints of the segment.',
             'Converse: If a point is equidistant from the endpoints of a segment, then it is on the perpendicular bisector of the segment.',
@@ -364,6 +384,7 @@
         },
         {
           id: 'u4-centers', title: 'The four centers of a triangle',
+          simple: 'A triangle has 4 special centers. Perpendicular bisectors meet at the circumcenter. Angle bisectors meet at the incenter. Medians meet at the centroid. Altitudes meet at the orthocenter. The incenter and centroid are always inside the triangle.',
           table: { head: ['Center', 'Where these meet', 'Special fact', 'Acute', 'Right', 'Obtuse'], rows: [
             ['Circumcenter', 'Perpendicular bisectors of the sides', 'Equidistant from the 3 vertices (center of the circle through the vertices)', 'Inside', 'On the triangle, at the midpoint of the hypotenuse', 'Outside'],
             ['Incenter', 'Angle bisectors', 'Equidistant from the 3 sides (center of the circle inside that touches each side)', 'Inside', 'Inside', 'Inside'],
@@ -377,6 +398,7 @@
         },
         {
           id: 'u4-medians', title: 'Medians, altitudes and the centroid',
+          simple: 'A median goes from a corner to the middle of the opposite side. An altitude goes from a corner straight down (at a right angle) to the opposite side. The centroid is where the medians cross. It sits 2/3 of the way from the corner.',
           list: [
             'Median: a segment from a vertex to the midpoint of the opposite side.',
             'Altitude: a segment from a vertex perpendicular to the line that contains the opposite side.',
@@ -388,6 +410,7 @@
         },
         {
           id: 'u4-midsegment', title: 'Midsegment theorem',
+          simple: 'A midsegment connects the middle points of two sides. It is parallel to the third side and half as long.',
           list: [
             'Midsegment: a segment that joins the midpoints of two sides of a triangle.',
             'Midsegment theorem: If a segment joins the midpoints of two sides of a triangle, then it is parallel to the third side and half as long.',
@@ -401,6 +424,7 @@
         },
         {
           id: 'u4-angles', title: 'Angle sum and exterior angles',
+          simple: 'The 3 angles of a triangle always add to 180°. An exterior angle (the angle outside the triangle) equals the 2 far-away inside angles added together.',
           list: [
             'Triangle angle sum: the three angles of a triangle add to 180°.',
             'Exterior angle theorem: If an angle is an exterior angle of a triangle, then its measure equals the sum of the two remote (non-adjacent) interior angles.',
@@ -415,6 +439,7 @@
         },
         {
           id: 'u4-inequality', title: 'Triangle inequality and ordering',
+          simple: 'Any 2 sides of a triangle added together must be longer than the third side. The longest side is across from the biggest angle. The shortest side is across from the smallest angle.',
           list: [
             'Triangle inequality: the sum of any two sides is greater than the third side.',
             'The third side must be between the difference and the sum of the other two: sides 7 and 12 → 12 − 7 < x < 12 + 7, so 5 < x < 19.',
@@ -435,6 +460,7 @@
       sections: [
         {
           id: 'u5-pairs', title: 'Angle pairs with a transversal',
+          simple: 'A transversal is a line that cuts across other lines. It makes pairs of angles. If the 2 lines are parallel, some pairs are equal and some add to 180°.',
           html: '<p>A transversal is a line that crosses two or more lines. Below, lines ℓ and m are cut by transversal t.</p>' + transversal +
             '<table class="tbl stack"><thead><tr><th scope="col">Pair</th><th scope="col">Examples</th><th scope="col">If ℓ ∥ m</th></tr></thead><tbody>' +
             '<tr><th scope="row">Corresponding</th><td data-label="Examples">∠1 and ∠5, ∠2 and ∠6, ∠3 and ∠7, ∠4 and ∠8 (same spot at each crossing)</td><td data-label="If ℓ ∥ m">Congruent</td></tr>' +
@@ -447,6 +473,7 @@
         },
         {
           id: 'u5-theorems', title: 'Parallel line theorems (if-then form)',
+          simple: 'When 2 lines are parallel and a line cuts across them: corresponding angles are equal, alternate interior angles are equal, alternate exterior angles are equal, and same-side interior angles add to 180°.',
           list: [
             'If two parallel lines are cut by a transversal, then corresponding angles are congruent.',
             'If two parallel lines are cut by a transversal, then alternate interior angles are congruent.',
@@ -457,6 +484,7 @@
         },
         {
           id: 'u5-proving', title: 'Proving lines are parallel',
+          simple: 'To prove lines are parallel, do the opposite: show that the angles match (equal, or adding to 180°). Then the lines have to be parallel.',
           body: ['Use the converses. Each one starts with the angles and ends with “the lines are parallel.”'],
           list: [
             'If two lines are cut by a transversal so that corresponding angles are congruent, then the lines are parallel.',
@@ -479,6 +507,7 @@
         },
         {
           id: 'u5-slopes', title: 'Slopes of parallel and perpendicular lines',
+          simple: 'Parallel lines have the same slope. Perpendicular lines have slopes that are flipped and have opposite signs (like 2/3 and −3/2). Multiply them and you get −1.',
           list: [
             'Parallel lines have the same slope (and different y-intercepts).',
             'Perpendicular lines have slopes that are opposite reciprocals: their product is −1. (A horizontal and a vertical line are also perpendicular.)',
@@ -510,6 +539,7 @@
       sections: [
         {
           id: 'u6-props', title: 'Properties of each quadrilateral',
+          simple: 'Each shape has its own rules. A parallelogram has opposite sides equal and parallel. A rectangle also has 4 right angles. A rhombus also has 4 equal sides. A square is both. A kite has 2 pairs of equal sides side by side. A trapezoid has exactly 1 pair of parallel sides.',
           table: { head: ['Shape', 'Definition', 'Properties'], rows: [
             ['Parallelogram', 'Both pairs of opposite sides parallel', 'Opposite sides congruent. Opposite angles congruent. Consecutive angles supplementary. Diagonals bisect each other.'],
             ['Rectangle', 'A parallelogram with four right angles', 'Everything a parallelogram has, plus congruent diagonals.'],
@@ -525,6 +555,7 @@
         },
         {
           id: 'u6-proving', title: 'How to prove each one',
+          simple: 'To prove a shape is a parallelogram, rectangle, rhombus and so on, show just one of the things in the table. Then it counts.',
           table: { head: ['To prove it is a…', 'Show any one of these'], rows: [
             ['Parallelogram', 'Both pairs of opposite sides parallel; both pairs of opposite sides congruent; one pair of opposite sides both parallel and congruent; the diagonals bisect each other; both pairs of opposite angles congruent'],
             ['Rectangle', 'A parallelogram with one right angle; a parallelogram with congruent diagonals'],
@@ -536,6 +567,7 @@
         },
         {
           id: 'u6-coord', title: 'Quadrilaterals on a grid',
+          simple: 'On a grid, use slopes to find parallel and perpendicular sides, and use distance to find equal sides. Then name the most specific shape that fits.',
           body: [
             'Use only the given points. Slope tells you parallel (same slope) and perpendicular (product −1). Distance tells you congruent sides. Midpoints tell you if diagonals bisect each other.',
             'Then name the most specific shape that fits.'
@@ -550,6 +582,7 @@
         },
         {
           id: 'u6-algebra', title: 'Algebra and restrictions on x',
+          simple: 'Use the shape’s rule to write an equation. Then solve for x. Lengths must be more than 0. Angles in a polygon must be between 0° and 180°.',
           list: [
             'Parallelogram, consecutive angles (3x + 10)° and (x + 30)°: they are supplementary, so 4x + 40 = 180 → x = 35. The angles are 115° and 65°.',
             'Rectangle, diagonals AC = 3x + 4 and BD = 5x − 10: the diagonals are congruent, so 3x + 4 = 5x − 10 → x = 7, and each diagonal is 25.',
@@ -564,6 +597,7 @@
         },
         {
           id: 'u6-polygons', title: 'Polygon angles',
+          simple: 'The inside angles of a polygon add up to (n − 2) × 180°, where n is the number of sides. The outside angles always add to 360°, no matter how many sides.',
           table: { head: ['Polygon', 'Sides', 'Interior angle sum', 'Each interior angle (regular)', 'Each exterior angle (regular)'], rows: [
             ['Triangle', '3', '180°', '60°', '120°'],
             ['Quadrilateral', '4', '360°', '90°', '90°'],
@@ -591,6 +625,7 @@
         },
         {
           id: 'u6-proof4', title: 'Proof practice 4: parallelogram',
+          simple: 'Cut the parallelogram in half with a diagonal. That makes 2 triangles. Prove they match, then CPCTC shows the opposite sides are equal.',
           html: proof('ABCD is a parallelogram with diagonal AC.', '△ABC ≅ △CDA, so AB ≅ CD',
             fig('Parallelogram ABCD with A at the bottom left, B at the top left, C at the top right, D at the bottom right, and diagonal AC', 260, 170,
               [[30, 140, 80, 30], [80, 30, 230, 30], [230, 30, 180, 140], [180, 140, 30, 140], [30, 140, 230, 30]],
@@ -606,6 +641,7 @@
         },
         {
           id: 'u6-proof5', title: 'Proof practice 5: rhombus',
+          simple: 'A rhombus has 4 equal sides. The diagonal splits it into 2 triangles with all 3 sides matching (SSS). Then CPCTC shows the diagonal cuts the corner angle in half.',
           html: proof('ABCD is a rhombus with diagonal AC.', 'AC bisects ∠BAD',
             fig('Rhombus ABCD with A on the left, B at the top, C on the right, D at the bottom, and diagonal AC', 260, 170,
               [[30, 85, 130, 25], [130, 25, 230, 85], [230, 85, 130, 145], [130, 145, 30, 85], [30, 85, 230, 85]],
