@@ -31,7 +31,7 @@ FINALS.setCatalog([
     { name: "Algebra Academy" },
     { name: "Geometry" },
     { name: "Geometry Essentials" },
-    { name: "Honors Geometry", file: true, filled: true, exam: "2026-12-16", period: 2 },
+    { name: "Honors Geometry", file: true, tools: true, filled: true, exam: "2026-12-16", period: 2 },
     { name: "Algebra 2/Trig & Stats" },
     { name: "Honors Algebra 2/Trig & Stats" }
   ] },
@@ -69,7 +69,7 @@ FINALS.setCatalog([
     { name: "Web Design" },
     { name: "Advertising" },
     { name: "Cybersecurity" },
-    { name: "Coding", file: true, filled: true, exam: "2026-12-18", period: 7 },
+    { name: "Coding", file: false, filled: false, exam: "2026-12-18", period: 7 },
     { name: "Visual Media" },
     { name: "Emerging Technology" },
     { name: "Business Orientation" },
