@@ -23,6 +23,7 @@
         },
         {
           id: 'u0-verbs', title: 'Core verbs',
+          simple: "The most-used verbs to memorize cold, like ser, estar, tener, and ir.",
           list: [
             '-AR: bailar, cantar, comprar, descansar, dibujar, enseñar, escuchar música, estudiar, hablar por teléfono, jugar al fútbol, mirar la televisión, montar en bicicleta, practicar deportes, preparar la comida, tocar un instrumento, tomar apuntes, trabajar, necesitar, llegar, llevar, limpiar, lavar, usar.',
             '-ER: beber, comer, correr, comprender / entender, conocer, deber, hacer, perder, poder, poner, querer, ser, tener, traer, vender, ver, volver.',
@@ -32,6 +33,7 @@
         },
         {
           id: 'u0-boot', title: 'Stem-changing (“boot”) verbs',
+          simple: "Some verbs change a letter in the middle for every subject except nosotros and vosotros — the changed ones form a boot shape in the chart.",
           body: ['The stem changes in every form except nosotros and vosotros. Draw the boot around the forms that change.'],
           table: { head: ['Change', 'Verb', 'Forms'], rows: [
             ['e → ie', 'preferir', 'prefiero, prefieres, prefiere, preferimos, preferís, prefieren'],
@@ -42,6 +44,7 @@
         },
         {
           id: 'u0-gustar', title: 'Gustar',
+          simple: "Gustar really means 'is pleasing to,' so it works backward: 'me gusta' = it pleases me. Use gusta for one thing, gustan for more than one.",
           body: ['Use the indirect object pronoun + gusta (one thing) or gustan (plural things). The thing you like is the subject, so the verb matches it.'],
           table: { head: ['To add emphasis', 'Pronoun'], rows: [
             ['A mí', 'me'], ['A ti', 'te'], ['A él / ella / Ud.', 'le'],
@@ -64,6 +67,7 @@
       sections: [
         {
           id: 'u1-vocab', title: 'Vocabulary',
+          simple: "The word list for this unit — practice it both ways, Spanish to English and back.",
           list: [
             'Nouns: la alimentación (food, diet), el banquete (feast), el barrio (neighborhood), la calle (street), la costumbre (custom), el disfraz (costume), el hogar (home), el ingrediente, los invitados (guests), los parientes (relatives), la pimienta (pepper), el platillo típico / auténtico, el postre (dessert), el pueblo (town), la receta (recipe), el sabor (flavor), la sal (salt), la tradición.',
             'Verbs: ayudar, celebrar / festejar, cocinar, compartir, conversar, disfrutar, ir de vacaciones, probar (o→ue), servir (e→i), visitar.',
@@ -73,6 +77,7 @@
         },
         {
           id: 'u1-compare', title: 'Comparing and connecting words',
+          simple: "How to say more than, less than, and the same as, plus small joining words like because, but, and also.",
           list: [
             'ambos / los dos (both), también (also), tampoco (neither / either, negative).',
             'más … que (more … than), menos … que (less … than).',
@@ -82,6 +87,7 @@
         },
         {
           id: 'u1-infinitive', title: 'Two verbs together',
+          simple: "When two verbs come in a row, the first one changes for the subject and the second stays in its plain -ar/-er/-ir form.",
           body: ['When two verbs sit together, conjugate the first one and leave the second one as an infinitive.'],
           list: [
             'Key phrases that take an infinitive: gustar + inf., antes de, después de, tener que, ir a, tener ganas de, es importante, para, acabar de, hay que, deber, saber.',
@@ -90,6 +96,7 @@
         },
         {
           id: 'u1-progressive', title: 'Present progressive',
+          simple: "For what's happening right this second: estar plus the -ando/-iendo form (like English '-ing').",
           body: ['Use ESTAR (conjugated) + gerundio to say what is happening right now.'],
           table: { head: ['Verb type', 'Gerundio ending', 'Example'], rows: [
             ['-AR', '-ando', 'hablar → hablando'],
@@ -100,6 +107,7 @@
         },
         {
           id: 'u1-food', title: 'Ocho platillos típicos',
+          simple: "Eight classic Mexican dishes to recognize and name.",
           table: { head: ['Platillo', 'What to know'], rows: [
             ['Chiles en nogada', 'From Puebla. Green poblano chile, pork picadillo, walnut sauce and pomegranate seeds: the colors of the Mexican flag.'],
             ['Pozole', 'Hominy and pork soup. White or green in Guerrero, red in Sinaloa and Jalisco. Topped with lettuce, radish, onion and oregano.'],
@@ -114,6 +122,7 @@
         },
         {
           id: 'u1-family', title: 'La familia mexicana',
+          simple: "Family words, and how family life is often described in Mexican culture.",
           list: [
             '98% of Mexicans say family is vital.',
             'Top family values: communication (23%), union (22%), respect (21%).',
@@ -122,6 +131,7 @@
         },
         {
           id: 'u1-holidays', title: 'Fiestas y tradiciones',
+          simple: "Key Mexican holidays and traditions, and how to talk about them.",
           table: { head: ['Holiday', 'What to know'], rows: [
             ['Día de los Muertos (Nov 1–2)', 'Ofrendas / altares with marigolds, incense and food. Monarch butterflies arrive in Michoacán at this time; in Mazahua tradition they are the spirits of ancestors.'],
             ['Rosca de Reyes (Jan 6)', 'Epiphany pastry with a baby doll hidden inside. Whoever finds it hosts the Candlemas party.'],
@@ -136,6 +146,7 @@
       sections: [
         {
           id: 'u2-vocab', title: 'Vocabulary',
+          simple: "The word list for this unit — practice it both ways, Spanish to English and back.",
           list: [
             'Nouns: el azúcar, el premio, el partido (game), la competencia, la salud, la grasa (fat), la comida saludable / chatarra / basura / variada / rápida, la merienda (snack), el médico, la vida sana, el consejo (advice), el cuerpo, el juego, el ganador, el perdedor, el trofeo, la medalla (oro / plata / bronce), los carbohidratos, las calorías, la actividad física / al aire libre, el estrés, la depresión, el hábito, una rutina sana, la proteína.',
             'Actions: hacer ejercicio, mantenerse en forma, seguir (e→i) una dieta balanceada, competir (e→i), desayunar, almorzar (o→ue), cenar, subir / bajar de peso, entrenarse.',
@@ -145,6 +156,7 @@
         },
         {
           id: 'u2-body', title: 'Las partes del cuerpo',
+          simple: "Body-part words, used a lot when you talk about feeling sick or hurt.",
           list: [
             'Head: la cabeza, la cara, los ojos, las orejas / los oídos (ears), la nariz, la boca, los dientes, la lengua.',
             'Trunk: el cuello, los hombros, el pecho, la espalda, el estómago, las caderas, la cintura.',
@@ -155,6 +167,7 @@
         },
         {
           id: 'u2-reflexive', title: 'Reflexive verbs',
+          simple: "Verbs for things you do to yourself (wake up, get dressed). They use me/te/se, and many also change their stem.",
           body: ['In a reflexive verb the subject does the action AND receives it (me lavo = I wash myself). The pronouns are me, te, se, nos, os, se.'],
           table: { head: ['Who', 'levantarse'], rows: [
             ['yo', 'me levanto'], ['tú', 'te levantas'], ['él / ella / Ud.', 'se levanta'],
@@ -168,11 +181,13 @@
         },
         {
           id: 'u2-doler', title: 'Doler (to hurt)',
+          simple: "Doler works like gustar: 'me duele la cabeza' = my head hurts me. Use duele for one body part, duelen for more than one.",
           body: ['Doler works like gustar: duele (one thing hurts) and duelen (more than one thing hurts). It is also a boot verb (o→ue). Use the definite article (el, la, los, las) with body parts, not “my”.'],
           list: ['Me duele la cabeza. Me duelen los pies.']
         },
         {
           id: 'u2-tu-affirm', title: 'Tú commands: affirmative',
+          simple: "Telling one friend to DO something. Usually just use the el/ella form (habla, come). A few are irregular.",
           list: [
             'Use the él / ella (3rd person singular) present form: ¡Habla! ¡Escucha! ¡Escribe!',
             'Eight irregulars: venir → ven, decir → di, salir → sal, hacer → haz, tener → ten, ir → ve, poner → pon, ser → sé. (Ven Di Sal Haz Ten Ve Pon Sé)',
@@ -181,6 +196,7 @@
         },
         {
           id: 'u2-tu-neg', title: 'Tú commands: negative',
+          simple: "Telling one friend NOT to do something. Flip to the opposite vowel ending (no hables, no comas).",
           list: [
             'Start with the yo form, drop the -o, then add the opposite vowel: -ar verbs get -es, -er / -ir verbs get -as. ¡No hables! ¡No comas! ¡No escribas!',
             'Spelling changes carry over: -car → -ques, -gar → -gues, -zar → -ces. Stem changes carry over too: No pongas, No enciendas, No duermas.',
@@ -190,6 +206,7 @@
         },
         {
           id: 'u2-habits', title: 'Hábitos saludables',
+          simple: "How to talk about healthy habits — eating, sleeping, and exercising.",
           list: [
             '30 minutes of physical activity every day.',
             '2 liters of water a day.',

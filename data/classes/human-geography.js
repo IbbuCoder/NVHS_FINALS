@@ -25,6 +25,7 @@
         },
         {
           id: 'u1-location', title: 'Place and location',
+          simple: "Location is where something is (exact coordinates, or 'next to the mall'). Place is what it's like — its features and feel.",
           table: { head: ['Term', 'What it means', 'Example'], rows: [
             ['Absolute location', 'The exact spot on Earth, given by latitude and longitude (or an exact address)', '41.9° N, 87.6° W'],
             ['Relative location', 'Where a place is compared to other places', '“Next to the lake, two blocks from the train station”'],
@@ -41,6 +42,7 @@
         },
         {
           id: 'u1-maps', title: 'What is a map and how do you read it?',
+          simple: "A map is a flat drawing of a place. Read it using the key (what symbols mean), the scale (distances), and the compass (directions).",
           body: ['A map is a flat drawing of all or part of Earth. Before you read one, check its title, key and scale.'],
           table: { head: ['Part or type', 'What it is'], rows: [
             ['Map key (legend)', 'Explains what the symbols and colors on the map mean'],
@@ -58,6 +60,7 @@
         },
         {
           id: 'u1-problems', title: 'Problems with maps',
+          simple: "Every flat map has to stretch or squish something because Earth is round. Maps can also leave things out or show bias.",
           list: [
             'Mental map: the map of a place you carry in your head, built from your own experience. Two people’s mental maps of the same town can look very different.',
             'Map projection: a way of showing the round Earth on a flat map.',
@@ -68,6 +71,7 @@
         },
         {
           id: 'u1-tools', title: 'Modern tools',
+          simple: "The tech that maps the world today: GPS (finds your location), GIS (layers of map data), and satellites.",
           table: { head: ['Tool', 'What it does', 'Example'], rows: [
             ['Remote sensing', 'Gathers information about Earth from a distance, usually from satellites or aircraft', 'Satellite images that show a forest shrinking'],
             ['GPS (Global Positioning System)', 'Uses satellites to find an exact location', 'Your phone’s map showing where you are'],
@@ -76,6 +80,7 @@
         },
         {
           id: 'u1-data', title: 'Data and visuals: observation, inference and CER',
+          simple: "An observation is what you actually see; an inference is what you figure out from it. Back up a claim with evidence and reasoning.",
           list: [
             'Observation: what you can directly see in a map, chart or photo. “The map shows more dots on the coast.”',
             'Inference: a conclusion you reach using what you see plus what you already know. “More people probably live on the coast because of trade and jobs.”',
@@ -87,6 +92,7 @@
         },
         {
           id: 'u1-global', title: 'Globalization',
+          simple: "The world getting more connected through trade, tech, and culture spreading between countries. It has both upsides and downsides.",
           body: ['Globalization is the world becoming more connected through trade, travel, technology and culture.'],
           table: { head: ['Term', 'What it means', 'Example'], rows: [
             ['Interdependence', 'Countries and people relying on each other for goods, services and resources', 'A phone designed in one country, built in another, sold everywhere'],
@@ -101,6 +107,7 @@
         },
         {
           id: 'u1-media', title: 'Media literacy',
+          simple: "Thinking carefully about news and posts: who made it, why, and whether it's reliable.",
           table: { head: ['Term', 'What it means'], rows: [
             ['Credibility', 'Whether a source can be trusted: who made it and do they know the topic'],
             ['Reliability', 'Whether a source is accurate and dependable over and over'],
@@ -113,6 +120,7 @@
         },
         {
           id: 'u1-nature', title: 'People and the environment',
+          simple: "How people change the land and how the land shapes people — resources, cities, and damage to the environment.",
           list: [
             'Environmental determinism: the idea that the physical environment (climate, land) controls how people act and how cultures develop. Most geographers today reject it.',
             'Possibilism: the idea that the environment sets some limits, but people choose how to adapt and can change their environment.',
@@ -128,6 +136,7 @@
       sections: [
         {
           id: 'u2-culture', title: '2.A What is culture?',
+          simple: "Culture is a group's shared way of life: language, food, beliefs, music, and habits passed down over time.",
           body: ['Culture is the shared beliefs, values, customs, language, food, clothing and other ways of life of a group. It is learned and passed down, not something you are born knowing.'],
           table: { head: ['Term', 'What it means', 'Example'], rows: [
             ['Culture trait', 'One single piece of a culture', 'Eating with chopsticks, a holiday, a type of clothing'],
@@ -140,6 +149,7 @@
         },
         {
           id: 'u2-identity', title: 'Culture, identity and social dynamics',
+          simple: "How who you are is shaped by the groups you belong to, and how groups treat one another — including stereotypes and bias.",
           table: { head: ['Term', 'What it means'], rows: [
             ['Society', 'A large group of people who live together and share rules, institutions and often a culture'],
             ['Identity', 'How a person sees themselves and how they fit into groups'],
@@ -164,6 +174,7 @@
         },
         {
           id: 'u2-change', title: '2.B Causes and effects of cultural change',
+          simple: "Why cultures change (contact, migration, new tech) and what happens when they do — blending together or clashing.",
           list: [
             'Culture hearth: the place where a culture or a culture trait starts and spreads from.',
             'Cultural diffusion: the spread of culture traits from one place or group to another. Example: sushi spreading from Japan to restaurants around the world.',
@@ -175,6 +186,7 @@
         },
         {
           id: 'u2-religion-words', title: '2.C Religion words',
+          simple: "The key terms for talking about religion, like monotheism (one god) and polytheism (many gods).",
           table: { head: ['Term', 'What it means'], rows: [
             ['Monotheism', 'Belief in one god'],
             ['Polytheism', 'Belief in many gods'],
@@ -187,6 +199,7 @@
         },
         {
           id: 'u2-religions', title: 'World religions matrix',
+          simple: "A side-by-side chart of major world religions — where they began, their main beliefs, and their symbols.",
           body: ['This is the class matrix. Study exactly these facts.'],
           table: { head: ['Religion', 'Hearth', 'Type', 'Key beliefs', 'Holy text or place'], rows: [
             ['Judaism', 'Southwest Asia', 'Ethnic, monotheistic', 'Covenant, Ten Commandments', 'Torah, synagogue'],

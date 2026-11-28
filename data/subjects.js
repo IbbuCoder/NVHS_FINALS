@@ -22,7 +22,7 @@
 // To mark a class done: add its data file, then set file: true and filled: true.
 FINALS.setCatalog([
   { category: "core", subject: "English", classes: [
-    { name: "English 1", file: true, filled: true, exam: "2026-12-18", period: 4 },
+    { name: "English 1", file: true, tools: true, filled: true, exam: "2026-12-18", period: 4 },
     { name: "English 1 Honors" },
     { name: "English 2 American Society" }
   ] },
@@ -37,13 +37,13 @@ FINALS.setCatalog([
   ] },
   { category: "core", subject: "Science", classes: [
     { name: "Biology" },
-    { name: "Honors Biology", file: true, filled: true, exam: "2026-12-17", period: 6 },
+    { name: "Honors Biology", file: true, tools: true, filled: true, exam: "2026-12-17", period: 6 },
     { name: "Chem/Phys" },
     { name: "Environmental Science" },
     { name: "Earth Science" }
   ] },
   { category: "core", subject: "Social Studies", classes: [
-    { name: "Human Geography", file: true, filled: true, exam: "2026-12-16", period: 1 },
+    { name: "Human Geography", file: true, tools: true, filled: true, exam: "2026-12-16", period: 1 },
     { name: "AP Human Geography" },
     { name: "US History" },
     { name: "World History" },
@@ -106,7 +106,7 @@ FINALS.setCatalog([
     { name: "French 2" },
     { name: "German 1" },
     { name: "Spanish 1" },
-    { name: "Spanish 2", file: true, filled: true, exam: "2026-12-17", period: 3 },
+    { name: "Spanish 2", file: true, tools: true, filled: true, exam: "2026-12-17", period: 3 },
     { name: "Heritage Spanish 2" },
     { name: "Heritage Spanish 3" },
     { name: "Chinese 1" },
